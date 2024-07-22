@@ -166,6 +166,7 @@ Route::post('/AddRate/update/{id}', [AddRate::class, 'update'])->name('AddRate.u
 Route::post('/get-DataByMedia', [AddRate::class, 'getDataByMedia'])->name('getDataByMedia');
 Route::post('/get-publication', [AddRate::class, 'getPublication'])->name('getPublication');
 Route::post('/get-edition', [AddRate::class, 'getEdition'])->name('getEdition');
+Route::post('/get-edition-Journalist', [NewsUpload::class, 'getEditionAndJournalist'])->name('getEditionAndJournalist');
 Route::post('/get-supplement', [AddRate::class, 'getSupplement'])->name('getSupplement');
 //sector
 Route::get('/SovProcess', [SovProcess::class, 'index'])->name('sov_process');

@@ -15,7 +15,14 @@ class NewsUpload extends Controller
         $media_type = DB::table('mediatype')
         ->select('*')   
         ->get();  
-        return view('news_upload', compact('media_type'));
+        $get_agency = DB::table('agency')
+        ->select('*')   
+        ->get();
+        $news_city = DB::table('newscity')
+        ->select('*')   
+        ->get();
+        return view('news_upload', compact('media_type', 'get_agency', 'news_city'));
+
     }
 
     public function saveArticalImage(Request $request)
@@ -63,5 +70,36 @@ class NewsUpload extends Controller
         return response()->json($response);
     }
 
+    
+    public function getEditionAndJournalist(Request $request)
+{
+    $publication = $request->input('publication');
+    
+    // Fetch editions
+    $get_edition = DB::table('edition')
+        ->where('MediaOutletId', $publication)
+        ->select('gidEdition', 'Edition')
+        ->get();
+    
+    // Fetch journalists
+    $get_journalist = DB::table('journalist')
+        ->where('gigMediaOutlet', $publication)
+        ->select('gidJournalist', 'Journalist')
+        ->get();
+    
+    // Generate options for editions
+    $edition_options = '<option value="">Select Edition</option>';
+    foreach ($get_edition as $value) {
+        $edition_options .= '<option value="' . $value->gidEdition . '">' . $value->Edition . '</option>';
+    }
+    
+    // Generate options for journalists
+    $journalist_options = '<option value="">Select Journalist</option>';
+    foreach ($get_journalist as $value) {
+        $journalist_options .= '<option value="' . $value->gidJournalist . '">' . $value->Journalist . '</option>';
+    }
+    
+    return response()->json(['edition_options' => $edition_options, 'journalist_options' => $journalist_options]);
+}
     
 }

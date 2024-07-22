@@ -73,13 +73,13 @@
                                         </div>  
                                         <div class="col-md-3">
                                             <label class="px-1 font-weight-bold" for="publication">Publication</label>
-                                            <select class="form-control" name="publication" id="publication" onchange="change_publication(this.value)">
+                                            <select class="form-control" name="publication" id="publication" onchange="changePublication(this.value)">
                                             <option value="">Select</option>
                                             </select>
                                         </div>
                                         <div class="col-md-3">
                                             <label class="px-1 font-weight-bold" for="edition">Edition</label>
-                                            <select class="form-control" name="edition" id="edition" onchange="change_edition(this.value)">
+                                            <select class="form-control" name="edition" id="edition" onchange="changeEdition(this.value)">
                                             <option value="">Select</option>
                                             </select>
                                         </div>
@@ -105,7 +105,9 @@
                                         <select class="form-control" name="journalist_name" id="journalist_name">
                                             <option >Select</option>
                                             <optgroup label="News Agencies">
-                                              
+                                                @foreach ($get_agency as $values)
+                                                <option value="{{$values -> gidAgency}}">{{$values -> Agency}}</option>
+                                                @endforeach
                                             </optgroup>
                                             <optgroup label="Journalist Names">
                                                 <!-- Journalist options will be appended here -->
@@ -121,23 +123,23 @@
                                             <select class="form-control" name="NewsPosition" id="NewsPosition" >
                                                 <option value="0">Select</option>
                                                 <option value="Bottom">Bottom<option>
-                                            <option value="Bottom Center">Bottom Center</option>
-                                            <option value="Bottom Left">Bottom Left</option>
-                                            <option value="Bottom Right">Bottom Right</option>
-                                            <option value="Fullpage">Fullpage</option>
-                                            <option value="Half Page">Half Page</option>
-                                            <option value="Internet">Internet</option>
-                                            <option value="Middle">Middle</option>
-                                            <option value="Middle Center">Middle Center</option>
-                                            <option value="Middle Left">Middle Left</option>
-                                            <option value="Middle Right">Middle Right</option>
-                                            <option value="Not Known">Not Known</option>
-                                            <option value="Quarter Page">Quarter Page</option>
-                                            <option value="Top">Top</option>
-                                            <option value="Top Center">Top Center</option>
-                                            <option value="Top Left">Top Left</option>
-                                            <option value="Top Right">Top Right</option>
-                                            <option value="TV">TV</option>
+                                                <option value="Bottom Center">Bottom Center</option>
+                                                <option value="Bottom Left">Bottom Left</option>
+                                                <option value="Bottom Right">Bottom Right</option>
+                                                <option value="Fullpage">Fullpage</option>
+                                                <option value="Half Page">Half Page</option>
+                                                <option value="Internet">Internet</option>
+                                                <option value="Middle">Middle</option>
+                                                <option value="Middle Center">Middle Center</option>
+                                                <option value="Middle Left">Middle Left</option>
+                                                <option value="Middle Right">Middle Right</option>
+                                                <option value="Not Known">Not Known</option>
+                                                <option value="Quarter Page">Quarter Page</option>
+                                                <option value="Top">Top</option>
+                                                <option value="Top Center">Top Center</option>
+                                                <option value="Top Left">Top Left</option>
+                                                <option value="Top Right">Top Right</option>
+                                                <option value="TV">TV</option>
                                                 </select>
                                             </select>
                                         </div>
@@ -145,19 +147,19 @@
                                             <label class="px-1 font-weight-bold" for="NewsCity"> News City</label>
                                             <select  class="form-control"  name="NewsCity" id="NewsCity">
                                             <option disbled>Select</option>
-                                            
-                                                </select>
+                                            @foreach ($news_city as $city)
+                                            <option value="{{ $city -> gidNewscity}}">{{ $city -> CityName}}</option>
+                                            @endforeach   
                                             </select>
-                                        </div>
-                                        
+                                        </div>                                        
                                         <div class="col-md-6">
                                             <label class="px-1 font-weight-bold" for="HeadLine">HeadLine</label>
-                                            <textarea  class="form-control" name="headline"  rows="4" cols="50">
+                                            <textarea  class="form-control" name="headline" rows="4" cols="50">
                                             </textarea>
                                         </div>  
                                         <div class="col-md-6">
                                             <label class="px-1 font-weight-bold" for="Summary">Summary</label>
-                                            <textarea  class="form-control" name="Summary"  rows="4" cols="50">
+                                            <textarea  class="form-control" name="Summary" rows="4" cols="50">
                                             </textarea>
                                         </div>
                                         <div class="col-md-12" id="show_url" style="display: none;">
@@ -234,14 +236,35 @@ function checkSelection(media) {
 function changePublication(publication) {
   return new Promise((resolve, reject) => {
     $.ajax({
-      url: '{{ route('getEdition') }}',
+      url: '{{ route('getEditionAndJournalist') }}',
       type: 'POST',
       data: {
         _token: '{{ csrf_token() }}',
         publication: publication
       },
       success: function(response) {
-        $('#editionSelect').html(response.options);
+        $('#edition').html(response.edition_options);
+        $('#journalist_name').find('optgroup[label="Journalist Names"]').html(response.journalist_options);
+        resolve();
+      },
+      error: function(xhr, status, error) {
+        console.error('AJAX error:', error);
+        reject(error);
+      }
+    });
+  });
+}
+function changeEdition(edition) {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: '{{ route('getSupplement') }}',
+      type: 'POST',
+      data: {
+        _token: '{{ csrf_token() }}',
+        edition: edition
+      },
+      success: function(response) {
+        $('#SupplementId').html(response.options);
         resolve();
       },
       error: function(xhr, status, error) {
