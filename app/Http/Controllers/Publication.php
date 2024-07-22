@@ -24,53 +24,91 @@ class Publication extends Controller
         $publicationType = DB::table('publicationtype')
         ->select('gidPublicationType', 'PublicationType')
         ->get();
-
         return view('master/publication', compact('Publication','mediaType','publicationType'));
     }
 
     public function store(Request $request)
-{
-    // Dump and die to check the request data
-    // dd($request->all());
-
-    $request->validate([
-        'publiction_name' => 'required|string|max:255',
-        'media_type' => 'required',
-        'publicationType' => 'required',
-        'publication_language' => 'required',
-        'master_head' => 'required',
-        'Priority' => 'required|integer', // Ensure this matches the expected type
-        'Short_name' => 'required',
-        'status' => 'required|boolean',
-        'tier_type' => 'nullable', // Make sure this is defined if it's optional
-    ]);
-
-    // Retrieve user_id from session
-    $userId = session('user_id');
-    $gidMediaOutlet = bin2hex(random_bytes(20)); // 40 characters
-
-    // Enable query logging
-    \DB::enableQueryLog();
-
-    try {
-        $publication = Publication_Model::create([
-            'gidMediaOutlet' => $gidMediaOutlet,
-            'MediaOutlet' => $request->input('publiction_name'),
-            'gidMediaType' => $request->input('media_type'),
-            'gidPublicationType' => $request->input('publicationType'),
-            'gidTier' => $request->input('tier_type') ?? null,
-            'Language' => $request->input('publication_language'),
-            'Masthead' => $request->input('master_head'),
-            'Priority' => $request->input('Priority'),
-            'ShortName' => $request->input('Short_name'),
-            'Status' => $request->input('status'),
-            'CreatedOn' => now(),
-            'CreatedBy' => $userId,
-            'MediaOutletCorrections' => 'Your value here', // Ensure this is included if necessary
+    {
+        // Validate the form data
+        $request->validate([
+            'publiction_name' => 'required|string|max:255',
+            'media_type' => 'required|string|max:45',
+            'publicationType' => 'required|string|max:45',
+            'publication_language' => 'required|string|max:45',
+            'master_head' => 'required|string|max:500',
+            'Priority' => 'required|in:10,3', // Ensure Priority is either 10 or 3
+            'Short_name' => 'required|string|max:45',
+            'status' => 'required|boolean',
         ]);
-    } catch (\Exception $e) {
-        Log::error('Failed to add publication: ' . $e->getMessage());
-        return redirect()->back()->with('error', 'Failed to add publication. Please try again.');
+    
+        // Retrieve user_id from session
+        $userId = session('user_name');
+        $gidMediaOutlet = bin2hex(random_bytes(20)); // 40 characters
+    
+        try {
+            $publication = Publication_Model::create([
+                'gidMediaOutlet' => $gidMediaOutlet,
+                'MediaOutlet' => $request->input('publiction_name'),
+                'gidMediaType' => $request->input('media_type'),
+                'gidPublicationType' => $request->input('publicationType'),
+                'gidTier' => $request->input('tier_type') ?? null,
+                'Language' => $request->input('publication_language'),
+                'Masthead' => $request->input('master_head'),
+                'Priority' => $request->input('Priority'),
+                'ShortName' => $request->input('Short_name'),
+                'Status' => $request->input('status'),
+                'CreatedOn' => now(),
+                'CreatedBy' => $userId,
+                'MediaOutletCorrections' => 77, // Ensure this is included if necessary
+            ]);
+    
+            return redirect()->back()->with('success', 'Publication added successfully.');
+        } catch (\Exception $e) {
+            Log::error('Failed to add publication: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to add publication. Please try again.');
+        }
     }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'publiction_name' => 'required|string|max:255',
+            'media_type' => 'required|string|max:45',
+            'publicationType' => 'required|string|max:45',
+            'publication_language' => 'required|string|max:45',
+            'master_head' => 'required|string|max:500',
+            'Priority' => 'required|in:10,3', // Ensure Priority is either 10 or 3
+            'Short_name' => 'required|string|max:45',
+            'status' => 'required|boolean',
+        ]);
+    
+        $userId = session('user_name');
+    
+        try {
+            $publication = Publication_Model::findOrFail($id);
+            \Log::info('Publication found: ' . json_encode($publication)); 
+    
+            $publication->MediaOutlet = $request->publiction_name;
+            $publication->gidMediaType = $request->media_type;
+            $publication->gidPublicationType = $request->publicationType;
+            $publication->gidTier = $request->tier_type ?? null;
+            $publication->Language = $request->publication_language;
+            $publication->Masthead = $request->master_head;
+            $publication->Priority = $request->Priority;
+            $publication->ShortName = $request->Short_name;
+            $publication->Status = $request->status;
+            $publication->UpdatedOn = now();
+            $publication->UpdatedBy = $userId;
+    
+            \Log::info('Attempting to save updated publication: ' . json_encode($publication)); 
+            $publication->save();
+            \Log::info('Publication updated successfully: ' . $publication->gidMediaOutlet_id); 
+    
+            return redirect()->back()->with('success', 'Publication updated successfully!');
+        } catch (\Exception $e) {
+            \Log::error('Failed to update publication: ' . $e->getMessage());
+            return redirect()->back()->withErrors(['error' => 'Failed to update publication. Please try again.']);
+        }
     }
+
 }

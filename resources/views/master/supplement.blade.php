@@ -32,9 +32,30 @@ margin-bottom: 5px !important;
     /* } */
 </style>
 <div class="container">
+@if($errors->any())
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <ul>
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                {{ session('success') }}
+            </div>
+        @endif
         <div class="row">
             <div class="col-md-12 text-right p-2">
-                <button class="btn btn-primary" data-toggle="modal" data-target="#myModal">Add Supplement</button>
+                <button class="btn btn-primary" onclick="addSupplement()">Add Supplement</button>
             </div>
         </div>
         <div class="row">
@@ -67,8 +88,8 @@ margin-bottom: 5px !important;
                            @endif
                        </td>
                        <td>{{ \Carbon\Carbon::parse($supplement->CreatedOn)->format('d/m/Y') }}</td>
-                       <td>
-                           <i class="fa fa-edit text-primary" onclick="edit('{{ $supplement->Supplement }}')"></i>
+                       <td> 
+                           <i class="fa fa-edit text-primary" onclick="editSupplement('{{ json_encode($supplement) }}')"></i>
                        </td>
                 </tr>
                @endforeach
@@ -80,81 +101,109 @@ margin-bottom: 5px !important;
 </div></div>
 
 <!-- The Modal -->
-<div class="modal" id="myModal">
+<div class="modal fade" id="supplementInfo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-
       <!-- Modal Header -->
       <div class="modal-header">
-        <h4 class="modal-title">Add Supplement</h4>
+        <h4 class="modal-title" id="modal-title">Add Supplement</h4>
         <!-- Correct close button for Bootstrap 4 -->
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-
       <!-- Modal Body -->
       <div class="modal-body">
-            <form action="/action_page.php">
-                <div class="form-group">
+        <form id="supplementForm" method="POST" action="{{ route('supplement.store') }}">
+          @csrf
+          <div class="form-group">
                     <label class="px-1 font-weight-bold" for="user_type">Supplement Name </label>
-                    <input type="text" class="form-control" placeholder="Enter Supplement Name" name="Supplement_name" required>
+                    <input type="text" class="form-control" placeholder="Enter Supplement Name" id="Supplement_name" name="Supplement_name" required>
                 </div>
                 <div class="form-group">
-                <label class="px-1 font-weight-bold" for="tier_type">Publication </label>
-                <select class="form-control" name="MediaOutletId" id="MediaOutletId" onchange="change_publication(this.value)" required>
-                    <option value="">Select</option>
-                    @foreach($publication as $pub)
-                        <option value="{{ $pub->gidMediaOutlet }}" >{{ $pub->MediaOutlet }}</option>
-                    @endforeach
-                </select>
+                    <label class="px-1 font-weight-bold" for="tier_type">Publication</label>
+                    <select class="form-control" name="MediaOutletId" id="MediaOutletId" onchange="change_publication(this.value)" required>
+                        <option value="">Select</option>
+                        @foreach($publication as $pub)
+                            <option value="{{ $pub->gidMediaOutlet }}">{{ $pub->MediaOutlet }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="form-group">
-                <label class="px-1 font-weight-bold" for="tier_type">Edition </label>
-                <select class="form-control" name="Edition" id="Edition" required>
-                    <option value="">Select</option>
-                  
-                </select>
+                    <label class="px-1 font-weight-bold" for="tier_type">Edition</label>
+                    <select class="form-control" name="Edition" id="Edition">
+                        <option value="">Select</option>    
+                        <!-- Options will be dynamically populated -->
+                    </select>
                 </div>
                 <div class="form-group">
-                <label class="px-1 font-weight-bold" for="tier_type">  </label>
-                  <select class="form-control" name="" id="">
-                    <option value="">Select</option>
-                  </select>
+                    <label class="px-1 font-weight-bold" for="update_status">Status</label>
+                    <select class="form-control" name="status" id="update_status" required>
+                        <option value="">Select Status</option>
+                        <option value="1">Active</option>
+                        <option value="0">Inactive</option>
+                    </select>   
                 </div>
                 <div class="text-right pt-2">
-                 <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
                 </div>
         </form>
       </div>
-
-      
-
     </div>
   </div>
 </div>
 
-
 <script>
+function editSupplement(supplement) {
+    const supplementObject = JSON.parse(supplement);
+    console.log('Supplement data:', supplementObject);
+   
+    $('#modal-title').text('Update Supplement');
+    $('#supplementForm').attr('action', `/Supplement/update/${supplementObject.supplement_id}`);
+
+    // Populate the form fields with the supplement data
+    $('input[name="Supplement_name"]').val(supplementObject.Supplement);
+    $('select[name="MediaOutletId"]').val(supplementObject.mediaOutlet);
+    
+    // Fetch and populate the editions based on the media outlet
+    change_publication(supplementObject.mediaOutlet).then(() => {
+        // Ensure the select box is updated after the publication options are populated
+        $('select[name="Edition"]').val(supplementObject.gidEdition);
+    });
+
+    $('select[name="status"]').val(supplementObject.Status);
+    // Show the modal
+    $('#supplementInfo').modal('show');
+}
+  function addSupplement() {
+    $('#modal-title').text('Add Supplement');
+    $('#supplementForm').attr('action', '{{ route('supplement.store') }}');
+    $('#supplementForm').trigger('reset');
+    $('#supplementInfo').modal('show');
+  }
+
+
   function change_publication(publication) {
-            $.ajax({
-                type: "POST",
-                url: "{{ route('supplements.getEditionByPublication') }}",
-                dataType: 'html',
-                data: {
-                    publication: publication,
-                    _token: "{{ csrf_token() }}"  // Add CSRF token
-                },
-                success: function (data) {
-                    $("#getEdition").html(data);
-                    $("#edition").html(data);
-                },
-                error: function (xhr, status, error) {
-                    console.error('Error: ' + error);
-                    console.log('Response: ' + xhr.responseText);
-                }
-            });
+    return $.ajax({
+        type: "POST",
+        url: "{{ route('supplements.getEditionByPublication') }}",
+        dataType: 'json', // Ensure the response is parsed as JSON
+        data: {
+            publication: publication,
+            _token: "{{ csrf_token() }}"  // Add CSRF token
+        },
+        success: function (data) {
+            // Clear the existing options
+            $("#Edition").html('');
+            // Append new options from the response
+            $("#Edition").append(data.options);
+        },
+        error: function (xhr, status, error) {
+            console.error('Error: ' + error);
+            console.log('Response: ' + xhr.responseText);
         }
+    });
+}
 </script>
 <script>
     $('table').DataTable();

@@ -10,26 +10,25 @@ class Publication_Model extends Model
     use HasFactory;
     protected $table = 'mediaoutlet';
     protected $primaryKey = 'gidMediaOutlet_id';
-
-    // Specify any fields that are not mass assignable
-    // protected $guarded = [];
+    protected $guarded = [];
     protected $fillable = [
         'gidMediaOutlet',
         'MediaOutlet',
         'gidMediaType',
         'gidPublicationType',
-        'gidTier', 
-        'Language', 
-        'Masthead', 
-        'Priority', 
-        'ShortName', 
-        'Status', 
-        'CreatedOn', 
+        'gidTier',
+        'Language',
+        'Masthead',
+        'Priority',
+        'ShortName',
+        'Status',
+        'CreatedOn',
         'CreatedBy',
+        'UpdatedOn',
+        'UpdatedBy',
         'MediaOutletCorrections'
     ];
-    public $timestamps = false; 
-    protected $casts = [
-        'gidTier' => 'nullable', // Ensure gidTier can be nullable
-    ];
+    public $timestamps = false; // Disable Laravel's default timestamps
+
+   
 }

@@ -31,22 +31,22 @@ use App\http\Controllers\IndustryController;
 use App\http\Controllers\DashboardController;
 use App\http\Controllers\CompareChartConteoller;
 use App\http\Controllers\ReportController;
- 
+use App\http\Controllers\NewsUpload;
 use App\http\Controllers\AddRate;
 
 // Route::get('/', function () {
 //     return view('welcome');
 // });
 
-
-
- Route::get('/', [Login::class, 'index'])->name('login');
+Route::get('/', [Login::class, 'index'])->name('login');
 Route::post('/login', [Login::class, 'loginUser'])->name('login.user');
 Route::post('/logout', [Login::class, 'userLogout'])->name('logout.user');
 Route::post('/check-user-mail', [Login::class, 'checkUserMail'])->name('check.userMail');
- Route::post('/forgot-password', [Login::class, 'forgotPassword'])->name('user.forgotPassword');
+Route::post('/forgot-password', [Login::class, 'forgotPassword'])->name('user.forgotPassword');
 
 
+Route::get('/NewsUpload', [NewsUpload::class, 'index'])->name('news_upload');
+Route::post('/NewsUpload/saveArticalImage', [NewsUpload::class, 'saveArticalImage'])->name('newsUpload.saveArticalImage');
 // Admin Route 
 
 Route::post('/update-admin-password', [AdminProfile::class, 'updateAdminPassword'])->name('admin.updatePassword');
@@ -71,10 +71,13 @@ Route::get('/reporter/resetPassword/{id}/{token}', [ReporterController::class, '
 Route::post('/reporter/updatePassword/', [ReporterController::class, 'updatePassword'])->name('reporter.updatePassword');
 
 Route::get('/client', [ClientController::class, 'index'])->name('client');
+Route::post('/client/add', [ClientController::class, 'store'])->name('client.store');
+Route::post('/client/addCompetitor', [ClientController::class, 'addCompetitor'])->name('client.addCompetitor');
+
 
 Route::get('/news_latter', [NewsLatterController::class, 'showNewsletter'])->name('news_latter');
 
-Route::get('/industry', [IndustryController::class, 'index'])->name('industry');
+
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -104,17 +107,23 @@ Route::post('/deleteUserType', [UserType::class, 'deleteUserType'])->name('delet
 //user
 Route::get('/Users', [User::class, 'index'])->name('all_user');
 
+Route::get('/industry', [IndustryController::class, 'index'])->name('industry');
+Route::post('/industry/add', [IndustryController::class, 'store'])->name('Industry.store');
+Route::post('/industry/update/{id}', [IndustryController::class, 'update'])->name('industry.update');
 //Publication
 Route::get('/Publication', [Publication::class, 'index'])->name('publication');
 Route::post('/Publication/add', [Publication::class, 'store'])->name('publication.store');
+Route::post('/Publication/update/{id}', [Publication::class, 'update'])->name('Publication.update');
 
 //Edition
 Route::get('/Edition', [Edition::class, 'index'])->name('edition');
-Route::post('/addEdition', [Edition::class, 'addEdition'])->name('edtion.addEdition');
-Route::put('/updatedEditions', [Edition::class, 'updatedEdition'])->name('edition.update');
+Route::post('/Edition/add', [Edition::class, 'store'])->name('edition.store');
+Route::post('/Edition/update/{id}', [Edition::class, 'update'])->name('edition.update');
 
 //user
 Route::get('/Supplement', [Supplement::class, 'index'])->name('supplement');
+Route::post('/Supplement/add', [Supplement::class, 'store'])->name('supplement.store');
+Route::post('/Supplement/update/{id}', [Supplement::class, 'update'])->name('Supplement.update');
 Route::post('/Supplement/getEdition', [Supplement::class, 'getEdition'])->name('supplements.getEditionByPublication');
 
 //user
@@ -153,7 +162,6 @@ Route::get('/CheckEdition', [CheckEdition::class, 'index'])->name('check-edition
 Route::get('/AddRate', [AddRate::class, 'index'])->name('addRate');
 Route::post('/AddRate/add', [AddRate::class, 'store'])->name('addRate.store');
 Route::post('/AddRate/update/{id}', [AddRate::class, 'update'])->name('AddRate.update');
-
 
 Route::post('/get-DataByMedia', [AddRate::class, 'getDataByMedia'])->name('getDataByMedia');
 Route::post('/get-publication', [AddRate::class, 'getPublication'])->name('getPublication');

@@ -22,7 +22,6 @@ return new class extends Migration
             $table->string('CreatedBy', 100);
             $table->double('NewRate')->default(0);
             $table->dateTime('UpdatedOn');
-
             $table->unique(['gidMediaOutlet', 'gidEdition', 'gidSupplement'], 'uq_addrate');
         });
     }

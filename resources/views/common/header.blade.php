@@ -21,8 +21,6 @@
     <!-- Custom styles for this template-->
     <link href="{{ asset('assets/css/sb-admin-2.min.css') }}" rel="stylesheet">
 
-   
-
     <style>
         label {
             font-size: 0.9rem !important;
@@ -107,18 +105,24 @@
 
             <!-- Divider -->
             <hr class="sidebar-divider my-0">
-            @if(session('user_id'))
-                @if(session('user_type' == 'Admin'))
-            <!-- Nav Item - Dashboard -->
-            <li class="nav-item ">
-                <a class="nav-link" href="{{ route('news_latter') }}">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Manage NewsLatter</span></a>
-            </li>
-            @endif
-            @endif
-            
-            <li class="nav-item ">
+            @if(session()->has('user_id'))
+                       
+                @if(session()->get('user_type') == 'Admin')
+                <li class="nav-item">
+                            <a class="nav-link" href="{{ route('news_upload') }}">
+                                <i class="fas fa-fw fa-tachometer-alt"></i>
+                                <span>News Upload</span>
+                            </a>
+                        </li>
+                    <!-- Nav Item - Dashboard -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('news_latter') }}">
+                                <i class="fas fa-fw fa-tachometer-alt"></i>
+                                <span>Manage NewsLatter</span>
+                            </a>
+                        </li>
+           
+                <li class="nav-item ">
                 <a class="nav-link" href="{{ route('repoter') }}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Manage Reporter</span></a>
@@ -158,6 +162,8 @@
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Manage AddRate</span></a>
             </li>
+            @endif
+            @if(session()->get('user_type') == 'Client')
             <li class="nav-item ">
                 <a class="nav-link" href="{{ route('dashboard') }}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
@@ -173,6 +179,8 @@
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Pro Report</span></a>
             </li>
+            @endif
+            @endif
             
             <!-- <li class="nav-item active">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"

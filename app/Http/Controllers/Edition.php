@@ -14,7 +14,7 @@ class Edition extends Controller
         $editions = DB::table('edition as ed')
         ->leftJoin('mediaoutlet as mo', 'ed.MediaOutletId', '=', 'mo.gidMediaOutlet')
         ->select('ed.*', 'mo.MediaOutlet as media_outlet_name')
-        ->orderBy('ed.edition_id', 'DESC')
+        ->orderBy('ed.gidEdition_id', 'DESC')
         ->get();
         $publication = DB::table('mediaoutlet')
         ->select('*')   
@@ -23,72 +23,75 @@ class Edition extends Controller
         return view('master.edition', compact('editions', 'publication'));
     }
 
-    public function addEdition(Request $request)
+    public function store(Request $request)
     {
         $user_id = Session::get('user_id');
         $user_name = Session::get('user_name');
         $gidEdition = bin2hex(random_bytes(40 / 2));
+    
         // Validate the form data
         $request->validate([
             'Edition' => 'required|string|max:255',
             'EditionOrder' => 'required|integer',
             'MediaOutletId' => 'required|string|max:255',
-            'Status' => 'required|integer',
+            'Status' => 'required|boolean',
         ]);
-        // Insert data into the database
-        DB::table('edition')->insert([
-            'gidEdition' => $gidEdition,
-            'Edition' => $request->Edition,
-            'EditionOrder' => $request->EditionOrder,
-            'MediaOutletId' => $request->MediaOutletId,
-            'Status' => $request->Status,
-            'CreatedOn' => now(),
-            'CreatedBy' => $user_name, 
-        ]);
-        // Redirect back or to another page
-         return redirect()->route('edition')->with('success', 'Edition added successfully');
-    }
-
-    public function updatedEdition(Request $request)
-    {
-        try {
-            // Retrieve session variables if needed
-            // $user_id = Session::get('user_id');
-            // $user_name = Session::get('user_name');
-            $editionId = $request->input('edition_id');
     
-            // Validate the request data
-            $request->validate([
-                'Edition' => 'required|string|max:255',
-                'EditionOrder' => 'required|integer',
-                'MediaOutletId' => 'required|string|max:255',
-                'Status' => 'required|integer',
+        try {
+            // Insert data into the database
+            DB::table('edition')->insert([
+                'gidEdition' => $gidEdition,
+                'Edition' => $request->Edition,
+                'EditionOrder' => $request->EditionOrder,
+                'MediaOutletId' => $request->MediaOutletId,
+                'Status' => $request->Status,
+                'CreatedOn' => now(),
+                'CreatedBy' => $user_name, 
+                'ShortName' => 'null'
             ]);
     
-            // Find the edition by ID
-            $edition = ManageEditionsModel::findOrFail($editionId);
+            // Redirect back or to another page
+            return redirect()->route('edition')->with('success', 'Edition added successfully');
+        } catch (\Exception $e) {
+            \Log::error('Failed to add Edition: ' . $e->getMessage());
+            return redirect()->back()->withErrors(['error' => 'Failed to add Edition. Please try again.']);
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        $user_name = Session::get('user_name');
     
-            // Update the edition attributes
+        // Validate the form data
+        $request->validate([
+            'Edition' => 'required|string|max:255',
+            'EditionOrder' => 'required|integer',
+            'MediaOutletId' => 'required|string|max:255',
+            'Status' => 'required|boolean',
+        ]);
+    
+        try {
+            \Log::info('Attempting to update edition with id: ' . $id);
+            $edition = ManageEditionsModel::findOrFail($id);
+            \Log::info('Edition found: ' . json_encode($edition)); // Log the found edition
+    
+            // Set the new values
             $edition->Edition = $request->Edition;
             $edition->EditionOrder = $request->EditionOrder;
             $edition->MediaOutletId = $request->MediaOutletId;
             $edition->Status = $request->Status;
+            $edition->UpdatedOn = now();
+            $edition->UpdatedBy = $user_name;
+            $edition->ShortName = 'null';
     
-            // Save the updated edition
-            $saved = $edition->save();
+            \Log::info('Attempting to save updated edition: ' . json_encode($edition)); // Log the edition before saving
+            $edition->save();
+            \Log::info('Edition updated successfully: ' . $edition->gidEdition_id); // Log the successful update
     
-            if ($saved) {
-                // Redirect back or to another page with a success message
-                return redirect()->route('edition.index')->with('success', 'Edition updated successfully');
-            } else {
-                // Log the error if save failed
-                \Log::error('Failed to save edition after update');
-                return redirect()->back()->with('error', 'Failed to update edition');
-            }
+            return redirect()->back()->with('success', 'Edition updated successfully!');
         } catch (\Exception $e) {
-            // Handle any errors, log them, and return a response
-            \Log::error('Error updating edition: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to update edition');
+            \Log::error('Failed to update Edition: ' . $e->getMessage());
+            return redirect()->back()->withErrors(['error' => 'Failed to update Edition. Please try again.']);
         }
     }
 }

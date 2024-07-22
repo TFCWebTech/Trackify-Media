@@ -32,6 +32,27 @@ margin-bottom: 5px !important;
     /* } */
 </style>
 <div class="container-fluid">
+@if($errors->any())
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <ul>
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                {{ session('success') }}
+            </div>
+        @endif
         <div class="row">
             <div class="col-md-12 text-right p-2">
                 <button class="btn btn-primary" onclick="addPublication()">Add Publication</button>
@@ -191,22 +212,22 @@ margin-bottom: 5px !important;
     $('table').DataTable();
 </script>
 <script>
-  function editPublication(Publication) {
-    $('#modal-title').text('Update Publication');
-    $('#publicationForm').attr('action', `/Publication/update/${Publication.user_id}`);
+  function editPublication(Publications) {
+    console.log(Publications);
+    $('#modal-title').text('Update Publications');
+    $('#publicationForm').attr('action', `/Publication/update/${Publications.gidMediaOutlet_id}`);
     
     // Populate the form fields with the reporter data
-    $('input[name="publiction_name"]').val(Publication.MediaOutlet);
-    $('input[name="email"]').val(Publication.user_email);
-    $('select[name="media_type"]').val(Publication.gidMediaType);
-    $('select[name="publicationType"]').val(Publication.gidPublicationType);
-    $('select[name="tier_type"]').val(Publication.gidTier);
-    $('select[name="publication_language"]').val(Publication.Language);
-    $('select[name="publicationType"]').val(Publication.gidPublicationType);
-    $('input[name="master_head"]').val(Publication.Masthead);
-    $('input[name="Priority"]').val(Publication.Priority);
-    $('input[name="Short_name"]').val(Publication.ShortName);
-    
+    $('input[name="publiction_name"]').val(Publications.MediaOutlet);
+    $('input[name="email"]').val(Publications.user_email);
+    $('select[name="media_type"]').val(Publications.gidMediaType);
+    $('select[name="publicationType"]').val(Publications.gidPublicationType);
+    $('select[name="tier_type"]').val(Publications.gidTier);
+    $('select[name="publication_language"]').val(Publications.Language);
+    $('select[name="publicationType"]').val(Publications.gidPublicationType);
+    $('input[name="master_head"]').val(Publications.Masthead);
+    $('input[name="Priority"]').val(Publications.Priority);
+    $('input[name="Short_name"]').val(Publications.ShortName);
     // Show the modal
     $('#publicationInfo').modal('show');
   }

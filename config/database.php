@@ -44,6 +44,8 @@ return [
         'prefix' => '',
         'strict' => true,
         'engine' => null,
+        'logging' => true,
+
     ],
     // other connections...
 
