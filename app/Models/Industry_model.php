@@ -20,5 +20,8 @@ class Industry_model extends Model
        
     ];
     public $timestamps = false; // Disable Laravel's default timestamps
-
+    public function client()
+    {
+        return $this->belongsTo(Client_Model::class, 'client_id', 'client_id');
+    }
 }

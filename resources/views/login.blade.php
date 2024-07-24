@@ -75,7 +75,6 @@ dl, ol, ul {
                                     <div class="text-center">
                                         <a class="small" type="button" class="btn btn-primary" data-toggle="modal" data-target="#forgotModal">Forgot Password?</a>
                                     </div>
-                                  
                                 </div>
                             </div>
                         </div>

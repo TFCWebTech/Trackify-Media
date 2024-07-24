@@ -28,13 +28,13 @@ return [
     |
     */
 
-    'disks' => [
-
-        'local' => [
-            'driver' => 'local',
-            'root' => storage_path('app'),
-            'throw' => false,
-        ],
+  'disks' => [
+    'public' => [
+        'driver' => 'local',
+        'root' => storage_path('app/public'),
+        'url' => env('APP_URL') . '/storage',
+        'visibility' => 'public',
+    ],
 
         'public' => [
             'driver' => 'local',
@@ -58,8 +58,8 @@ return [
 
         'uploads' => [
             'driver' => 'local',
-            'root' => storage_path('app/public/uploads'),
-            'url' => env('APP_URL') . '/storage/uploads',
+            'root' => storage_path('app/public/uploads'), // Correct path for the root
+            'url' => env('APP_URL') . '/storage/uploads', // Correct URL path
             'visibility' => 'public',
         ],
 

@@ -3,7 +3,7 @@
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
-                        <span>Copyright &copy;  Bluebytes reserved</span>
+                        <span>Copyright &copy;  Trackify Media</span>
                     </div>
                 </div>
             </footer>

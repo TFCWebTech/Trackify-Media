@@ -44,9 +44,13 @@ Route::post('/logout', [Login::class, 'userLogout'])->name('logout.user');
 Route::post('/check-user-mail', [Login::class, 'checkUserMail'])->name('check.userMail');
 Route::post('/forgot-password', [Login::class, 'forgotPassword'])->name('user.forgotPassword');
 
-
 Route::get('/NewsUpload', [NewsUpload::class, 'index'])->name('news_upload');
 Route::post('/NewsUpload/saveArticalImage', [NewsUpload::class, 'saveArticalImage'])->name('newsUpload.saveArticalImage');
+Route::post('/NewsUpload/search-Keywords', [NewsUpload::class, 'searchKeywords'])->name('newsUpload.searchKeywords');
+Route::post('/NewsUpload/get-Clients-From-Keywords', [NewsUpload::class, 'getClientsFromKeywords'])->name('newsUpload.getClientsFromKeywords');
+Route::post('/NewsUpload/get-Compitetors-From-Clients', [NewsUpload::class, 'getCompitetorsFromClients'])->name('newsUpload.getCompitetorsFromClients');
+Route::post('/NewsUpload/add', [NewsUpload::class, 'store'])->name('newsUpload.store');
+
 // Admin Route 
 
 Route::post('/update-admin-password', [AdminProfile::class, 'updateAdminPassword'])->name('admin.updatePassword');

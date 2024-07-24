@@ -18,4 +18,8 @@ class Competitor_Model extends Model
         'is_active',
         'Keywords',
     ];
+    public function client()
+    {
+        return $this->belongsTo(Client_Model::class, 'client_id', 'client_id');
+    }
 }

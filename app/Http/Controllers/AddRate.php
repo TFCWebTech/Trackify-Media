@@ -110,39 +110,40 @@ class AddRate extends Controller
     }
 
     public function update(Request $request, $id)
-{
-    $request->validate([
-        'media_type' => 'required|string|max:255',
-        'publication' => 'required|string|max:255',
-        'edition' => 'required|string|max:255',
-        'supplement' => 'required|string|max:255',
-        'rate' => 'required|numeric',
-        'new_rate' => 'required|numeric',
-        'number_of_circulation' => 'required|numeric',
-        'status' => 'required|boolean' // Ensure 'status' is boolean as per your requirement
-    ]);
-    
-    try {
-        $addRate = AddRate_Model::findOrFail($id);
-        $addRate->update([
-            'gidMediaType' => $request->input('media_type'),
-            'gidMediaOutlet' => $request->input('publication'),
-            'gidEdition' => $request->input('edition'),
-            'gidSupplement' => $request->input('supplement'),
-            'Rate' => $request->input('rate'),
-            'NewRate' => $request->input('new_rate'),
-            'Status' => $request->input('status'),
-            'Circulation_Fig' => $request->input('number_of_circulation'),
-            'UpdatedOn' => now()
+    {
+        $request->validate([
+            'media_type' => 'required|string|max:255',
+            'publication' => 'required|string|max:255',
+            'edition' => 'required|string|max:255',
+            'supplement' => 'required|string|max:255',
+            'rate' => 'required|numeric',
+            'new_rate' => 'required|numeric',
+            'number_of_circulation' => 'required|numeric',
+            'status' => 'required|boolean' // Ensure 'status' is boolean as per your requirement
         ]);
         
-        return redirect()->back()->with('success', 'Add Rate updated successfully!');
-    } catch (\Exception $e) {
-        return redirect()->back()->withErrors(['error' => 'Failed to update Add Rate. Please try again.']);
+        try {
+            $addRate = AddRate_Model::findOrFail($id);
+            $addRate->update([
+                'gidMediaType' => $request->input('media_type'),
+                'gidMediaOutlet' => $request->input('publication'),
+                'gidEdition' => $request->input('edition'),
+                'gidSupplement' => $request->input('supplement'),
+                'Rate' => $request->input('rate'),
+                'NewRate' => $request->input('new_rate'),
+                'Status' => $request->input('status'),
+                'Circulation_Fig' => $request->input('number_of_circulation'),
+                'UpdatedOn' => now()
+            ]);
+            
+            return redirect()->back()->with('success', 'Add Rate updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['error' => 'Failed to update Add Rate. Please try again.']);
+        }
     }
-}
 
-public function getDataByMedia(Request $request) {
+    public function getDataByMedia(Request $request) 
+    {
         $media_types = $request->input('media_types');
 
         // Start building the query
