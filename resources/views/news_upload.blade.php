@@ -49,6 +49,18 @@
 </style>
 <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
 <div class="container" >
+@if (session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
+
+@if (session('error'))
+    <div class="alert alert-danger">
+        {{ session('error') }}
+    </div>
+@endif
+
     <div class="card p-3">
         <!-- <form id="articleForm"  method="post">  -->
         <form action="{{ route('newsUpload.store') }}" method="post" enctype="multipart/form-data">

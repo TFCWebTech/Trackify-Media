@@ -173,7 +173,9 @@ function addKeywordInput2() {
                     @endif
                     <td class="text-center"><a class="btn btn-primary" data-toggle="modal" data-target="#addEmail"  onclick="addEmail('{{$values ->client_id }}')" > ADD</a></td>
                     <td class="text-center"><a class="btn btn-primary" onclick="addCompetotor('{{$values ->client_id }}')" > ADD</a></td>
-                    <td class="text-center"><a class="btn btn-primary" href=""> ADD</a></td>
+                    <td class="text-center">
+                      <a class="btn btn-primary" href="{{ route('addNewsTemplate', ['client_id' => $values->client_id]) }}"> ADD</a>
+                    </td>
                 </tr>
                 @endforeach
                 </tbody>

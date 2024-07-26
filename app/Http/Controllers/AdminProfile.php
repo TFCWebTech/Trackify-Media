@@ -10,7 +10,6 @@ class AdminProfile extends Controller
     public function profile() {
         $adminId = session('admin_id');
         $admin = Admin::where('admin_id', $adminId)->first();
-    
         return view('Admin_profile', ['admin' => $admin]);
     }
 

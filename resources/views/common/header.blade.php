@@ -107,13 +107,21 @@
             <hr class="sidebar-divider my-0">
             @if(session()->has('user_id'))
                        
-                @if(session()->get('user_type') == 'Admin')
+                @if(session()->get('user_type') == 'Reporter')
                 <li class="nav-item">
                             <a class="nav-link" href="{{ route('news_upload') }}">
                                 <i class="fas fa-fw fa-tachometer-alt"></i>
                                 <span>News Upload</span>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('reporte.account') }}">
+                                <i class="fas fa-fw fa-tachometer-alt"></i>
+                                <span>Manage Account</span>
+                            </a>
+                        </li>
+                        @endif
+                        @if(session()->get('user_type') == 'Admin')
                     <!-- Nav Item - Dashboard -->
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('news_latter') }}">

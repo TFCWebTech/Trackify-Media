@@ -76,7 +76,7 @@ select.form-control[multiple], select.form-control[size] {
         <div class="row">
             <div class="col-md-12">
             <table class="table table-bordered table-hover dt-responsive">
-                <thead >
+                <thead>
                 <tr>
                     <th>Sr.No</th>
                     <th>Industry Name</th>

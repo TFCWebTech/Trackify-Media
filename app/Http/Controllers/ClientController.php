@@ -53,34 +53,36 @@ class ClientController extends Controller
     }
     
     public function addCompetitor(Request $request)
-{
-    // Validate the form data
-    $request->validate([
-        'Competitor_name' => 'required|string|max:255',
-        'client_id' => 'required|integer',
-        'CompetetorKeywords' => 'required|array',
-        'CompetetorKeywords.*' => 'string|max:45',
-        'is_active' => 'required|boolean',
-        // 'Sector' is not required, so it will default to null if not present
-    ]);
-
-    // Process keywords
-    $keywords = $request->input('CompetetorKeywords');
-    $keywords_string = implode(',', $keywords);
-
-    try {
-        // Create a new competitor record
-        $competitor = Competitor_Model::create([
-            'Competitor_name' => $request->input('Competitor_name'),
-            'client_id' => $request->input('client_id'),
-            'is_active' => $request->input('is_active'),
-            'Keywords' => $keywords_string,  // Fixed the typo here
+    {
+        // Validate the form data
+        $request->validate([
+            'Competitor_name' => 'required|string|max:255',
+            'client_id' => 'required|integer',
+            'CompetetorKeywords' => 'required|array',
+            'CompetetorKeywords.*' => 'string|max:45',
+            'is_active' => 'required|boolean',
+            // 'Sector' is not required, so it will default to null if not present
         ]);
 
-        return redirect()->back()->with('success', 'Competitor added successfully.');
-    } catch (\Exception $e) {
-        Log::error('Failed to add competitor: ' . $e->getMessage());
-        return redirect()->back()->with('error', 'Failed to add competitor. Please try again.');
+        // Process keywords
+        $keywords = $request->input('CompetetorKeywords');
+        $keywords_string = implode(',', $keywords);
+
+        try {
+            // Create a new competitor record
+            $competitor = Competitor_Model::create([
+                'Competitor_name' => $request->input('Competitor_name'),
+                'client_id' => $request->input('client_id'),
+                'is_active' => $request->input('is_active'),
+                'Keywords' => $keywords_string,  // Fixed the typo here
+            ]);
+
+            return redirect()->back()->with('success', 'Competitor added successfully.');
+        } catch (\Exception $e) {
+            Log::error('Failed to add competitor: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to add competitor. Please try again.');
+        }
     }
-}
+
+   
 }

@@ -33,6 +33,8 @@ use App\http\Controllers\CompareChartConteoller;
 use App\http\Controllers\ReportController;
 use App\http\Controllers\NewsUpload;
 use App\http\Controllers\AddRate;
+use App\http\Controllers\reporterAccount;
+use App\http\Controllers\addClientTemplate;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -52,9 +54,11 @@ Route::post('/NewsUpload/get-Compitetors-From-Clients', [NewsUpload::class, 'get
 Route::post('/NewsUpload/add', [NewsUpload::class, 'store'])->name('newsUpload.store');
 
 // Admin Route 
+Route::get('/reporter-account', [reporterAccount::class, 'index'])->name('reporte.account');
+Route::post('/update-reporter-password', [reporterAccount::class, 'updateReporterPassword'])->name('reporter.updateReporterPassword');
+Route::post('/update-reporter-information', [ReporterAccount::class, 'updateReporterInformation'])->name('reporter.updateReporterInformation');
 
-Route::post('/update-admin-password', [AdminProfile::class, 'updateAdminPassword'])->name('admin.updatePassword');
-Route::post('/update-admin-Information', [AdminProfile::class, 'updateAdminInformation'])->name('admin.updateInformation');
+
 // Admin Profile Route
 Route::get('/Profile', [AdminProfile::class, 'Profile'])->name('Profile');
 
@@ -77,14 +81,12 @@ Route::post('/reporter/updatePassword/', [ReporterController::class, 'updatePass
 Route::get('/client', [ClientController::class, 'index'])->name('client');
 Route::post('/client/add', [ClientController::class, 'store'])->name('client.store');
 Route::post('/client/addCompetitor', [ClientController::class, 'addCompetitor'])->name('client.addCompetitor');
+// Route::get('/addTemplate', [addClientTemplate::class, 'addNewsTemplate'])->name('addNewsTemplate');
+Route::get('/add-news-template/{client_id}', [addClientTemplate::class, 'addNewsTemplate'])->name('addNewsTemplate');
+Route::post('/addTemplate/add', [addClientTemplate::class, 'store'])->name('addNewsTemplate.store');
 
-
-Route::get('/news_latter', [NewsLatterController::class, 'showNewsletter'])->name('news_latter');
-
-
-
+Route::get('/newsLatter-list', [NewsLatterController::class, 'CompanyNewsLetterList'])->name('news_latter');
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
 Route::get('/compare_charts',[CompareChartConteoller::class, 'index'])->name('compare_charts');
 //Reporter upload 
 

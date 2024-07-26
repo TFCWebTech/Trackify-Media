@@ -12,6 +12,9 @@ use App\Models\ArticalImage;
 use App\Models\Competitor_Model; 
 use App\Models\Industry_model; 
 use App\Models\Client_Model; 
+use App\Models\client_competetor_industry;
+use App\Models\news_artical_model;
+
 class NewsUpload extends Controller
 {
     public function index(){
@@ -255,90 +258,90 @@ class NewsUpload extends Controller
     }
 
     public function store(Request $request)
-    {
-        // Validate the form data
-        $request->validate([
-            'media_type' => 'required|string|max:255',
-            'publication' => 'required|string|max:45',
-            'edition' => 'required|string|max:45',
-            'SupplementId' => 'required|string|max:45',
-            'journalist_name' => 'nullable|string|max:500',
-            'author' => [
-                'nullable',
-                'string',
-                'max:500',
-                function ($attribute, $value, $fail) use ($request) {
-                    if (empty($request->input('journalist_name')) && empty($value)) {
-                        $fail('The author field is required when journalist name is not provided.');
-                    }
-                },
-            ],
-            'NewsPosition' => 'required|string|max:45',
-            'NewsCity' => 'required|string|max:45',
-            'headline' => 'required|string|max:255',
-            'Summary' => 'required|string|max:500',
-        ]);
+{
+    // Validate the form data
+    $request->validate([
+        'media_type' => 'required|string|max:255',
+        'publication' => 'required|string|max:45',
+        'edition' => 'required|string|max:45',
+        'SupplementId' => 'required|string|max:45',
+        'journalist_name' => 'nullable|string|max:500',
+        'author' => [
+            'nullable',
+            'string',
+            'max:500',
+            function ($attribute, $value, $fail) use ($request) {
+                if (empty($request->input('journalist_name')) && empty($value)) {
+                    $fail('The author field is required when journalist name is not provided.');
+                }
+            },
+        ],
+        'NewsPosition' => 'required|string|max:45',
+        'NewsCity' => 'required|string|max:45',
+        'headline' => 'required|string|max:255',
+        'Summary' => 'required|string|max:500',
+    ]);
+
+    // Debugging
+    $index_no = $request->input('index');
+    $media_type = $request->input('media_type');
+    $publication = $request->input('publication');
+    $edition = $request->input('edition');
+    $SupplementId = $request->input('SupplementId');
+    $journalist_name = $request->input('journalist_name');
+    $author = $request->input('author');
+    $NewsPosition = $request->input('NewsPosition');
+    $NewsCity = $request->input('NewsCity');
+    $headline = $request->input('headline');
+    $Summary = $request->input('Summary');
+    $website_url = $request->input('website_url');
     
-        // Debugging
-        $index_no = $request->input('index');
-        $media_type = $request->input('media_type');
-        $publication = $request->input('publication');
-        $edition = $request->input('edition');
-        $SupplementId = $request->input('SupplementId');
-        $journalist_name = $request->input('journalist_name');
-        $author = $request->input('author');
-        $NewsPosition = $request->input('NewsPosition');
-        $NewsCity = $request->input('NewsCity');
-        $headline = $request->input('headline');
-        $Summary = $request->input('Summary');
-        $website_url = $request->input('website_url');
-        
-        $allKeys = [];
-        $allClients = [];
-        $totalSize = 0;
-    
-        for ($i = 1; $i <= $index_no; $i++) {
-            $getKeys = $request->input('getKeys' . $i);
-            $getClient = $request->input('getclient' . $i);
-    
-            $pageNo = $request->input('page_no' . $i);
-            $height = $request->input('height' . $i);
-            $width = $request->input('width' . $i);
-    
-            $size = $height * $width;
-    
-            if ($pageNo == 1) {
-                $totalSize = $size;
-            } else {
-                $totalSize += $size;
-            }
-    
-            if ($totalSize > 1000) {
-                $category = 'Large';
-            } elseif ($totalSize >= 500 && $totalSize <= 1000) {
-                $category = 'Medium';
-            } else {
-                $category = 'Small';
-            }
-    
-            if (is_array($getKeys)) {
-                $allKeys = array_merge($allKeys, $getKeys);
-            }
-    
-            if (is_array($getClient)) {
-                $allClients = array_merge($allClients, $getClient);
-            }
+    $allKeys = [];
+    $allClients = [];
+    $totalSize = 0;
+
+    for ($i = 1; $i <= $index_no; $i++) {
+        $getKeys = $request->input('getKeys' . $i);
+        $getClient = $request->input('getclient' . $i);
+
+        $pageNo = $request->input('page_no' . $i);
+        $height = $request->input('height' . $i);
+        $width = $request->input('width' . $i);
+
+        $size = $height * $width;
+
+        if ($pageNo == 1) {
+            $totalSize = $size;
+        } else {
+            $totalSize += $size;
         }
+
+        if ($totalSize > 1000) {
+            $category = 'Large';
+        } elseif ($totalSize >= 500 && $totalSize <= 1000) {
+            $category = 'Medium';
+        } else {
+            $category = 'Small';
+        }
+
+        if (is_array($getKeys)) {
+            $allKeys = array_merge($allKeys, $getKeys);
+        }
+
+        if (is_array($getClient)) {
+            $allClients = array_merge($allClients, $getClient);
+        }
+    }
+
+    $allKeys = array_unique($allKeys);
+    $allClients = array_unique($allClients);
+
+    $getKeysString = implode(',', $allKeys);
+    $getClientsString = implode(',', $allClients);    
     
-        $allKeys = array_unique($allKeys);
-        $allClients = array_unique($allClients);
-    
-        $getKeysString = implode(',', $allKeys);
-        $getClientsString = implode(',', $allClients);
-    
-        
-        // Perform insert
-        $newsUpload =  NewsUpload_Model::create([
+    // Perform insert
+    try {
+        $newsUpload = NewsUpload_Model::create([
             'media_type_id' => $media_type,
             'publication_id' => $publication,
             'edition_id' => $edition,
@@ -356,6 +359,61 @@ class NewsUpload extends Controller
             'category' => $category,
             'website_url' => $website_url
         ]);
-        $insertedId = $newsUpload->news_details_id;
+        $newsDetailsId = $newsUpload->news_details_id;
+
+        if ($newsDetailsId) {
+            for ($i = 1; $i <= $index_no; $i++) {
+                $get_company_data_id = array_filter(explode(',', $request->input('company' . $i)));
+                $get_competitor_data_id = array_filter(explode(',', $request->input('competitor' . $i)));
+                $get_industry_data_id = array_filter(explode(',', $request->input('industry' . $i)));
+        
+                $max_length = max(count($get_company_data_id), count($get_competitor_data_id), count($get_industry_data_id));
+        
+                for ($j = 0; $j < $max_length; $j++) {
+                    // Debugging: Log the data to be inserted
+                    Log::info('Inserting data into client_competetor_industry', [
+                        'news_details_id' => $newsDetailsId,
+                        'company_id' => $get_company_data_id[$j] ?? null,
+                        'competitor_id' => $get_competitor_data_id[$j] ?? null,
+                        'Industry_id' => $get_industry_data_id[$j] ?? null,
+                    ]);
+        
+                    client_competetor_industry::create([
+                        'news_details_id' => $newsDetailsId,
+                        'company_id' => $get_company_data_id[$j] ?? null,
+                        'competitor_id' => $get_competitor_data_id[$j] ?? null,
+                        'Industry_id' => $get_industry_data_id[$j] ?? null,
+                    ]);
+                }
+            }
+
+            for ($i = 1; $i <= $index_no; $i++) {
+                $editor = $request->input('editor' . $i);
+                $pageNo = $request->input('page_no' . $i);
+                $image_id = $request->input('image_id' . $i);
+                $height = $request->input('height' . $i);
+                $width = $request->input('width' . $i);
+
+                news_artical_model::create([
+                    'news_details_id' => $newsDetailsId,
+                    'news_artical' => $editor,
+                    'page_no' => $pageNo,
+                    'artical_images_id' => $image_id,
+                    'image_height' => $height,
+                    'image_width' => $width,
+                    'create_at' => now()
+                ]);
+            }
+
+            // Set success message
+            return redirect()->back()->with('success', 'News uploaded successfully.');
+        } else {
+            // Set error message
+            return redirect()->back()->with('error', 'Failed to upload news.');
+        }
+    } catch (\Exception $e) {
+        // Set error message with exception details
+        return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
     }
+}
 }
