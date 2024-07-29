@@ -86,9 +86,13 @@ Route::get('/add-news-template/{client_id}', [addClientTemplate::class, 'addNews
 Route::post('/addTemplate/add', [addClientTemplate::class, 'store'])->name('addNewsTemplate.store');
 
 Route::get('/newsLatter-list', [NewsLatterController::class, 'CompanyNewsLetterList'])->name('news_latter');
+Route::get('/news_latter/{client_id}', [NewsLatterController::class, 'newsLatter'])->name('newsLatter');
+Route::post('/update-news', [NewsLatterController::class, 'update'])->name('updateNews');
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('/compare_charts',[CompareChartConteoller::class, 'index'])->name('compare_charts');
+
 //Reporter upload 
+
 
 Route::get('/report', [ReportController::class, 'index'])->name('report');
 Route::get('/reporterOldUpload', [ReportUpload::class, 'reporterOldUpload'])->name('old_report_upload');

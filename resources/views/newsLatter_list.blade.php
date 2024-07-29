@@ -53,7 +53,7 @@ margin-bottom: 5px !important;
                 <?php $i ++ ?>
                 <tr>
                     <td>{{$i}}</td>
-                    <td>{{ $values -> client_name}} <a href="{{ route('news_latter') }}"> <i class="fa fa-eye text-primary cursor"></i></a></td>
+                    <td>{{ $values -> client_name}} <a href="{{ route('newsLatter', ['client_id' => $values->client_id]) }}"><i class="fa fa-eye text-primary cursor"></i></a></td>
                     <td></td>
                     <td></td>
                     <td></td>

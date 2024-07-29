@@ -32,6 +32,31 @@ class NewsUpload_Model extends Model
         'sizeofArticle',
         'website_url'
     ];
+
+    public function mediaOutlet()
+    {
+        return $this->belongsTo(Publication_Model::class, 'publication_id', 'gidMediaOutlet');
+    }
+
+    public function edition()
+    {
+        return $this->belongsTo(ManageEditionsModel::class, 'edition_id', 'gidEdition');
+    }
+
+    public function supplement()
+    {
+        return $this->belongsTo(ManageSupplementModal::class, 'supplement_id', 'gidSupplement');
+    }
+
+    public function journalist()
+    {
+        return $this->belongsTo(managejournlmodel::class, 'journalist_id', 'gidJournalist');
+    }
+
+    public function agency()
+    {
+        return $this->belongsTo(Agency::class, 'journalist_id', 'gidAgency');
+    }
     // public function getKeywords()
     // {
     //     // Retrieve all client_keywords from the table
