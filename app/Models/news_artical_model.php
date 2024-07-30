@@ -20,4 +20,9 @@ class news_artical_model extends Model
         'image_height',
         'image_width'
     ];
+
+    public function articleImages()
+    {
+        return $this->belongsTo(ArticalImage::class, 'artical_images_id', 'artical_images_id');
+    }
 }

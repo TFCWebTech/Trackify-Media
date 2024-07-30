@@ -12,6 +12,7 @@ use App\Models\Competitor_Model;
 use App\Models\Industry_model;
 use App\Models\NewsUpload_Model;
 use App\Models\MailTemplate_Model;
+use App\Models\deleteNews;
 class NewsLatterController extends Controller
 {
     public function CompanyNewsLetterList()
@@ -34,31 +35,97 @@ class NewsLatterController extends Controller
         ]);
 
         $clientIdString = $request->input('client_id');
-    
         // Split the comma-separated string into an array
         $clientIds = explode(',', $clientIdString);
-    
         // Find the news item based on provided IDs
-        $news = NewsUpload_Model::where('news_details_id', $request->input('news_details_id'))
-                    ->whereIn('client_id', $clientIds)
-                    ->first();
+        $news = NewsUpload_Model::where('news_details_ids', $request->input('news_details_id'))
+        ->where(function($query) use ($clientIds) {
+            foreach ($clientIds as $clientId) {
+                $query->orWhereRaw('FIND_IN_SET(?, company)', [$clientId]);
+            }
+        })
+        ->first();
 
         // Debugging: Check if news was found
         if (!$news) {
             \Log::error('News not found with news_details_id: ' . $request->input('news_details_id') . ' and client_id: ' . $request->input('client_id'));
             return response()->json(['success' => false, 'message' => 'News not found.']);
         }
-
         // Update the news item
         $news->head_line = $request->input('headline');
         $news->summary = $request->input('summary');
         $news->save();
-
         // Return a success response
         return response()->json(['success' => true, 'message' => 'News updated successfully.']);
     }
 
+    public function updateNewsofCompIndu(Request $request)
+    {
+        // Validate incoming request data
+        $request->validate([
+            'news_details_id' => 'required|integer',
+            'client_id' => 'required|integer',
+            'headline' => 'required|string',
+            'summary' => 'required|string',
+        ]);
+
+        $clientIdString = $request->input('client_id');
+        // Split the comma-separated string into an array
+       
+        $news = NewsUpload_Model::where('news_details_id', $request->input('news_details_id'))
+        ->first();
+
+        // Debugging: Check if news was found
+        if (!$news) {
+            \Log::error('News not found with news_details_id: ' . $request->input('news_details_id') . ' and client_id: ' . $request->input('client_id'));
+            return response()->json(['success' => false, 'message' => 'News not found.']);
+        }
+        // Update the news item
+        $news->head_line = $request->input('headline');
+        $news->summary = $request->input('summary');
+        $news->save();
+        // Return a success response
+        return response()->json(['success' => true, 'message' => 'News updated successfully.']);
+    }
+
+    public function deleteNews(Request $request)
+    {
+        $newsDetailsId = $request->input('news_details_id');
+        $clientId = $request->input('client_id');
+        $type = $request->input('type');
+        
+        if($type === 'delete'){
+            $response = [
+                'news_details_id' => $newsDetailsId,
+                'client_id' => $clientId,
+                'is_delete' => 1,
+                'is_hide' => 0
+            ];
     
+            DeleteNews::create($response);
+    
+            return response()->json([
+                'status' => 'success',
+                'message' => 'News deleted successfully',
+                'news_details_id' => $newsDetailsId
+            ]);
+        } elseif($type === 'hide'){
+            $response = [
+                'news_details_id' => $newsDetailsId,
+                'client_id' => $clientId,
+                'is_delete' => 0,
+                'is_hide' => 1
+            ];
+    
+            DeleteNews::create($response);
+    
+            return response()->json([
+                'status' => 'success',
+                'message' => 'News hidden successfully',
+                'news_details_id' => $newsDetailsId
+            ]);
+        }
+    }
     public function newsLatter($client_id)
     {
         $client = Client_Model::find($client_id);

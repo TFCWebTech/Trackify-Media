@@ -174,7 +174,7 @@ th {
                     <div id="clientnewsContent-{{ $news['news_details_id'] }}" style="display: block;">
                         <div style="display:flex; justify-content: space-between; padding:0px 10px 0px 0px;">
                             <h5>
-                                <a href="{{ url('NewsLetter/DisplayNews/'.$news['news_details_id']) }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}; font-family: {{ $get_client_details[0]['content_headline_font'] }}">  {{ $news['head_line'] }} </a>
+                                <a href="{{ url('news-article/'.$news['news_details_id']) }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}; font-family: {{ $get_client_details[0]['content_headline_font'] }}">  {{ $news['head_line'] }} </a>
                             </h5>
                             <h6 class="showEdit">
                                 <div style="d-flex">
@@ -445,45 +445,57 @@ function getEmail(client_id) {
     });
        
 }
-
-
-    function deleteNews( news_details_id, client_id){
-        console.log("news id :", news_details_id);
-        console.log("client_id :", client_id);
-        
-        $.ajax({
+function deleteNews(news_details_id, client_id) {
+    console.log("news id :", news_details_id);
+    console.log("client_id :", client_id);
+    
+    $.ajax({
         type: "POST",
-        url: "",
-        dataType: 'html',
+        url: "{{ route('deleteNews') }}",
+        dataType: 'json',
         data: {
             news_details_id: news_details_id,
-            client_id: client_id
+            client_id: client_id,
+            type: 'delete',
+            _token: '{{ csrf_token() }}' // Include CSRF token
         },
         success: function(response) {
-                    location.reload();
-            },
-          
-        });
-    }
+            if (response.status === 'success') {
+                // alert(response.message);
+                location.reload(); // Uncomment if you want to reload the page
+            }
+        },
+        error: function(xhr) {
+            console.error(xhr.responseText);
+        }
+    });
+}
 
     function hideNews(news_details_id, client_id){
 
         console.log("news id :", news_details_id);
-        console.log("client_id :", client_id);
-        
-        $.ajax({
+    console.log("client_id :", client_id);
+    
+    $.ajax({
         type: "POST",
-        url: "",
-        dataType: 'html',
+        url: "{{ route('deleteNews') }}",
+        dataType: 'json',
         data: {
             news_details_id: news_details_id,
-            client_id: client_id
+            client_id: client_id,
+            type: 'hide',
+            _token: '{{ csrf_token() }}' // Include CSRF token
         },
         success: function(response) {
-                    location.reload();
-            },
-          
-        });
+            if (response.status === 'success') {
+                // alert(response.message);
+                location.reload(); // Uncomment if you want to reload the page
+            }
+        },
+        error: function(xhr) {
+            console.error(xhr.responseText);
+        }
+    });
     }
 
 </script>
@@ -518,19 +530,20 @@ function getEmail(client_id) {
         $('.showEdit').toggle();
     }
    
-function toggleNewsContent(newsDetailsId) {
-    console.log(newsDetailsId);
-    var content = document.getElementById('clientnewsContent-' + newsDetailsId);
-    var contentEdit = document.getElementById('clientnewsContentEdit-' + newsDetailsId);
-    
-    if (content.style.display === "none") {
-        content.style.display = "block";
-        contentEdit.style.display = "none";
-    } else {
-        content.style.display = "none";
-        contentEdit.style.display = "block";
+    function toggleNewsContent(newsDetailsId) 
+    {
+        console.log(newsDetailsId);
+        var content = document.getElementById('clientnewsContent-' + newsDetailsId);
+        var contentEdit = document.getElementById('clientnewsContentEdit-' + newsDetailsId);
+        
+        if (content.style.display === "none") {
+            content.style.display = "block";
+            contentEdit.style.display = "none";
+        } else {
+            content.style.display = "none";
+            contentEdit.style.display = "block";
+        }
     }
-}
 
 function toggleNewsContent2(newsDetailsId, competitorId) 
 {
@@ -545,7 +558,6 @@ function toggleNewsContent2(newsDetailsId, competitorId)
         contentEdit.style.display = "block";
     }
 }
-
 
 function toggleNewsContent3(newsDetailsId, industryId) {
     var content = document.getElementById('IndustrynewsContent-' + newsDetailsId + '-' + industryId);
@@ -565,6 +577,7 @@ function updateNewsContent(news_details_id, client_id) {
     var summary = document.getElementById('update_summary_' + news_details_id).value;
 
     // Debugging: Output the retrieved values to console
+    console.log("news_details_id :", news_details_id)
     console.log("Headline:", headline);
     console.log("Summary:", summary);
 
@@ -588,7 +601,7 @@ function updateNewsContent(news_details_id, client_id) {
         success: function(response) {
             // Handle success response
             console.log("Update successful", response);
-            // location.reload(); // Reload the page to see the changes
+            location.reload(); // Reload the page to see the changes
         },
         error: function(xhr, status, error) {
             // Handle error response
@@ -597,87 +610,89 @@ function updateNewsContent(news_details_id, client_id) {
     });
 }
 
+function updateNewsContent2(news_details_id, client_id) 
+{
+    console.log("Function called");
 
-
-function updateNewsContent2(news_details_id, client_id) {
     var headline = document.getElementById('com_update_headline_' + news_details_id).value;
     var summary = document.getElementById('com_update_summary_' + news_details_id).value;
 
     // Debugging: Output the retrieved values to console
     console.log("Headline:", headline);
     console.log("Summary:", summary);
+    console.log("News Details ID:", news_details_id);
+
+    // Fetch client details from PHP
     var get_client_details = <?php echo json_encode($get_client_details); ?>;
     console.log("get_client_details data", get_client_details);
 
-    // Loop through the get_client_details to find the client with the given client_id
-    var clientNews = null;
-    for (var i = 0; i < get_client_details.length; i++) {
-        if (get_client_details[i].client_id == client_id) {
-            clientNews = get_client_details[i].client_news;
-            break;
-        }
-    }
+    // Find the client with the given client_id
+    var client = get_client_details.find(client => client.client_id == client_id);
 
-    if (clientNews) {
-        // Loop through the clientNews to find the news with the given news_details_id
-        for (var j = 0; j < clientNews.length; j++) {
-            if (clientNews[j].news_details_id == news_details_id) {
-                // Extract the specific data you need
-                var media_type_id = clientNews[j].media_type_id;
-                var publication_id = clientNews[j].publication_id;
-                var edition_id = clientNews[j].edition_id;
-                var supplement_id = clientNews[j].supplement_id;
-                var journalist_id = clientNews[j].journalist_id;
-                var agencies_id = clientNews[j].agencies_id;
-                var author = clientNews[j].author;
-                var news_position = clientNews[j].news_position;
-                var news_city_id = clientNews[j].news_city_id;
-                var category_id = clientNews[j].category_id;
-                var is_send = clientNews[j].is_send;
-                var keywords = clientNews[j].keywords;
-                var page_count = clientNews[j].page_count;
+    if (client) {
+        var clientNews = client.client_news;
+        var competitorsData = client.compititors_data;
+        var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-                console.log("News media_type_id:", media_type_id);
-                console.log("News publication_id:", publication_id);
+        var found = false;
 
-                // Send the extracted data through AJAX
-                $.ajax({
-                    type: "POST",
-                    url: "",
-                    dataType: 'html',
-                    data: {
-                        news_details_id: news_details_id,
-                        client_id: client_id,
-                        headline: headline,
-                        summary: summary,
-                        media_type_id: media_type_id,
-                        publication_id: publication_id,
-                        edition_id: edition_id,
-                        supplement_id: supplement_id,
-                        journalist_id: journalist_id,
-                        agencies_id: agencies_id,
-                        author: author,
-                        news_position: news_position,
-                        news_city_id: news_city_id,
-                        category_id: category_id,
-                        is_send: is_send,
-                        keywords: keywords,
-                        page_count: page_count
-                    },
-                    success: function(response) {
-                        // Handle success response
-                        console.log("Update successful", response);
-                        location.reload(); // Reload the page to see the changes
-                    },
-                    error: function(xhr, status, error) {
-                        // Handle error response
-                        console.error("Update failed", status, error);
-                    }
-                });
+        // Check in client_news
+        if (clientNews) {
+            console.log("Client news:", clientNews);
+            var news = clientNews.find(news => news.news_details_id == news_details_id);
 
-                break;
+            if (news) {
+                found = true;
+                updateNews(news_details_id, client_id, headline, summary, csrfToken);
             }
         }
+
+        // Check in competitors_data if not found in client_news
+        if (!found && competitorsData) {
+            console.log("Competitors data:", competitorsData);
+            for (var i = 0; i < competitorsData.length; i++) {
+                var competitor = competitorsData[i];
+                var news = competitor.news.find(news => news.news_details_id == news_details_id);
+
+                if (news) {
+                    found = true;
+                    updateNews(news_details_id, client_id, headline, summary, csrfToken);
+                    break;
+                }
+            }
+        }
+
+        if (!found) {
+            console.log("No news found with news_details_id: " + news_details_id + " in both clientNews and compititors_data.");
+        }
+    } else {
+        console.log("No client found with client_id:", client_id);
+    }
+
+    function updateNews(news_details_id, client_id, headline, summary, csrfToken) {
+        $.ajax({
+            type: "POST",
+            url: "{{ route('updateNewsofCompIndu') }}",
+            headers: {
+                'X-CSRF-TOKEN': csrfToken
+            },
+            dataType: 'json',
+            data: {
+                news_details_id: news_details_id,
+                client_id: client_id,
+                headline: headline,
+                summary: summary
+            },
+            success: function(response) {
+                // Handle success response
+                console.log("Update successful", response);
+                // location.reload(); // Reload the page to see the changes
+            },
+            error: function(xhr, status, error) {
+                // Handle error response
+                console.error("Update failed", status, error);
+            }
+        });
     }
 }
 

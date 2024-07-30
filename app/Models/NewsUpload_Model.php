@@ -55,7 +55,12 @@ class NewsUpload_Model extends Model
 
     public function agency()
     {
-        return $this->belongsTo(Agency::class, 'journalist_id', 'gidAgency');
+        return $this->belongsTo(Agency_Model::class, 'journalist_id', 'gidAgency');
+    }
+
+    public function newsArticles()
+    {
+        return $this->hasMany(news_artical_model::class, 'news_details_id', 'news_details_id');
     }
     // public function getKeywords()
     // {

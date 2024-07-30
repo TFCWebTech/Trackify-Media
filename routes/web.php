@@ -35,7 +35,7 @@ use App\http\Controllers\NewsUpload;
 use App\http\Controllers\AddRate;
 use App\http\Controllers\reporterAccount;
 use App\http\Controllers\addClientTemplate;
-
+use App\http\Controllers\NewsArtical;
 // Route::get('/', function () {
 //     return view('welcome');
 // });
@@ -88,6 +88,11 @@ Route::post('/addTemplate/add', [addClientTemplate::class, 'store'])->name('addN
 Route::get('/newsLatter-list', [NewsLatterController::class, 'CompanyNewsLetterList'])->name('news_latter');
 Route::get('/news_latter/{client_id}', [NewsLatterController::class, 'newsLatter'])->name('newsLatter');
 Route::post('/update-news', [NewsLatterController::class, 'update'])->name('updateNews');
+Route::post('/update-news-data', [NewsLatterController::class, 'updateNewsofCompIndu'])->name('updateNewsofCompIndu');
+Route::post('/delete-news', [NewsLatterController::class, 'deleteNews'])->name('deleteNews');
+
+
+Route::get('/news-article/{news_details_id}', [NewsArtical::class, 'index'])->name('NewsArtical');
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('/compare_charts',[CompareChartConteoller::class, 'index'])->name('compare_charts');
 
