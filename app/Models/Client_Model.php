@@ -10,7 +10,7 @@ class Client_Model extends Model
     use HasFactory;
     protected $table = 'client';
     protected $primaryKey = 'client_id';
-    public $timestamps = false; // Disable Laravel's default timestamps
+    public $timestamps = false; 
 
     public function getKeywords()
     {
@@ -57,5 +57,9 @@ class Client_Model extends Model
     public function industries()
     {
         return $this->hasMany(Industry_model::class, 'client_id', 'client_id');
+    }
+    public static function getClientsForEmail()
+    {
+        return self::all()->toArray();
     }
 }

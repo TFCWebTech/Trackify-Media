@@ -17,7 +17,8 @@ use App\Models\news_artical_model;
 
 class NewsUpload extends Controller
 {
-    public function index(){
+    public function index()
+    {
         $media_type = DB::table('mediatype')
         ->select('*')   
         ->get();  

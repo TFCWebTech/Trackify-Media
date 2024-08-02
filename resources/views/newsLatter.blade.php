@@ -2,7 +2,10 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap (Optional) -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </head>
 <style>
    
@@ -57,7 +60,6 @@ th {
         }
         .fa-send-o {
             font-size:16px;
-            /* color:#ffffff; */
         }
         .showEdit {
             display: none;
@@ -68,7 +70,8 @@ th {
             <div class="col-md-12 text-right mb-2">
                 <button id="generatePDF"> <i class="fa fa-download"></i></button> &nbsp;
                 <button id="edit" onclick="editFuncation()"> <i class="fa fa-edit"></i></button> &nbsp;
-                <button data-toggle="modal" data-target="#getEmail" id="getEmails" onclick="getEmail()" > <i class="fa fa-send"></i></button>
+                <button id="getEmailButton" onclick="getEmail('{{ $details['client_id'] }}')"> <i class="fa fa-send"></i>
+                </button> 
             </div>
         </div>
         <div class="card" id="content" style="background-color: #F9F9F9;">
@@ -76,18 +79,15 @@ th {
                     <table width="100%" cellpadding="0" cellspacing="0">
                         <tr>
                             <td align="left">   
-                            
                             @if ($get_client_details[0]['logo_position'] == 'Left') 
                                 <img src="{{ $get_client_details[0]['header_logo_url']; }}" alt="logo" style="width:100px;"> <br>
                             @endif
-
                             @if ($get_client_details[0]['trackify_link_status'] == 1) 
                                 <a href="{{ $get_client_details[0]['trackify_link']; }}" style="font-size:12px; color:#000000;">powered by trackify media</a>
                             @endif
                             </td>
                             </td>
                             <td align="center">
-                             
                             @if ($get_client_details[0]['logo_position'] == 'Center') 
                                 <img src="{{ $get_client_details[0]['header_logo_url']; }}" alt="logo" style="width:100px;"> <br>
                             @endif
@@ -97,7 +97,7 @@ th {
                             </h5>
                             </td>
                             <td align="right"> 
-                            @if ($get_client_details[0]['logo_position'] == 'Right') 
+                                @if ($get_client_details[0]['logo_position'] == 'Right') 
                                     <img src="{{ $get_client_details[0]['header_logo_url']; }}" alt="logo" style="width:100px;"> <br>
                                @endif
                             </td>
@@ -232,7 +232,7 @@ th {
                             <div id="competitornewsContent-{{ $news['news_details_id'] }}-{{ $compititor['competitor_id'] }}" style="display: block;">
                                 <div style="display:flex; justify-content: space-between; padding:0px 10px 0px 0px;">
                                     <h5>
-                                        <a href="{{ url('NewsLetter/DisplayNews/' . $news['news_details_id']) }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}; font-family: {{ $get_client_details[0]['content_headline_font'] }}">
+                                        <a href="{{ url('news-article/'.$news['news_details_id']) }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}; font-family: {{ $get_client_details[0]['content_headline_font'] }}">
                                             {{ $news['head_line'] }}
                                         </a>
                                     </h5>
@@ -281,12 +281,9 @@ th {
                     </div>
                 @endforeach
 
-                <!-- This is for Industry -->
-                <!-- This is for Industry -->
                 <div class="body-content" style="padding:10px 15px 0px 15px;">
                     <h4 style="background-color: #cfbbbb; color: #ffffff; padding:4px;"> Industry</h4>
                 </div>
-
                 @foreach ($get_client_details[0]['industry_data'] as $Industry)
                     <div class="body-content" style="padding:10px 15px 0px 15px;">
                         <h4 style="background-color: #cfbbbb; color: #ffffff; padding:4px;"> {{ $Industry['Industry_name'] }}</h4>
@@ -295,7 +292,7 @@ th {
                             <div id="IndustrynewsContent-{{ $news['news_details_id'] }}-{{ $Industry['Industry_id'] }}" style="display: block;">
                                 <div style="display:flex; justify-content: space-between; padding:0px 10px 0px 0px;">
                                     <h5>
-                                        <a href="{{ url('NewsLetter/DisplayNews/' . $news['news_details_id']) }}" style="color: {{ $get_client_details[0]['content_headline_color'] }};font-size: {{ $get_client_details[0]['content_headline_font_size'] }};font-family: {{ $get_client_details[0]['content_headline_font'] }}">  
+                                        <a href="{{ url('news-article/'.$news['news_details_id']) }}" style="color: {{ $get_client_details[0]['content_headline_color'] }};font-size: {{ $get_client_details[0]['content_headline_font_size'] }};font-family: {{ $get_client_details[0]['content_headline_font'] }}">  
                                             {{ $news['head_line'] }} 
                                         </a>
                                     </h5>
@@ -317,21 +314,18 @@ th {
                                 </p>                 
                                 <hr>
                             </div>  
-
                             <div id="IndustrynewsContentEdit-{{ $news['news_details_id'] }}-{{ $Industry['Industry_id'] }}" style="display: none;">
                                 <div style="display:flex; justify-content: space-between; padding:0px 10px 0px 0px;">
                                     <div class="headline" style="width: 500px;">
                                         <h6>Headline:</h6>
                                         <textarea name="" id="industry_update_headline_{{ $news['news_details_id'] }}" class="form-control">{{ $news['head_line'] }}</textarea>
                                     </div>
-                                    
                                     <h6 class="showEdit2">
                                         <div style="d-flex">
                                             <a class="btn border" onclick="updateNewsContent3('{{ $news['news_details_id'] }}', '{{ $details['client_id'] }}')"> Update News</a> 
                                         </div>
                                     </h6>
                                 </div>
-                            
                                 <h6>Summary:</h6>
                                 <textarea name="" id="industry_update_summary_{{ $news['news_details_id'] }}" class="form-control">{{ $news['summary'] }}</textarea>
                                 <p>Date: {{ \Carbon\Carbon::parse($news['create_at'])->format('d-m-Y') }} ,
@@ -365,86 +359,110 @@ th {
                 <p><span style="color:red; font-weight:bold;">This is an auto generated email – please do not reply to this email id</span></p>
             </div>
 </div>   
-
-<div class="modal" id="getEmail">
-  <div class="modal-dialog ">
-    <div class="modal-content">
-      <!-- Modal Header -->
-      <div class="modal-header">
-        <h4 class="modal-title">Emails</h4>
-        <!-- Correct close button for Bootstrap 4 -->
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <!-- Modal Body -->
-        <div class="modal-body">
-            <form action="" method="post">
-            <div class="form-group">
-                <!-- Dynamically filled checkboxes will be added here -->
+<div class="modal fade" id="getEmailsModal" tabindex="-1" role="dialog" aria-labelledby="getEmailsLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="getEmailsLabel">Emails</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-            <div class="text-right pt-2">
-                <button type="submit" class="btn btn-primary">Send</button>
+            <div class="modal-body">
+                <form id="sendEmailForm" action="{{ route('sendEmailWithTemplate') }}" method="post">
+                    @csrf
+                    <div class="form-group">
+                        <!-- Dynamically filled checkboxes will be added here -->
+                    </div>
+                    <div class="text-right pt-2">
+                        <button type="button" id="sendEmailButton" class="btn btn-primary">Send</button>
+                    </div>
+                </form>
             </div>
-            </form>
         </div>
     </div>
-  </div>
 </div>
 
-
 <script>
-function getEmail(client_id) {
-    console.log("client_id :", client_id);
-    $.ajax({
+function getEmail(client_id) 
+{
+      console.log("client_id:", client_id);
+      $.ajax({
         type: "POST",
-        url: "",
-        dataType: 'json', // Expecting JSON response from the server
+        url: "{{ route('getEmail') }}",
+        dataType: 'json',
         data: {
-            client_id: client_id
+          client_id: client_id,
+          _token: $('meta[name="csrf-token"]').attr('content')
         },
         success: function(response) {
-    console.log("Response:", response);
+          console.log("Response:", response);
+          // Clear previous email checkboxes
+          $('#getEmailsModal .modal-body .form-group').empty();
+          var i = 0;
+          // Append hidden fields for client_id and client_ids outside the loop
+          $('#getEmailsModal .modal-body .form-group').append(
+            '<input type="hidden" name="client_id" value="' + response.c_id + '">' +
+            '<input type="hidden" name="client_ids" value="' + response.client_ids.join(",") + '">' 
+          );
 
-    // Clear previous email checkboxes
-    $('#getEmail .modal-body .form-group').empty();
-    var i = 0;
+          // Handle the response data
+          if (response && response.emails && response.emails.length > 0) {
+            response.emails.forEach(function(email) {
+              console.log("Email:", email.client_email);
+              i++;
+              console.log("i value:", i);
 
-    // Append hidden fields for client_id and client_ids outside the loop
-    $('#getEmail .modal-body .form-group').append(
-        '<input type="hidden" name="client_id" value="' + response.c_id + '">' + // Hidden field for client_id
-        '<input type="hidden" name="client_ids" value="' + response.client_id + '" >' // Hidden field for client_ids as JSON string
-    );
-
-    // Handle the response data
-    if (response && response.emails && response.emails.length > 0) {
-        response.emails.forEach(function(email) {
-            console.log("Email:", email.client_email);
-            i++;
-            console.log("i value:", i);
-
-            // Append checkbox for each email
-            $('#getEmail .modal-body .form-group').append(
+              $('#getEmailsModal .modal-body .form-group').append(
                 '<input type="hidden" name="index" value="' + i + '">' +
                 '<div class="form-check">' +
-                    '<label class="form-check-label justify-content-between">' +
-                        '<input type="checkbox" name="clientMails' + i + '[]" class="form-check-input" value="' + email.client_email + '">' + email.client_email +
-                    '</label>' +
+                  '<label class="form-check-label justify-content-between">' +
+                    '<input type="checkbox" name="clientMails' + i + '[]" class="form-check-input" value="' + email.client_email + '">' + email.client_email +
+                  '</label>' +
                 '</div>'
-            );
-        });
-    } else {
-        console.log("No emails found for this client.");
-        $('#getEmail .modal-body .form-group').append('<p>No emails found for this client.</p>');
-    }
+              );
+            });
+          } else {
+            console.log("No emails found for this client.");
+            $('#getEmailsModal .modal-body .form-group').append('<p>No emails found for this client.</p>');
+          }
 
-    // Show the modal
-    $('#getEmail').modal('show');
-}
-       
+          // Show the modal
+          $('#getEmailsModal').modal('show');
+        },
+        error: function(xhr, status, error) {
+          console.error("AJAX error:", status, error);
+        }
+      });
+    }
+    $(document).ready(function() {
+        $('#sendEmailButton').click(function() {
+            var formData = $('#sendEmailForm').serialize();
+
+            $.ajax({
+                type: "POST",
+                url: "{{ route('sendEmailWithTemplate') }}",
+                data: formData,
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                    console.log('Client Details:', response.get_client_details);
+                    location.reload(); // Optionally reload the page to show the success message
+                } else {
+                    alert("Error: " + response.message);
+                }
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX error:", status, error);
+                    alert("An error occurred. Please try again.");
+                }
+            });
+        });
     });
-       
-}
+
+</script>
+<script>  
+
 function deleteNews(news_details_id, client_id) {
     console.log("news id :", news_details_id);
     console.log("client_id :", client_id);
@@ -471,31 +489,32 @@ function deleteNews(news_details_id, client_id) {
     });
 }
 
-    function hideNews(news_details_id, client_id){
+    function hideNews(news_details_id, client_id)
+    {
 
         console.log("news id :", news_details_id);
-    console.log("client_id :", client_id);
+        console.log("client_id :", client_id);
     
-    $.ajax({
-        type: "POST",
-        url: "{{ route('deleteNews') }}",
-        dataType: 'json',
-        data: {
-            news_details_id: news_details_id,
-            client_id: client_id,
-            type: 'hide',
-            _token: '{{ csrf_token() }}' // Include CSRF token
-        },
-        success: function(response) {
-            if (response.status === 'success') {
-                // alert(response.message);
-                location.reload(); // Uncomment if you want to reload the page
+        $.ajax({
+            type: "POST",
+            url: "{{ route('deleteNews') }}",
+            dataType: 'json',
+            data: {
+                news_details_id: news_details_id,
+                client_id: client_id,
+                type: 'hide',
+                _token: '{{ csrf_token() }}' // Include CSRF token
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    // alert(response.message);
+                    location.reload(); // Uncomment if you want to reload the page
+                }
+            },
+            error: function(xhr) {
+                console.error(xhr.responseText);
             }
-        },
-        error: function(xhr) {
-            console.error(xhr.responseText);
-        }
-    });
+        });
     }
 
 </script>

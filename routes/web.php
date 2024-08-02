@@ -86,11 +86,15 @@ Route::get('/add-news-template/{client_id}', [addClientTemplate::class, 'addNews
 Route::post('/addTemplate/add', [addClientTemplate::class, 'store'])->name('addNewsTemplate.store');
 
 Route::get('/newsLatter-list', [NewsLatterController::class, 'CompanyNewsLetterList'])->name('news_latter');
+
 Route::get('/news_latter/{client_id}', [NewsLatterController::class, 'newsLatter'])->name('newsLatter');
 Route::post('/update-news', [NewsLatterController::class, 'update'])->name('updateNews');
 Route::post('/update-news-data', [NewsLatterController::class, 'updateNewsofCompIndu'])->name('updateNewsofCompIndu');
 Route::post('/delete-news', [NewsLatterController::class, 'deleteNews'])->name('deleteNews');
 
+Route::post('/get-emails', [NewsLatterController::class, 'getEmail'])->name('getEmail'); 
+Route::post('/send-News', [NewsLatterController::class, 'sendEmail'])->name('sendEmail'); 
+Route::post('/send-News-with-Template', [NewsLatterController::class, 'sendEmailWithTemplate'])->name('sendEmailWithTemplate'); 
 
 Route::get('/news-article/{news_details_id}', [NewsArtical::class, 'index'])->name('NewsArtical');
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

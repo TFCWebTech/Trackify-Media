@@ -13,6 +13,10 @@ use App\Models\Industry_model;
 use App\Models\NewsUpload_Model;
 use App\Models\MailTemplate_Model;
 use App\Models\deleteNews;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\SendNewsMails;
+use App\Mail\SendNewsMailsWithTemplate;
+
 class NewsLatterController extends Controller
 {
     public function CompanyNewsLetterList()
@@ -38,7 +42,7 @@ class NewsLatterController extends Controller
         // Split the comma-separated string into an array
         $clientIds = explode(',', $clientIdString);
         // Find the news item based on provided IDs
-        $news = NewsUpload_Model::where('news_details_ids', $request->input('news_details_id'))
+        $news = NewsUpload_Model::where('news_details_id', $request->input('news_details_id'))
         ->where(function($query) use ($clientIds) {
             foreach ($clientIds as $clientId) {
                 $query->orWhereRaw('FIND_IN_SET(?, company)', [$clientId]);
@@ -126,21 +130,58 @@ class NewsLatterController extends Controller
             ]);
         }
     }
+
+    public function getEmail(Request $request)
+    {
+        $c_id = $request->input('client_id');
+        $get_client_email = Client_Model::getClientsForEmail();
+        $client_emails = [];
+        $client_ids = [];
+
+        foreach ($get_client_email as $client) {
+            if (!empty($client['clients'])) {
+                $clients_array = explode(',', $client['clients']);
+                if (in_array($c_id, $clients_array)) {
+                    $client_emails[] = ['client_email' => $client['email']];
+                    $client_ids[] = $client['client_id'];
+                }
+            }
+        }
+
+        $client_ids = array_unique($client_ids);
+        $response = [
+            'emails' => $client_emails,
+            'client_ids' => $client_ids, 
+            'c_id' => $c_id
+        ];
+
+        return response()->json($response);
+    }
+
+
     public function newsLatter($client_id)
     {
         $client = Client_Model::find($client_id);
-
+    
         if (!$client) {
             abort(404, 'Client not found');
         }
-
+    
         $details = $client->toArray();
         $get_client_details = $this->getClientTemplateDetails($client_id);
-        // echo '<pre>';
-        // print_r($details);
-        // echo '</pre>';
     
-        return view('newsLatter', compact('details', 'get_client_details'));
+        $get_news_data = [
+            'get_client_data' => $client->toArray(),
+            'get_news_details' => $this->getNewsDetails($client_id),
+            'get_comp_data' => $this->getCompData($client_id),
+            'get_industry_data' => $this->getIndustryData($client_id)
+        ];
+    
+        if (empty($get_client_details) || empty($get_client_details[0]['client_id'])) {
+            return view('defult_news_letter', $get_news_data);
+        } else {
+            return view('newsLatter', compact('details', 'get_client_details'));
+        }
     }
 
     private function getClientTemplateDetails($client_id)
@@ -268,4 +309,117 @@ class NewsLatterController extends Controller
         return $newsDetails->toArray();
     }
 
+    //send news funcationality for with defult template
+    public function sendEmail(Request $request)
+    {
+        $request->validate([
+            'client_id' => 'required|integer',
+            'client_ids' => 'required|string',
+            'clientMails*' => 'required|array',
+        ]);
+    
+        $client_id = $request->input('client_id');
+        $client_ids = $request->input('client_ids'); // Keep as a string for update
+        $client_ids_array = explode(',', $client_ids); // For sending emails
+        $emails = [];
+        $client = Client_Model::find($client_id);
+    
+        if (!$client) {
+            return response()->json(['success' => false, 'message' => 'Client not found'], 404);
+        }
+    
+        $get_news_details = $this->getNewsDetails($client_id);
+        $news_ids = array_column($get_news_details, 'news_details_id'); // Extract news IDs
+    
+        $get_news_data = [
+            'get_client_data' => $client->toArray(),
+            'get_news_details' => $get_news_details,
+            'get_comp_data' => $this->getCompData($client_id),
+            'get_industry_data' => $this->getIndustryData($client_id),
+        ];
+    
+        foreach ($request->all() as $key => $value) {
+            if (strpos($key, 'clientMails') === 0) {
+                $emails = array_merge($emails, $value);
+            }
+        }
+    
+        try {
+            foreach ($emails as $email) {
+                Mail::to($email)->send(new SendNewsMails($client_id, $client_ids_array, $get_news_data));
+            }
+    
+            \DB::table('news_details')
+                ->whereIn('news_details_id', $news_ids)
+                ->update([
+                    'is_send' => 1,
+                    'client_id' => $client_ids // Update the company column
+                ]);
+    
+            session()->flash('success', 'Emails sent successfully.');
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            session()->flash('error', 'An error occurred while sending emails.');
+            return response()->json(['success' => false, 'message' => 'An error occurred while sending emails.'], 500);
+        }
+    }
+
+    public function sendEmailWithTemplate(Request $request)
+{
+    // Validate incoming request data
+    $request->validate([
+        'client_id' => 'required|integer',
+        'client_ids' => 'required|string',
+        'clientMails.*' => 'required|email', // Ensure each email is valid
+    ]);
+
+    $client_id = $request->input('client_id');
+    $client_ids = $request->input('client_ids'); // Keep as a string for update
+    $client_ids_array = explode(',', $client_ids); // Convert comma-separated IDs to array
+    $emails = [];
+    $client = Client_Model::find($client_id);
+
+    if (!$client) {
+        return response()->json(['success' => false, 'message' => 'Client not found'], 404);
+    }
+
+    // Fetch client and news details
+    $details = $client->toArray();
+    $get_client_details = $this->getClientTemplateDetails($client_id);
+    $get_news_details = $this->getNewsDetails($client_id);
+    $news_ids = array_column($get_news_details, 'news_details_id'); // Extract news IDs
+
+    // Collect email addresses from the request
+    foreach ($request->input('clientMails', []) as $email) {
+        $emails[] = $email;
+    }
+
+    try {
+        // Send emails
+        foreach ($emails as $email) {
+            Mail::to($email)->send(new SendNewsMailsWithTemplate($client_id, $client_ids_array, $details, $get_client_details));
+        }
+
+        // Update news details in the database
+        \DB::table('news_details')
+            ->whereIn('news_details_id', $news_ids)
+            ->update([
+                'is_send' => 1,
+                'client_id' => $client_ids // Update the client ID
+            ]);
+
+        session()->flash('success', 'Emails sent successfully.');
+        return response()->json([
+            'success' => true,
+            'get_client_details' => $get_client_details // Include the client details in the response
+        ]);
+    } catch (\Exception $e) {
+        \Log::error('Error sending emails: ' . $e->getMessage());
+        session()->flash('error', 'An error occurred while sending emails.');
+        return response()->json([
+            'success' => false,
+            'message' => 'An error occurred while sending emails.'
+        ], 500);
+    }
+}
 }

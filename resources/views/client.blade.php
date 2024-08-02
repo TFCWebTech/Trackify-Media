@@ -171,7 +171,7 @@ function addKeywordInput2() {
                     @else
                         <td>NA</td>
                     @endif
-                    <td class="text-center"><a class="btn btn-primary" data-toggle="modal" data-target="#addEmail"  onclick="addEmail('{{$values ->client_id }}')" > ADD</a></td>
+                    <td class="text-center"><a class="btn btn-primary" onclick="addEmail('{{$values ->client_id }}')" > ADD</a></td>
                     <td class="text-center"><a class="btn btn-primary" onclick="addCompetotor('{{$values ->client_id }}')" > ADD</a></td>
                     <td class="text-center">
                       <a class="btn btn-primary" href="{{ route('addNewsTemplate', ['client_id' => $values->client_id]) }}"> ADD</a>
@@ -248,7 +248,6 @@ function addKeywordInput2() {
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-
       <!-- Modal Body -->
       <div class="modal-body">
         <form  action="{{route('client.addCompetitor')}}" method="post">
@@ -279,13 +278,13 @@ function addKeywordInput2() {
     </div>
   </div>
 </div>
-<div class="modal" id="addEmail">
+<div class="modal" id="addEmail" tabindex="-1" role="dialog" aria-labelledby="addUserMail" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
 
       <!-- Modal Header -->
       <div class="modal-header">
-        <h4 class="modal-title">Add User Email <span id="client_name_1"></span> </h4>
+        <h4 class="modal-title" id="addUserMail">Add User Email <span id="client_name_1"></span> </h4>
         <!-- Correct close button for Bootstrap 4 -->
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
@@ -312,7 +311,6 @@ function addKeywordInput2() {
                         </div>
                     </div>
                 </div>
-                
                 <div class="text-right pt-2">
                  <button type="submit" class="btn btn-primary">ADD</button>
                 </div>
@@ -335,6 +333,7 @@ function addKeywordInput2() {
     function addEmail(client , client_name){
         $('#client_id_1').val(client);
         $('#client_name_1').val(client_name);
+        $('#addEmail').modal('show');
     }
 </script>
 

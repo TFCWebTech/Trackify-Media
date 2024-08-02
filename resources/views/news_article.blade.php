@@ -1,3 +1,4 @@
+@include('common\header')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
 <style>
@@ -74,57 +75,58 @@ body {
         </div>
     </div>
     <div class="card no-pdf">
-        @if (!empty($newsDetail))
-            <div class="row p-2">
-                <div class="col-md-12 pt-1"> 
-                    <h5 style="color:blue;"><a href="{{ $newsDetail['website_url'] }}">{{ $newsDetail['head_line'] }}</a></h5>
-                    <label for="">Summary</label> <br>
-                    <p>{{ $newsDetail['summary'] }}</p>
-                    <p>
-                        Publication: <span style="color:blue;">{{ $newsDetail['media_outlet']['MediaOutlet'] }}</span>, 
-                        Journalist / Agency: <span style="color:blue;">{{ $newsDetail['journalist']['Journalist'] ?? $newsDetail['agency']['Agency'] }}</span>, 
-                        Edition: <span style="color:blue;">{{ $newsDetail['edition']['Edition'] }}</span>, 
-                        Supplement: <span style="color:blue;">{{ $newsDetail['supplement']['Supplement'] }}</span>
-                        @if (!empty($newsDetail['news_articles']))
-                            , Page No: <span style="color:blue;">{{ $newsDetail['news_articles'][0]['page_no'] }}</span>
-                        @endif
-                        , Circulation Figure:<span> </span>, qAVE(Rs.):<span> </span> Date: <span style="color:blue;">{{ $newsDetail['create_at'] }}</span>
-                    </p>
-                    <hr>
-                </div>
+    @if (!empty($newsDetail))
+    <div class="row p-2">
+        <div class="col-md-12 pt-1"> 
+            <h5 style="color:blue;">
+                <a href="{{ $newsDetail['website_url'] }}">{{ $newsDetail['head_line'] }}</a>
+            </h5>
+            <label for="">Summary</label> <br>
+            <p>{{ $newsDetail['summary'] }}</p>
+            <p>
+                Publication: <span style="color:blue;">{{ $newsDetail['media_outlet']['MediaOutlet'] }}</span>, 
+                Journalist / Agency: <span style="color:blue;">{{ $newsDetail['journalist']['Journalist'] ?? $newsDetail['agency']['Agency'] }}</span>, 
+                Edition: <span style="color:blue;">{{ $newsDetail['edition']['Edition'] }}</span>, 
+                Supplement: <span style="color:blue;">{{ $newsDetail['supplement']['Supplement'] }}</span>
+                @if (!empty($newsDetail['news_articles']) && isset($newsDetail['news_articles'][0]['page_no']))
+                    , Page No: <span style="color:blue;">{{ $newsDetail['news_articles'][0]['page_no'] }}</span>
+                @endif
+                , Circulation Figure:<span> </span>, qAVE(Rs.):<span> </span> Date: <span style="color:blue;">{{ $newsDetail['create_at'] }}</span>
+            </p>
+            <hr>
+        </div>
+    </div>
+    @foreach ($newsDetail['news_articles'] as $index => $article)
+        @php
+            $lightboxId = "img" . $index;
+            $imageUrl = !empty($article['article_images']['artical_images_name']) ? asset('storage/uploads/' . $article['article_images']['artical_images_name']) : '';
+        @endphp
+        <div class="row p-2">
+            <div class="col-md-3">
+                @if (!empty($article['article_images']['artical_images_name']))
+                    <div class="download-icon text-right px-4">
+                        <a href="{{ $imageUrl }}" download>
+                            <i class="fa fa-download text-primary" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                    <div class="thumbnail-wrapper">
+                        <a href="#{{ $lightboxId }}" aria-label="Click to enlarge image">
+                            <img src="{{ $imageUrl }}" class="thumbnail" alt="Thumbnail Image">
+                        </a>
+                    </div>
+                    <div id="{{ $lightboxId }}" class="lightbox">
+                        <a href="#" class="close">&times;</a>
+                        <img src="{{ $imageUrl }}" alt="Popup Image">
+                    </div>
+                @endif
             </div>
-            @foreach ($newsDetail['news_articles'] as $index => $article)
-                @php
-                    $lightboxId = "img" . $index;
-                    $imageUrl = asset('Uploads/' . $article['artical_images_name']);
-                @endphp
-                <div class="row p-2">
-                    <div class="col-md-3">
-                        @if (!empty($article['artical_images_name']))
-                            <div class="download-icon text-right px-4">
-                                <a href="{{ $imageUrl }}" download>
-                                    <i class="fa fa-download text-primary" aria-hidden="true"></i>
-                                </a>
-                            </div>
-                            <div class="thumbnail-wrapper">
-                                <a href="#{{ $lightboxId }}" aria-label="Click to enlarge image">
-                                    <img src="{{ $imageUrl }}" class="thumbnail" alt="Thumbnail Image">
-                                </a>
-                            </div>
-                            <div id="{{ $lightboxId }}" class="lightbox">
-                                <a href="#" class="close">&times;</a>
-                                <img src="{{ $imageUrl }}" alt="Popup Image">
-                            </div>
-                        @endif
-                    </div>
-                    <div class="col-md-9 pt-1">
-                        <h6>{{ $article['news_artical'] }}</h6>
-                    </div>
-                </div>  
-                <hr>
-            @endforeach
-        @endif
-
+            <div class="col-md-9 pt-1">
+            <h6>{{ strip_tags($article['news_artical']) }}</h6>
+            </div>
+        </div>  
+        <hr>
+    @endforeach
+@endif
         <div class="card" id="content-2" style="display:none;">
             @if (!empty($newsDetail))
                 <div class="row p-2">
@@ -140,15 +142,15 @@ body {
                             @if (!empty($newsDetail['news_articles']))
                                 , Page No: <span style="color:blue;">{{ $newsDetail['news_articles'][0]['page_no'] }}</span>
                             @endif
-                            , Circulation Figure:<span> </span>, qAVE(Rs.):<span> </span> Date: <span style="color:blue;">{{ $newsDetail['created_at'] }}</span>
+                            , Circulation Figure:<span> </span>, qAVE(Rs.):<span> </span> Date: <span style="color:blue;">{{ $newsDetail['create_at'] }}</span>
                         </p>
                         <hr>
                     </div>
                     @foreach ($newsDetail['news_articles'] as $index => $article)
-                        @php
-                            $lightboxId = "img" . $index;
-                            $imageUrl = asset('Uploads/' . $article['artical_images_name']);
-                        @endphp
+                    @php
+                        $lightboxId = "img" . $index;
+                        $imageUrl = !empty($article['artical_images_name']) ? asset('storage/uploads/' . $article['artical_images_name']) : '';
+                    @endphp
                         <div class="col-md-12 pt-1">
                             <h6>{{ $article['news_artical'] }}</h6>
                         </div>
@@ -204,3 +206,4 @@ body {
         });
     });
     </script>
+    @include('common\footer')
