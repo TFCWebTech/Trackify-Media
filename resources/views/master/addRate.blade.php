@@ -60,6 +60,11 @@ label {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        .btn {
+    margin-top: 8px;
+    font-size: .8rem !important;
+    height: 33px;
+}
 </style>
 <div class="container" >
         @if($errors->any())
@@ -84,8 +89,9 @@ label {
             </div>
         @endif
         <div class="row pb-2">
-          <div class="col-md-12 d-flex justify-content-end">
-            <div class="search-box d-flex">
+          <div class="col-md-12 d-flex ">  
+            <h1 class="p-2 mr-auto h5 mb-0 text-gray-800 ">Manage Add Rate</h1>
+            <div class="p-2 search-box d-flex">
               <label class="pt-1 font-weight-bold" for="user_type">MediaType</label> &nbsp;
               <select class="form-control" name="media_types" id="media_types" onchange="findMedia(this.value)" >
                   <option value="All">All</option>
@@ -98,9 +104,7 @@ label {
           </div>
         </div>
         <div id="loader"></div>
-
         <div class="row" id="getMediaData">
-   
             <div class="col-md-12" >
                 <div class="table-container-responsive">
                 <table id="table" class="table table-bordered table-hover ">
@@ -146,7 +150,6 @@ label {
                 </tr>
                 @endforeach
                 </tbody>
-            
             </table>
             </div>
         </div>

@@ -35,6 +35,15 @@
                 text-align: center;
             }
         }
+        .body-content {
+            padding: 0px 6px 0px 6px;
+        }
+        .footer {
+            background-color: #6D6B6B;
+            color: #ffffff;
+            padding: 10px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -106,7 +115,7 @@
                                 </tr>
                             @elseif ($detail['quick_links_position'] == '6')
                                 <tr style="background-color: #DCD5D5; color: #ffffff;">
-                                    <td>{{ $detail['quick_links_name'] }} ({{ count($detail['compititors_data']) }})</td>
+                                    <td>{{ $detail['quick_links_name'] }} ({{ count($get_client_details[0]['compititors_data']) }})</td>
                                     <td></td>
                                 </tr>
                             @endif
@@ -119,19 +128,20 @@
                 </table>
             </div>
 
-            <div class="body-content" style="padding:10px 15px;">
+            <div class="body-content">
                 <h4 style="background-color: #6D6B6B; color: #ffffff; padding:4px;">{{ $details['client_name'] }}</h4>
                 @foreach ($get_client_details[0]['client_news'] as $news)
                     <h5>
-                        <a href="{{ $news['website_url'] }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}; font-family: {{ $get_client_details[0]['content_headline_font'] }}">
+                        <a href="{{ $news['website_url'] }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}px; font-family: {{ $get_client_details[0]['content_headline_font'] }};">
                             {{ $news['head_line'] }}
                         </a>
                     </h5>
                     <h6>Summary:</h6>
-                    <p style="color: {{ $get_client_details[0]['content_news_summary_color'] }}; font-size: {{ $get_client_details[0]['content_news_summary_font_size'] }};">
+                    <p style="color: {{ $get_client_details[0]['content_news_summary_color'] }}; font-size: {{ $get_client_details[0]['content_news_summary_font_size'] }}px;">
                         {{ $news['summary'] }}
                     </p>
-                    <p>Date: {{ date('d-m-Y', strtotime($news['create_at'])) }},
+                    <p>
+                        Date: {{ date('d-m-Y', strtotime($news['create_at'])) }},
                         Publication: <span style="color:blue;">{{ $news['MediaOutlet'] }}</span>,
                         Journalist / Agency: <span style="color:blue;">{{ $news['Journalist'] ?: $news['Agency'] }}</span>,
                         Edition: <span style="color:blue;">{{ $news['Edition'] }}</span>,
@@ -143,63 +153,71 @@
                 @endforeach
             </div>
 
-            <div class="body-content" style="padding:10px 15px;">
+            <div class="body-content">
                 <h4 style="background-color: #6D6B6B; color: #ffffff; padding:4px;">Competition</h4>
+                @foreach ($get_client_details[0]['compititors_data'] as $compititor)
+                        <h4 style="background-color: #6D6B6B; color: #ffffff; padding:4px;">{{ $compititor['Competitor_name'] }}</h4>
+                        @foreach ($compititor['news'] as $news)
+                            <h5>
+                                <a href="{{ $news['website_url'] }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}px; font-family: {{ $get_client_details[0]['content_headline_font'] }};">
+                                    {{ $news['head_line'] }}
+                                </a>
+                            </h5>
+                            <h6>Summary:</h6>
+                            <p style="color: {{ $get_client_details[0]['content_news_summary_color'] }}; font-size: {{ $get_client_details[0]['content_news_summary_font_size'] }}px;">
+                                {{ $news['summary'] }}
+                            </p>
+                            <p>
+                                Date: {{ date('d-m-Y', strtotime($news['create_at'])) }},
+                                Publication: <span style="color:blue;">{{ $news['MediaOutlet'] }}</span>,
+                                Journalist / Agency: <span style="color:blue;">{{ $news['Journalist'] ?: $news['Agency'] }}</span>,
+                                Edition: <span style="color:blue;">{{ $news['Edition'] }}</span>,
+                                Supplement: <span style="color:blue;">{{ $news['Supplement'] }}</span>,
+                                No of pages: <span style="color:blue;">{{ $news['page_count'] }}</span>,
+                                Circulation Figure: <span></span>, qAVE(Rs.): <span></span>
+                            </p>
+                            <hr>
+                        @endforeach
+                @endforeach
             </div>
-            @foreach ($get_client_details[0]['compititors_data'] as $compititor)
-                <div class="body-content" style="padding:10px 15px;">
-                    <h4 style="background-color: #6D6B6B; color: #ffffff; padding:4px;">{{ $compititor['Competitor_name'] }}</h4>
-                    @foreach ($compititor['news'] as $news)
-                        <h5>
-                            <a href="{{ $news['website_url'] }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}; font-family: {{ $get_client_details[0]['content_headline_font'] }}">
-                                {{ $news['head_line'] }}
-                            </a>
-                        </h5>
-                        <h6>Summary:</h6>
-                        <p style="color: {{ $get_client_details[0]['content_news_summary_color'] }}; font-size: {{ $get_client_details[0]['content_news_summary_font_size'] }};">
-                            {{ $news['summary'] }}
-                        </p>
-                        <p>Date: {{ date('d-m-Y', strtotime($news['create_at'])) }},
-                            Publication: <span style="color:blue;">{{ $news['MediaOutlet'] }}</span>,
-                            Journalist / Agency: <span style="color:blue;">{{ $news['Journalist'] ?: $news['Agency'] }}</span>,
-                            Edition: <span style="color:blue;">{{ $news['Edition'] }}</span>,
-                            Supplement: <span style="color:blue;">{{ $news['Supplement'] }}</span>,
-                            No of pages: <span style="color:blue;">{{ $news['page_count'] }}</span>,
-                            Circulation Figure: <span></span>, qAVE(Rs.): <span></span>
-                        </p>
-                        <hr>
-                    @endforeach
-                </div>
-            @endforeach
 
-            <div class="body-content" style="padding:10px 15px;">
-                <h4 style="background-color: #6D6B6B; color: #ffffff; padding:4px;">Industry</h4>
+            <div class="body-content">
+                <h4 style="background-color: #6D6B6B; color: #ffffff; padding:4px;">Industry News</h4>
+                @foreach ($get_client_details[0]['industry_data'] as $industry)
+                    <div class="body-content">
+                        <h4 style="background-color: #6D6B6B; color: #ffffff; padding:4px;">{{ $industry['industry_name'] }}</h4>
+                        @foreach ($industry['news'] as $news)
+                            <h5>
+                                <a href="{{ $news['website_url'] }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}px; font-family: {{ $get_client_details[0]['content_headline_font'] }};">
+                                    {{ $news['head_line'] }}
+                                </a>
+                            </h5>
+                            <h6>Summary:</h6>
+                            <p style="color: {{ $get_client_details[0]['content_news_summary_color'] }}; font-size: {{ $get_client_details[0]['content_news_summary_font_size'] }}px;">
+                                {{ $news['summary'] }}
+                            </p>
+                            <p>
+                                Date: {{ date('d-m-Y', strtotime($news['create_at'])) }},
+                                Publication: <span style="color:blue;">{{ $news['MediaOutlet'] }}</span>,
+                                Journalist / Agency: <span style="color:blue;">{{ $news['Journalist'] ?: $news['Agency'] }}</span>,
+                                Edition: <span style="color:blue;">{{ $news['Edition'] }}</span>,
+                                Supplement: <span style="color:blue;">{{ $news['Supplement'] }}</span>,
+                                No of pages: <span style="color:blue;">{{ $news['page_count'] }}</span>,
+                                Circulation Figure: <span></span>, qAVE(Rs.): <span></span>
+                            </p>
+                            <hr>
+                        @endforeach
+                    </div>
+                @endforeach
             </div>
-            @foreach ($get_client_details[0]['industry_data'] as $industry)
-                <div class="body-content" style="padding:10px 15px;">
-                    <h4 style="background-color: #6D6B6B; color: #ffffff; padding:4px;">{{ $industry['industry_name'] }}</h4>
-                    @foreach ($industry['news'] as $news)
-                        <h5>
-                            <a href="{{ $news['website_url'] }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}; font-family: {{ $get_client_details[0]['content_headline_font'] }}">
-                                {{ $news['head_line'] }}
-                            </a>
-                        </h5>
-                        <h6>Summary:</h6>
-                        <p style="color: {{ $get_client_details[0]['content_news_summary_color'] }}; font-size: {{ $get_client_details[0]['content_news_summary_font_size'] }};">
-                            {{ $news['summary'] }}
-                        </p>
-                        <p>Date: {{ date('d-m-Y', strtotime($news['create_at'])) }},
-                            Publication: <span style="color:blue;">{{ $news['MediaOutlet'] }}</span>,
-                            Journalist / Agency: <span style="color:blue;">{{ $news['Journalist'] ?: $news['Agency'] }}</span>,
-                            Edition: <span style="color:blue;">{{ $news['Edition'] }}</span>,
-                            Supplement: <span style="color:blue;">{{ $news['Supplement'] }}</span>,
-                            No of pages: <span style="color:blue;">{{ $news['page_count'] }}</span>,
-                            Circulation Figure: <span></span>, qAVE(Rs.): <span></span>
-                        </p>
-                        <hr>
-                    @endforeach
-                </div>
-            @endforeach
+
+            <div class="footer">
+                <p>
+                    <span style="color:red;">This is an auto generated email – please do not reply to this email id </span>  
+                    Thank you for reading. If you have any questions, please contact us at <br>
+                    <a href="mailto:customerservice@trackify.info" style="color: #ffffff;">customerservice@trackify.info</a>.
+                </p>
+            </div>
         </div>
     </div>
 </body>

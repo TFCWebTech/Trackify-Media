@@ -385,13 +385,14 @@ class NewsLatterController extends Controller
 
     // Fetch client and news details
     $details = $client->toArray();
-    $get_client_details = $this->getClientTemplateDetails($client_id);
+    $get_client_details = json_decode(json_encode($this->getClientTemplateDetails($client_id)), true); // Convert to array
     $get_news_details = $this->getNewsDetails($client_id);
     $news_ids = array_column($get_news_details, 'news_details_id'); // Extract news IDs
 
-    // Collect email addresses from the request
-    foreach ($request->input('clientMails', []) as $email) {
-        $emails[] = $email;
+    foreach ($request->all() as $key => $value) {
+        if (strpos($key, 'clientMails') === 0) {
+            $emails = array_merge($emails, $value);
+        }
     }
 
     try {
@@ -414,12 +415,14 @@ class NewsLatterController extends Controller
             'get_client_details' => $get_client_details // Include the client details in the response
         ]);
     } catch (\Exception $e) {
-        \Log::error('Error sending emails: ' . $e->getMessage());
-        session()->flash('error', 'An error occurred while sending emails.');
-        return response()->json([
-            'success' => false,
-            'message' => 'An error occurred while sending emails.'
-        ], 500);
+        \Log::error('Error sending emails: ' . $e->getMessage(), [
+            'client_id' => $client_id,
+            'client_ids' => $client_ids_array,
+            'emails' => $emails,
+            'details' => $details,
+            'error_message' => $e->getMessage(), // Include the error message in the logs
+        ]);
+        return response()->json(['success' => false, 'message' => 'Error sending emails: ' . $e->getMessage()], 500);
     }
 }
 }

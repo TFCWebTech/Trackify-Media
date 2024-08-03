@@ -6,6 +6,7 @@
     <!-- Bootstrap (Optional) -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <style>
    
@@ -52,7 +53,7 @@ th {
             margin-top: 0px !important;
             margin-bottom: 0px !important;
         }
-        #generatePDF , .send-button, #edit, #getEmails{
+        #generatePDF , .send-button, #edit, #getEmailButton{
             background-color: #0080FF ;
             color: #ffffff;
             border-color: #0080FF ;
@@ -66,11 +67,41 @@ th {
         }
 </style>
 <div class="container">
+@if($errors->any())
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <ul>
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        {{ session('success') }}
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        {{ session('error') }}
+    </div>
+@endif
         <div class="row" id="hideThis">
             <div class="col-md-12 text-right mb-2">
-                <button id="generatePDF"> <i class="fa fa-download"></i></button> &nbsp;
+                <!-- <button id="generatePDF"> <i class="fa fa-download"></i></button> &nbsp; -->
                 <button id="edit" onclick="editFuncation()"> <i class="fa fa-edit"></i></button> &nbsp;
-                <button id="getEmailButton" onclick="getEmail('{{ $details['client_id'] }}')"> <i class="fa fa-send"></i>
+                <button id="getEmailButton" onclick="getEmail('{{ $details['client_id'] }}')"> <i class="fa fa-send-o"></i>
                 </button> 
             </div>
         </div>

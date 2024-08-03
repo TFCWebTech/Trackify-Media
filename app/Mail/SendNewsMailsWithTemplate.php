@@ -18,9 +18,6 @@ class SendNewsMailsWithTemplate extends Mailable
     public $details;
     public $get_client_details;
 
-    /**
-     * Create a new message instance.
-     */
     public function __construct($client_id, $client_ids_array, $details, $get_client_details)
     {
         $this->client_id = $client_id;
@@ -31,16 +28,13 @@ class SendNewsMailsWithTemplate extends Mailable
 
     public function build()
     {
-        \Log::info('Building email with data', [
-            'details' => $this->details,
-            'get_client_details' => $this->get_client_details
-        ]);
-    
         return $this->view('emails.news_mail_with_template')
-            ->with([
-                'details' => $this->details,
-                'get_client_details' => $this->get_client_details
-            ]);
+                    ->with([
+                        'client_id' => $this->client_id,
+                        'client_ids_array' => $this->client_ids_array,
+                        'details' => $this->details,
+                        'get_client_details' => $this->get_client_details
+                    ]);
     }
     /**
      * Get the message envelope.

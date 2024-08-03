@@ -34,6 +34,10 @@ margin-bottom: 5px !important;
 .table-container-responsive{
     overflow-x: auto;
 }
+label {
+    margin-bottom: 0rem !important;
+    margin-top: 0.0rem !important;
+}
 </style>
 
 <script>
@@ -136,7 +140,10 @@ function addKeywordInput2() {
         @endif
         <div class="row">
             <div class="col-md-12 text-right p-2">
+            <div class="d-sm-flex align-items-center justify-content-between mb-4">
+              <h1 class="h5 mb-0 text-gray-800 ">Manage Client</h1>
                 <button class="btn btn-primary" data-toggle="modal" data-target="#myModal">Add Client</button>
+            </div>
             </div>
         </div>
         <div class="row">
@@ -292,7 +299,8 @@ function addKeywordInput2() {
       </div>
       <!-- Modal Body -->
       <div class="modal-body">
-            <form action="" method="post">
+      <form action="{{ route('addUsersEmail') }}" method="post">
+      @csrf
                 <div class="form-group" >
                     <input type="text" id="client_id_1" name="client_id_1" hidden> 
                     <label class="px-1 font-weight-bold" for="user_mails">Add Email</label>

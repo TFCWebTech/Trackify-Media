@@ -20,7 +20,7 @@
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <!-- Custom styles for this template-->
     <link href="{{ asset('assets/css/sb-admin-2.min.css') }}" rel="stylesheet">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <style>
         label {
             font-size: 0.9rem !important;
@@ -106,89 +106,101 @@
             <!-- Divider -->
             <hr class="sidebar-divider my-0">
             @if(session()->has('user_id'))
-                       
-                @if(session()->get('user_type') == 'Reporter')
-                <li class="nav-item">
-                            <a class="nav-link" href="{{ route('news_upload') }}">
-                                <i class="fas fa-fw fa-tachometer-alt"></i>
-                                <span>News Upload</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('reporte.account') }}">
-                                <i class="fas fa-fw fa-tachometer-alt"></i>
-                                <span>Manage Account</span>
-                            </a>
-                        </li>
-                        @endif
-                        @if(session()->get('user_type') == 'Admin')
-                    <!-- Nav Item - Dashboard -->
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('news_latter') }}">
-                                <i class="fas fa-fw fa-tachometer-alt"></i>
-                                <span>Manage NewsLatter</span>
-                            </a>
-                        </li>
-           
-                <li class="nav-item ">
-                <a class="nav-link" href="{{ route('repoter') }}">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Manage Reporter</span></a>
-            </li>
-            <li class="nav-item ">
-                <a class="nav-link" href="{{ route('client') }}">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Manage Client</span></a>
-            </li>
-            <li class="nav-item ">
-                <a class="nav-link" href="{{ route('industry') }}">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Manage Industry</span></a>
-            </li>
-            <li class="nav-item ">
-                <a class="nav-link" href="{{ route('edition') }}">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Manage Edition</span></a>
-            </li>
-            <li class="nav-item ">
-                <a class="nav-link" href="{{ route('supplement') }}">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Manage Supplements</span></a>
-            </li>
-            <li class="nav-item ">
-                <a class="nav-link" href="{{ route('publication') }}">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Manage Publication</span></a>
-            </li>
-            <li class="nav-item ">
-                <a class="nav-link" href="{{ route('journalist') }}">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Manage Journalist</span></a>
-            </li>
-            <li class="nav-item ">
-                <a class="nav-link" href="{{ route('addRate') }}">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Manage AddRate</span></a>
-            </li>
-            @endif
-            @if(session()->get('user_type') == 'Client')
-            <li class="nav-item ">
-                <a class="nav-link" href="{{ route('dashboard') }}">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Dashboard</span></a>
-            </li>
-            <li class="nav-item ">
-                <a class="nav-link" href="{{ route('compare_charts') }}">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Pro Compare</span></a>
-            </li>
-            <li class="nav-item ">
-                <a class="nav-link" href="{{ route('report') }}">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Pro Report</span></a>
-            </li>
-            @endif
-            @endif
+
+@if(session()->get('user_type') == 'Reporter')
+    <li class="nav-item {{ request()->routeIs('news_upload') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('news_upload') }}">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>News Upload</span>
+        </a>
+    </li>
+    <li class="nav-item {{ request()->routeIs('reporte.account') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('reporte.account') }}">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Manage Account</span>
+        </a>
+    </li>
+@endif
+
+@if(session()->get('user_type') == 'Admin')
+    <li class="nav-item {{ request()->routeIs('news_latter') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('news_latter') }}">
+            <i class="fa fa-newspaper-o"></i>
+            <span>Manage Newsletter</span>
+        </a>
+    </li>
+    <li class="nav-item {{ request()->routeIs('repoter') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('repoter') }}">
+            <i class="fa fa-user-circle-o"></i>
+            <span>Manage Reporter</span>
+        </a>
+    </li>
+    <li class="nav-item {{ request()->routeIs('client') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('client') }}">
+            <i class="fa fa-building-o"></i>
+            <span>Manage Client</span>
+        </a>
+    </li>
+    <li class="nav-item {{ request()->routeIs('industry') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('industry') }}">
+            <i class="fa fa-industry"></i>
+            <span>Manage Industry</span>
+        </a>
+    </li>
+    <li class="nav-item {{ request()->routeIs('edition') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('edition') }}">
+            <i class="fas fa-city"></i>
+            <span>Manage Edition</span>
+        </a>
+    </li>
+    <li class="nav-item {{ request()->routeIs('supplement') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('supplement') }}">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Manage Supplements</span>
+        </a>
+    </li>
+    <li class="nav-item {{ request()->routeIs('publication') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('publication') }}">
+            <i class="fa fa-book"></i>
+            <span>Manage Publication</span>
+        </a>
+    </li>
+    <li class="nav-item {{ request()->routeIs('journalist') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('journalist') }}">
+            <i class="fa fa-newspaper-o"></i>
+            <span>Manage Journalist</span>
+        </a>
+    </li>
+    <li class="nav-item {{ request()->routeIs('addRate') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('addRate') }}">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Manage AddRate</span>
+        </a>
+    </li>
+@endif
+
+@if(session()->get('user_type') == 'Client')
+    <li class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('dashboard') }}">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="nav-item {{ request()->routeIs('compare_charts') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('compare_charts') }}">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Pro Compare</span>
+        </a>
+    </li>
+    <li class="nav-item {{ request()->routeIs('report') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('report') }}">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Pro Report</span>
+        </a>
+    </li>
+@endif
+
+@endif
             
             <!-- <li class="nav-item active">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"

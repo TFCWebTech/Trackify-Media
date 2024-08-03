@@ -81,6 +81,10 @@ Route::post('/reporter/updatePassword/', [ReporterController::class, 'updatePass
 Route::get('/client', [ClientController::class, 'index'])->name('client');
 Route::post('/client/add', [ClientController::class, 'store'])->name('client.store');
 Route::post('/client/addCompetitor', [ClientController::class, 'addCompetitor'])->name('client.addCompetitor');
+Route::post('/add-users-email', [ClientController::class, 'addUsersEmail'])->name('addUsersEmail');
+Route::get('/ganerate-users-password/{id}/{token}', [ClientController::class, 'ganerateUserPassword'])->name('user.ganeratePassword');
+Route::post('setPassword/', [ClientController::class, 'setPassword'])->name('admin.setPassword');
+
 // Route::get('/addTemplate', [addClientTemplate::class, 'addNewsTemplate'])->name('addNewsTemplate');
 Route::get('/add-news-template/{client_id}', [addClientTemplate::class, 'addNewsTemplate'])->name('addNewsTemplate');
 Route::post('/addTemplate/add', [addClientTemplate::class, 'store'])->name('addNewsTemplate.store');

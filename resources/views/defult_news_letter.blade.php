@@ -8,6 +8,8 @@
   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  
 <style>
    
 .table-wrapper {
@@ -53,7 +55,7 @@ th {
             margin-top: 0px !important;
             margin-bottom: 0px !important;
         }
-        #generatePDF , .send-button, #edit, #getEmails{
+        #generatePDF , .send-button, #edit, #getEmailButton{
             background-color: #0080FF ;
             color: #ffffff;
             border-color: #0080FF ;
@@ -100,7 +102,7 @@ th {
 @endif
     <div class="row" id="hideThis">
     <div class="col-md-12 text-right mb-2">
-            <button id="generatePDF"> <i class="fa fa-download"></i></button> &nbsp;
+            <!-- <button id="generatePDF"> <i class="fa fa-download"></i></button> &nbsp; -->
             <button id="edit" onclick="editFuncation()"> <i class="fa fa-edit"></i></button> &nbsp;
             <button id="getEmailButton" onclick="getEmail('{{ $get_client_data['client_id'] }}')"> 
     <i class="fa fa-send"></i>
@@ -150,7 +152,7 @@ th {
                 <div id="clientnewsContent-{{ $news['news_details_id'] }}" style="display: block;">
                     <div style="display:flex; justify-content: space-between; padding:0px 10px 0px 0px;">
                         <h5>
-                            <a href="{{ url('NewsLetter/DisplayNews/'.$news['news_details_id']) }}" style="color: ;font-size: ;font-family:">{{ $news['head_line'] }}</a>
+                            <a href="{{ url('news-article/'.$news['news_details_id']) }}" style="color: ;font-size: ;font-family:">{{ $news['head_line'] }}</a>
                         </h5>
                         <h6 class="showEdit">
                             <div style="d-flex">
@@ -207,7 +209,7 @@ th {
                         <div id="competitornewsContent-{{ $news['news_details_id'] }}-{{ $compititor['competitor_id'] }}" style="display: block;">
                             <div style="display:flex; justify-content: space-between; padding:0px 10px 0px 0px;">
                                 <h5>
-                                    <a href="{{ url('NewsLetter/DisplayNews/'.$news['news_details_id']) }}" style="color: ;font-size: ;font-family: ;">  
+                                    <a href="{{ url('news-article/'.$news['news_details_id']) }}" style="color: ;font-size: ;font-family: ;">  
                                         {{ $news['head_line'] }} 
                                     </a>
                                 </h5>
@@ -267,20 +269,20 @@ th {
             <div id="IndustrynewsContent-{{ $news['news_details_id'] }}-{{ $industry['Industry_id'] }}" style="display: block;">
                 <div style="display:flex; justify-content: space-between; padding:0px 10px 0px 0px;">
                     <h5>
-                        <a href="{{ url('NewsLetter/DisplayNews/' . $news['news_details_id']) }}" style="color: {{ $get_client_details[0]['content_headline_color'] }};font-size: {{ $get_client_details[0]['content_headline_font_size'] }};font-family: {{ $get_client_details[0]['content_headline_font'] }}">  
+                        <a href="{{ url('news-article/'.$news['news_details_id']) }}" style="color:;">  
                             {{ $news['head_line'] }} 
                         </a>
                     </h5>
                     <h6 class="showEdit">
                         <div style="d-flex">
                             <a href="javascript:void(0);" onclick="toggleNewsContent3('{{ $news['news_details_id'] }}', '{{ $industry['Industry_id'] }}')"> Edit News</a> |
-                            <a href="javascript:void(0);" onclick="hideNews('{{ $news['news_details_id'] }}', '{{ $details['client_id'] }}')"> Hide</a> | 
+                            <a href="javascript:void(0);" onclick="hideNews('{{ $news['news_details_id'] }}', '{{ $get_client_data['client_id'] }}')"> Hide</a> | 
                             <a href="javascript:void(0);" style="color:red;" onclick="deleteNews('{{ $news['news_details_id'] }}', '{{ $get_client_data['client_id'] }}')">Delete</a> 
                         </div>
                     </h6>
                 </div> 
                 <h6>Summary:</h6>
-                <p style="color: {{ $get_client_details[0]['content_news_summary_color'] }};font-size: {{ $get_client_details[0]['content_news_summary_font_size'] }};">
+                <p style="color: ;">
                     {{ $news['summary'] }}
                 </p>
                 <p>Date: {{ \Carbon\Carbon::parse($news['create_at'])->format('d-m-Y') }}, 

@@ -8,53 +8,53 @@
    
    <div class="col-md-12" >
        <div class="table-container-responsive">
-       <table id="table" class="table table-bordered table-hover ">
-       <thead>
-       <tr>
-           <th>Sr. No</th>
-           <th>Publication Name</th>
-           <th>Edition</th>
-           <th>Supplement</th>
-           <th>Rate</th>
-           <th>New Rate</th>
-           <th>Circulation Figure</th>
-           <th>Status</th>
-           <th>Created On</th>
-           <th>Action</th>
-       </tr>
-       </thead>
-       <tbody>
-       <?php
-                $i = 0; ?>
-       @foreach($addrate as $add_rate_data)
-       <?php $i++; 
-                  ?>
-       <tr>
-           <td>{{$i}}</td>
-           <td>{{$add_rate_data -> publication}}</td>
-           <td>{{$add_rate_data -> edition}}</td>
-           <td>{{$add_rate_data -> supplement}}</td>
-           <td>{{$add_rate_data -> Rate}}</td>
-           <td>{{$add_rate_data -> NewRate}}</td>
-           <td>{{$add_rate_data -> Circulation_Fig}}</td>
-           <td>  
-             @if($add_rate_data ->Status == 1)
-                 Inactive
-             @else
-                 Active
-             @endif
-           </td>
-           <td>{{ \Carbon\Carbon::parse($add_rate_data->CreatedOn)->format('d/m/Y') }}</td>  
-           <td>
-            <i class="fa fa-edit text-primary" onclick="editAddRate({{ json_encode($add_rate_data) }})"></i>
-           </td>
-       </tr>
-       @endforeach
-       </tbody>
-   
-   </table>
-   </div>
-</div>
+        <table id="table" class="table table-bordered table-hover ">
+            <thead>
+                <tr>
+                    <th>Sr. No</th>
+                    <th>Publication Name</th>
+                    <th>Edition</th>
+                    <th>Supplement</th>
+                    <th>Rate</th>
+                    <th>New Rate</th>
+                    <th>Circulation Figure</th>
+                    <th>Status</th>
+                    <th>Created On</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                    $i = 0; ?>
+                    @foreach($addrate as $add_rate_data)
+                    <?php $i++; 
+                    ?>
+                <tr>
+                    <td>{{$i}}</td>
+                    <td>{{$add_rate_data -> publication}}</td>
+                    <td>{{$add_rate_data -> edition}}</td>
+                    <td>{{$add_rate_data -> supplement}}</td>
+                    <td>{{$add_rate_data -> Rate}}</td>
+                    <td>{{$add_rate_data -> NewRate}}</td>
+                    <td>{{$add_rate_data -> Circulation_Fig}}</td>
+                    <td>  
+                        @if($add_rate_data ->Status == 1)
+                            Inactive
+                        @else
+                            Active
+                        @endif
+                    </td>
+                    <td>{{ \Carbon\Carbon::parse($add_rate_data->CreatedOn)->format('d/m/Y') }}</td>  
+                    <td>
+                        <i class="fa fa-edit text-primary" onclick="editAddRate({{ json_encode($add_rate_data) }})"></i>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+    
+        </table>
+       </div>
+    </div>
 </div>
 
 <script>

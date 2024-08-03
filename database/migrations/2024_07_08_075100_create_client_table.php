@@ -28,7 +28,7 @@ return new class extends Migration
             $table->string('blank_mail')->nullable();
             $table->tinyInteger('report_service')->nullable();
             $table->string('token')->nullable();
-        });
+        }); 
     }
 
     /**

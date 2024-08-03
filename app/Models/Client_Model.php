@@ -48,12 +48,17 @@ class Client_Model extends Model
     }
     protected $fillable = [
         'client_name',
+        'email',
+        'report_service',
         'client_keywords',
         'cilent_status',
         'create_at',
         'sector_id',
         'client_type',
+        'clients',
+        'token',
     ];
+   
     public function industries()
     {
         return $this->hasMany(Industry_model::class, 'client_id', 'client_id');

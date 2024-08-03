@@ -55,7 +55,10 @@ margin-bottom: 5px !important;
         @endif
         <div class="row">
             <div class="col-md-12 text-right p-2">
-                <button class="btn btn-primary" onclick="addSupplement()">Add Supplement</button>
+             <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                <h1 class="h5 mb-0 text-gray-800 ">Manage Supplement</h1>
+                    <button class="btn btn-primary" onclick="addSupplement()">Add Supplement</button>
+            </div>
             </div>
         </div>
         <div class="row">
