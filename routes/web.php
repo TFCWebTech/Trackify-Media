@@ -36,9 +36,23 @@ use App\http\Controllers\AddRate;
 use App\http\Controllers\reporterAccount;
 use App\http\Controllers\addClientTemplate;
 use App\http\Controllers\NewsArtical;
+use App\http\Controllers\ClientDashboard\ClientLogin;
+use App\http\Controllers\ClientDashboard\ganerateReport;
+use App\http\Controllers\ClientDashboard\ProCompare;
 // Route::get('/', function () {
 //     return view('welcome');
-// });
+// });  
+
+//this routes for the client dashboard login 
+Route::get('/admin-login', [ClientLogin::class, 'index'])->name('ClientLogin');
+Route::post('/login-client', [ClientLogin::class, 'loginClient'])->name('login.client');
+//this is for the Pro Report funcationality 
+Route::get('/generate-report', [ganerateReport::class, 'index'])->name('generateReport');
+// Download pdf and word file funcationality 
+Route::post('/get-news-pdf', [ganerateReport::class, 'getNewsArticleData'])->name('getNewsArticleData');
+Route::post('/get-news-word', [ganerateReport::class, 'getNewsArticleInword'])->name('getNewsArticleInWord');
+
+Route::get('/pro-compare-charts', [ProCompare::class, 'index'])->name('charts.ProCompare');
 
 Route::get('/', [Login::class, 'index'])->name('login');
 Route::post('/login', [Login::class, 'loginUser'])->name('login.user');
@@ -107,7 +121,7 @@ Route::get('/compare_charts',[CompareChartConteoller::class, 'index'])->name('co
 //Reporter upload 
 
 
-Route::get('/report', [ReportController::class, 'index'])->name('report');
+
 Route::get('/reporterOldUpload', [ReportUpload::class, 'reporterOldUpload'])->name('old_report_upload');
 
 //subEditor

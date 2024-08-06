@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Support\Facades\DB;
 class NewsUpload_Model extends Model
 {
     use HasFactory;
@@ -96,4 +96,7 @@ class NewsUpload_Model extends Model
     //     ->get()
     //     ->toArray();
     // }
+
+
+    
 }
