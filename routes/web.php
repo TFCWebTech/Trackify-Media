@@ -53,6 +53,8 @@ Route::post('/get-news-pdf', [ganerateReport::class, 'getNewsArticleData'])->nam
 Route::post('/get-news-word', [ganerateReport::class, 'getNewsArticleInword'])->name('getNewsArticleInWord');
 
 Route::get('/pro-compare-charts', [ProCompare::class, 'index'])->name('charts.ProCompare');
+// Route::post('/get-pro-compare-charts', [ProCompare::class, 'fetchClientData']);
+Route::post('/fetchClientData', [ProCompare::class, 'fetchClientData'])->name('fetchClientData');
 
 Route::get('/', [Login::class, 'index'])->name('login');
 Route::post('/login', [Login::class, 'loginUser'])->name('login.user');

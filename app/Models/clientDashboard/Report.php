@@ -11,48 +11,52 @@ class Report extends Model
     protected $table = 'news_details'; // Ensure the correct table name
     protected $primaryKey = 'news_details_id';
     public function getClientNewsCount($timeframe, $client_id, $from = null, $to = null)
-    {
-        $query = DB::table('news_details')->select('*');
+{
+    $query = DB::table('news_details')->select('*');
 
-        // if ($from && $to) {
-        //     $query->whereBetween('create_at', [$from, $to]);
-        // }
+    // Apply date range filter if provided
+    // if ($from && $to) {
+    //     $query->whereBetween('create_at', [$from, $to]);
+    // }
 
-        $query->whereRaw("FIND_IN_SET(?, client_id)",[$client_id]);
+    // Apply client_id filter if provided
+    if (!empty($client_id)) {
+        $query->whereRaw("FIND_IN_SET(?, company)", [$client_id]);
+    }
 
-        $result = $query->get();
-        $total_ave = 0;
-        $news_count = 0;
+    $result = $query->get();
+    $total_ave = 0;
+    $news_count = 0;
 
-        foreach ($result as $value) {
-            $rates_data = $this->getRates($value->media_type_id, $value->publication_id);
-            $ave = 0;
+    foreach ($result as $value) {
+        $rates_data = $this->getRates($value->media_type_id, $value->publication_id);
+        $ave = 0;
 
-            if (!empty($rates_data)) {
-                $article_size = $value->sizeofArticle ?? 0;
-                $rate = $rates_data->Rate;
-                $circulation_fig = $rates_data->Circulation_Fig;
-                $ave = 3 * $article_size * $rate * $circulation_fig;
-            }
-
-            $total_ave += $ave;
-            $news_count++;
+        if (!empty($rates_data)) {
+            $article_size = $value->sizeofArticle ?? 0;
+            $rate = $rates_data->Rate;
+            $circulation_fig = $rates_data->Circulation_Fig;
+            $ave = 3 * $article_size * $rate * $circulation_fig;
         }
 
-        return [
-            'news_count' => $news_count,
-            'total_ave' => $total_ave
-        ];
+        $total_ave += $ave;
+        $news_count++;
     }
 
-    public function getRates($gidMediaType, $gidMediaOutlet)
-    {
-        return DB::table('addrate')
-            ->select('Rate', 'Circulation_Fig')
-            ->where('gidMediaType', $gidMediaType)
-            ->where('gidMediaOutlet', $gidMediaOutlet)
-            ->first();
-    }
+    return [
+        'news_count' => $news_count,
+        'total_ave' => $total_ave
+    ];
+}
+
+public function getRates($gidMediaType, $gidMediaOutlet)
+{
+    return DB::table('addrate')
+        ->select('Rate', 'Circulation_Fig')
+        ->where('gidMediaType', $gidMediaType)
+        ->where('gidMediaOutlet', $gidMediaOutlet)
+        ->first();
+}
 
     public function getMediaData($timeframe, $client_id, $from = null, $to = null)
     {
