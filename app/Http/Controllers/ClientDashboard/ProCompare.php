@@ -54,11 +54,11 @@ class ProCompare extends Controller
     
             // Initialize arrays to hold the combined data for each client
             $media_data = $this->Pro_Compare_model->getMediaDataByID('daily', $client_id, $from, $to);
-            // $publication_data = $this->Pro_Compare_model->getPublicationDataByID('daily', $client_id, $from, $to);
-            // $geography_data = $this->Pro_Compare_model->getGeographyDataByID('daily', $client_id, $from, $to);
-            // $journalist_data = $this->Pro_Compare_model->getJournalistDataByID('daily', $client_id, $from, $to);
-            // $ave_data = $this->Pro_Compare_model->getAVEDataByID('daily', $client_id, $from, $to);
-            // $size_data = $this->Pro_Compare_model->getSizeDataCompByID('daily', $client_id, $from, $to);
+            $publication_data = $this->Pro_Compare_model->getPublicationDataByID('daily', $client_id, $from, $to);
+            $geography_data = $this->Pro_Compare_model->getGeographyDataByID('daily', $client_id, $from, $to);
+            $journalist_data = $this->Pro_Compare_model->getJournalistDataByID('daily', $client_id, $from, $to);
+            $ave_data = $this->Pro_Compare_model->getAVEDataByID('daily', $client_id, $from, $to);
+            $size_data = $this->Pro_Compare_model->getSizeDataCompByID('daily', $client_id, $from, $to);
     
             // Prepare data for response
             // echo '<pre>';
@@ -67,13 +67,14 @@ class ProCompare extends Controller
             $data = [
                 'get_quantity_compare_data' => $compititers_data,
                 'media_data' => $media_data,
-                // 'publication_data' => $publication_data,
-                // 'geography_data' => $geography_data,
-                // 'journalist_data' => $journalist_data,
-                // 'ave_data' => $ave_data,
-                // 'size_data' => $size_data,
+                'publication_data' => $publication_data,
+                'geography_data' => $geography_data,
+                'journalist_data' => $journalist_data,
+                'ave_data' => $ave_data,
+                'size_data' => $size_data,
             ];
-    
+            // print_r($media_data);
+            // print_r($ave_data);
             // Return JSON response
             return response()->json($data);
         }

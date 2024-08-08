@@ -116,8 +116,6 @@
                     </div>
                 </div>
             </div>
-            
-        
             <div class="quantity">
                 <div id="areaChart" class="chart-container">
                     <canvas id="myAreaChart"></canvas>
@@ -144,9 +142,8 @@
                     <button class="btn btn-primary" onclick="showChart('clientNewsCountContainer')">Show Table</button>
                 </div>
              </div>
-
-             <div class="media">
            
+             <div class="media">
                 <div class="row">
                     <div class="col-md-12 text-center">
                         <h6 class="text-primary">Overview / Media</h6>
@@ -184,6 +181,198 @@
                     <button class="btn btn-primary" onclick="showChart3('showMediaTableData')">Table Data</button>
                 </div>
             </div>
+            <div class="size">
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <h6 class="text-primary">Overview / Size</h6>
+                    </div>
+                </div>
+                <div id="sizebarChart" class="chart-container-2">
+                    <canvas id="sizeBarChart"></canvas>
+                </div>
+                <div id="sizelineChart" class="chart-container-2">
+                    <canvas id="sizeLineChart"></canvas>
+                </div>
+                <div id="sizeverticalBarChart" class="chart-container-2">
+                    <canvas id="sizeVerticalBarChart"></canvas>
+                </div>
+                <div id="showSizeTableData" class="chart-container-2" style="display: none;">
+                    <table id="sizeTable" style="width:100%; border: 1px solid gray;" >
+                        <thead>
+                            <tr >
+                                <th style= "border: 1px solid gray;">Name</th>
+                                <th style= "border: 1px solid gray;">Media Type</th>
+                                <th style= "border: 1px solid gray;">Count</th>
+                                <th style= "border: 1px solid gray;">AVE</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be appended here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="my-4">
+                    <button class="btn btn-primary" onclick="showChart2('sizebarChart')">Bar Chart</button>
+                    <button class="btn btn-primary" onclick="showChart2('sizelineChart')">Line Chart</button>
+                    <button class="btn btn-primary" onclick="showChart2('sizeverticalBarChart')">Column Chart</button>
+                    <button class="btn btn-primary" onclick="showChart2('showSizeTableData')">Table Data</button>
+                </div>
+            </div>
+            <div class="publication">
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <h6 class="text-primary">Overview / Publication</h6>
+                    </div>
+                </div>
+                <div id="publicationbarChart" class="chart-container-4">
+                    <canvas id="publicationBarChart"></canvas>
+                </div>
+                <div id="publicationlineChart" class="chart-container-4">
+                    <canvas id="publicationLineChart"></canvas>
+                </div>
+                <div id="publicationverticalBarChart" class="chart-container-4">
+                    <canvas id="publicationVerticalBarChart"></canvas>
+                </div>
+                <div id="showPublicationTableData" class="chart-container-4" style="display: none;">
+                    <table id="publicationTable" style="width:100%; border: 1px solid gray;" >
+                        <thead>
+                            <tr >
+                                <th style= "border: 1px solid gray;">Name</th>
+                                <th style= "border: 1px solid gray;">Media Type</th>
+                                <th style= "border: 1px solid gray;">Count</th>
+                                <th style= "border: 1px solid gray;">AVE</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be appended here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="my-4">
+                    <button class="btn btn-primary" onclick="showChart4('publicationbarChart')">Bar Chart</button>
+                    <button class="btn btn-primary" onclick="showChart4('publicationlineChart')">Line Chart</button>
+                    <button class="btn btn-primary" onclick="showChart4('publicationverticalBarChart')">Column Chart</button>
+                    <button class="btn btn-primary" onclick="showChart4('showPublicationTableData')">Table Data</button>
+                </div>
+            </div>
+            <div class="geography">
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <h6 class="text-primary">SOV / Geography</h6>
+                    </div>
+                </div>
+                <div id="geographybarChart" class="chart-container-5">
+                    <canvas id="geographyBarChart"></canvas>
+                </div>
+                <div id="geographylineChart" class="chart-container-5">
+                    <canvas id="geographyLineChart"></canvas>
+                </div>
+                <div id="geographyverticalBarChart" class="chart-container-5">
+                    <canvas id="geographyVerticalBarChart"></canvas>
+                </div>
+                <div id="showGeographyTableData" class="chart-container-5" style="display: none;">
+                    <table id="geographyTable" style="width:100%; border: 1px solid gray;" >
+                        <thead>
+                            <tr >
+                                <th style= "border: 1px solid gray;">Name</th>
+                                <th style= "border: 1px solid gray;">Media Type</th>
+                                <th style= "border: 1px solid gray;">Count</th>
+                                <th style= "border: 1px solid gray;">AVE</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be appended here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="my-4">
+                    <button class="btn btn-primary" onclick="showChart5('geographybarChart')">Bar Chart</button>
+                    <button class="btn btn-primary" onclick="showChart5('geographylineChart')">Line Chart</button>
+                    <button class="btn btn-primary" onclick="showChart5('geographyverticalBarChart')">Column Chart</button>
+                    <button class="btn btn-primary" onclick="showChart5('showGeographyTableData')">Table Data</button>
+                </div>
+            </div>
+            <div class="journalist">
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <h6 class="text-primary">Overview / Journalist</h6>
+                    </div>
+                </div>
+                <div id="journalistbarChart" class="chart-container-6">
+                    <canvas id="journalistBarChart"></canvas>
+                </div>
+                <div id="journalistlineChart" class="chart-container-6">
+                    <canvas id="journalistLineChart"></canvas>
+                </div>
+                <div id="journalistverticalBarChart" class="chart-container-6">
+                    <canvas id="journalistVerticalBarChart"></canvas>
+                </div>
+                <div id="showJournalistTableData" class="chart-container-6" style="display: none;">
+                    <table id="journalistTable" style="width:100%; border: 1px solid gray;" >
+                        <thead>
+                            <tr >
+                                <th style= "border: 1px solid gray;">Name</th>
+                                <th style= "border: 1px solid gray;">Media Type</th>
+                                <th style= "border: 1px solid gray;">Count</th>
+                                <th style= "border: 1px solid gray;">AVE</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be appended here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="my-4">
+                    <!-- <button class="btn btn-primary" onclick="showChart6('journalistareaChart')">Area Chart</button> -->
+                    <!-- <button class="btn btn-primary" onclick="showChart6('journalistpieChart')">Pie Chart</button> -->
+                    <button class="btn btn-primary" onclick="showChart6('journalistbarChart')">Bar Chart</button>
+                    <button class="btn btn-primary" onclick="showChart6('journalistlineChart')">Line Chart</button>
+                    <button class="btn btn-primary" onclick="showChart6('journalistverticalBarChart')">Column Chart</button>
+                    <button class="btn btn-primary" onclick="showChart6('showJournalistTableData')">Table Data</button>
+                </div>
+            </div>
+            
+            <div class="ave">
+           
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <h6 class="text-primary">Overview / Media</h6>
+                    </div>
+                </div>
+               
+                <div id="avepieChart" class="chart-container-7">
+                    <canvas id="avePieChart"></canvas>
+                </div>
+                <div id="avebarChart" class="chart-container-7">
+                    <canvas id="aveBarChart"></canvas>
+                </div>
+                <div id="avelineChart" class="chart-container-7">
+                    <canvas id="aveLineChart"></canvas>
+                </div>
+                <div id="aveverticalBarChart" class="chart-container-7">
+                    <canvas id="aveVerticalBarChart"></canvas>
+                </div>
+                <div id="showAveTableData" class="chart-container-7" style="display: none;">
+                    <table id="aveTable" style="width:100%;">
+                        <thead>
+                            <tr style="border= 1px solid gray;">
+                                <th style="border: 1px solid black;">Company Name</th>
+                                <th style="border: 1px solid black;">AVE</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be appended here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="my-4">
+                    <button class="btn btn-primary" onclick="showChart7('avepieChart')">Pie Chart</button>
+                    <button class="btn btn-primary" onclick="showChart7('avebarChart')">Bar Chart</button>
+                    <button class="btn btn-primary" onclick="showChart7('avelineChart')">Line Chart</button>
+                    <button class="btn btn-primary" onclick="showChart7('aveverticalBarChart')">Column Chart</button>
+                    <button class="btn btn-primary" onclick="showChart7('showAveTableData')">Table Data</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -195,16 +384,38 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-  let areaChart = initializeChart('myAreaChart', 'line');
+    let areaChart = initializeChart('myAreaChart', 'line');
     let pieChart = initializeChart('myPieChart', 'doughnut');
     let barChart = initializeChart('myBarChart', 'bar');
     let lineChart = initializeChart('myLineChart', 'line');
     let verticalBarChart = initializeChart('myVerticalBarChart', 'bar');
 
+    let sizeBarChart = initializeChart('sizeBarChart', 'bar');
+    let sizeLineChart = initializeChart('sizeLineChart', 'line');
+    let sizeVerticalBarChart = initializeChart('sizeVerticalBarChart', 'bar');
+
     let mediaBarChart = initializeChart('mediaBarChart', 'bar');
     let mediaLineChart = initializeChart('mediaLineChart', 'line');
     let mediaVerticalBarChart = initializeChart('mediaVerticalBarChart', 'bar');
     
+    let publicationBarChart = initializeChart('publicationBarChart', 'bar');
+    let publicationLineChart = initializeChart('publicationLineChart', 'line');
+    let publicationVerticalBarChart = initializeChart('publicationVerticalBarChart', 'bar');
+
+    let geographyBarChart = initializeChart('geographyBarChart', 'bar');
+    let geographyLineChart = initializeChart('geographyLineChart', 'line');
+    let geographyVerticalBarChart = initializeChart('geographyVerticalBarChart', 'bar');
+
+    let journalistBarChart = initializeChart('journalistBarChart', 'bar');
+    let journalistLineChart = initializeChart('journalistLineChart', 'line');
+    let journalistVerticalBarChart = initializeChart('journalistVerticalBarChart', 'bar');
+
+
+    let avePieChart = initializeChart('avePieChart', 'pie');
+    let aveBarChart = initializeChart('aveBarChart', 'bar');
+    let aveLineChart = initializeChart('aveLineChart', 'line');
+    let aveVerticalBarChart = initializeChart('aveVerticalBarChart', 'bar');
+   
     function initializeChart(ctxId, type) {
         return new Chart(document.getElementById(ctxId).getContext('2d'), {
             type: type,
@@ -227,6 +438,7 @@
             }
         });
     }
+
     $('#select_client').change(function() {
         const clientId = $(this).val();
 
@@ -241,6 +453,11 @@
                 if (response.get_quantity_compare_data && response.media_data) {
                     updateCharts(response.get_quantity_compare_data);
                     updateMediaCharts(response.media_data);
+                    updatePublicationCharts(response.publication_data);
+                    updateGeographyCharts(response.geography_data);
+                    updateJournalistCharts(response.journalist_data);
+                    updateSizeCharts(response.size_data);
+                    updateAveCharts(response.ave_data);
                     updateClientNewsCount(response.get_quantity_compare_data);
                     console.log('Data fetched and charts updated.');
                 } else {
@@ -281,7 +498,74 @@
         chart.data.datasets = datasets;
         chart.update();
     }
+    function updateSizeCharts(news_data) 
+    {
+    let sizeLabels = [];
+    let lineDataset = [];
+    let barDataset = [];
+    let columnDataset = [];
+    let category = new Set();
 
+    // Process the news_data array
+    news_data.forEach(item => {
+        sizeLabels.push(item.label);
+
+        // Add categories to the set
+        category.add(item.category);
+    });
+
+    // Create final data structure
+    let finalData = Array.from(category).map(cat => {
+        let counts = [];
+        let labels = [];
+
+        sizeLabels.forEach(label => {
+            let dataItem = news_data.find(news => news.label === label && news.category === cat);
+            counts.push(dataItem ? dataItem.count || 0 : 0);
+            labels.push(dataItem ? dataItem.label : '');
+        });
+
+        return {
+            label: cat,
+            count: counts,
+            labels: labels
+        };
+    });
+
+    // Update datasets for chart types
+    finalData.forEach(dataItem => {
+        let color = getRandomColor(0.1);
+        lineDataset.push({
+            label: dataItem.label,
+            data: dataItem.count,
+            backgroundColor: color.background,
+            borderColor: color.border,
+            borderWidth: 2,
+            fill: true
+        });
+
+        barDataset.push({
+            label: dataItem.label,
+            data: dataItem.count,
+            backgroundColor: color.background,
+            borderColor: color.border,
+            borderWidth: 1
+        });
+
+        columnDataset.push({
+            label: dataItem.label,
+            data: dataItem.count,
+            backgroundColor: color.background,
+            borderColor: color.border,
+            borderWidth: 1
+        });
+    });
+
+    // Update the charts with the new datasets
+    updateChart(sizeBarChart, sizeLabels, barDataset);
+    updateChart(sizeLineChart, sizeLabels, lineDataset);
+    updateChart(sizeVerticalBarChart, sizeLabels, columnDataset);
+}
     function updateMediaCharts(news_data) {
         let mediaLabels = [];
         let lineDataset = [];
@@ -342,6 +626,264 @@
         updateChart(mediaLineChart, mediaLabels, lineDataset);
         updateChart(mediaVerticalBarChart, mediaLabels, columnDataset);
     }
+    function updateAveCharts(news_data) {
+    let AveLabels = [];
+    let lineDataset = [];
+    let barDataset = [];
+    let columnDataset = [];
+    let aveSet = new Set();
+
+    // Process the news_data array
+    news_data.forEach(item => {
+        // Collect unique labels
+        if (!AveLabels.includes(item.label)) {
+            AveLabels.push(item.label);
+        }
+
+        // Collect unique ave values
+        aveSet.add(item.ave);
+    });
+
+    // Create final data structure
+    let finalData = Array.from(aveSet).map(ave => {
+        let counts = [];
+        let labels = [];
+
+        AveLabels.forEach(label => {
+            // Find data items that match both the label and ave
+            let dataItem = news_data.find(news => news.label === label && news.ave === ave);
+            counts.push(dataItem ? dataItem.count || 0 : 0);
+            labels.push(dataItem ? dataItem.label : '');
+        });
+
+        return {
+            label: `AVE ${ave}`,  // Prefix label with 'AVE' for clarity
+            count: counts
+        };
+    });
+
+    // Update datasets for chart types
+    finalData.forEach(dataItem => {
+        let color = getRandomColor(0.1);
+        
+        // Line Chart Dataset
+        lineDataset.push({
+            label: dataItem.label,
+            data: dataItem.count,
+            backgroundColor: color.background,
+            borderColor: color.border,
+            borderWidth: 2,
+            fill: true
+        });
+
+        // Bar Chart Dataset
+        barDataset.push({
+            label: dataItem.label,
+            data: dataItem.count,
+            backgroundColor: color.background,
+            borderColor: color.border,
+            borderWidth: 1
+        });
+
+        // Column Chart Dataset
+        columnDataset.push({
+            label: dataItem.label,
+            data: dataItem.count,
+            backgroundColor: color.background,
+            borderColor: color.border,
+            borderWidth: 1
+        });
+    });
+
+    // Update the charts with the new datasets
+    updateChart(avePieChart, AveLabels, lineDataset); // Ensure 'line' is correct for pie chart
+    updateChart(aveBarChart, AveLabels, barDataset); // Update bar chart
+    updateChart(aveLineChart, AveLabels, lineDataset); // Update line chart
+    updateChart(aveVerticalBarChart, AveLabels, columnDataset); // Update vertical bar chart
+}
+    function updatePublicationCharts(news_data) {
+        let publicationLabels = [];
+        let lineDataset = [];
+        let barDataset = [];
+        let columnDataset = [];
+        let clientNames = new Set();
+
+        for (let publication in news_data) {
+            if (news_data.hasOwnProperty(publication)) {
+                publicationLabels.push(publication);
+
+                news_data[publication].forEach(news => clientNames.add(news.Client_name));
+            }
+        }
+
+        let finalData = Array.from(clientNames).map(clientName => {
+            let counts = [];
+            for (let publication in news_data) {
+                let publicationData = news_data[publication];
+                let countData = publicationData.find(news => news.Client_name === clientName);
+                counts.push(countData ? countData.Count : 0);
+            }
+            return {
+                label: clientName,
+                count: counts
+            };
+        });
+
+        finalData.forEach(dataItem => {
+            let color = getRandomColor(0.1);
+            lineDataset.push({
+                label: dataItem.label,
+                data: dataItem.count,
+                backgroundColor: color.background,
+                borderColor: color.border,
+                borderWidth: 2,
+                fill: true
+            });
+
+            barDataset.push({
+                label: dataItem.label,
+                data: dataItem.count,
+                backgroundColor: color.background,
+                borderColor: color.border,
+                borderWidth: 1
+            });
+
+            columnDataset.push({
+                label: dataItem.label,
+                data: dataItem.count,
+                backgroundColor: color.background,
+                borderColor: color.border,
+                borderWidth: 1
+            });
+        });
+
+        updateChart(publicationBarChart, publicationLabels, barDataset);
+        updateChart(publicationLineChart, publicationLabels, lineDataset);
+        updateChart(publicationVerticalBarChart, publicationLabels, columnDataset);
+    }
+    
+    function updateGeographyCharts(news_data) {
+        let GeographyLabels = [];
+        let lineDataset = [];
+        let barDataset = [];
+        let columnDataset = [];
+        let clientNames = new Set();
+
+        for (let geography in news_data) {
+            if (news_data.hasOwnProperty(geography)) {
+                GeographyLabels.push(geography);
+
+                news_data[geography].forEach(news => clientNames.add(news.Client_name));
+            }
+        }
+
+        let finalData = Array.from(clientNames).map(clientName => {
+            let counts = [];
+            for (let geography in news_data) {
+                let geographyData = news_data[geography];
+                let countData = geographyData.find(news => news.Client_name === clientName);
+                counts.push(countData ? countData.Count : 0);
+            }
+            return {
+                label: clientName,
+                count: counts
+            };
+        });
+
+        finalData.forEach(dataItem => {
+            let color = getRandomColor(0.1);
+            lineDataset.push({
+                label: dataItem.label,
+                data: dataItem.count,
+                backgroundColor: color.background,
+                borderColor: color.border,
+                borderWidth: 2,
+                fill: true
+            });
+
+            barDataset.push({
+                label: dataItem.label,
+                data: dataItem.count,
+                backgroundColor: color.background,
+                borderColor: color.border,
+                borderWidth: 1
+            });
+
+            columnDataset.push({
+                label: dataItem.label,
+                data: dataItem.count,
+                backgroundColor: color.background,
+                borderColor: color.border,
+                borderWidth: 1
+            });
+        });
+
+        updateChart(geographyBarChart, GeographyLabels, barDataset);
+        updateChart(geographyLineChart, GeographyLabels, lineDataset);
+        updateChart(geographyVerticalBarChart, GeographyLabels, columnDataset);
+    }
+
+    function updateJournalistCharts(news_data) {
+        let JournalistLabels = [];
+        let lineDataset = [];
+        let barDataset = [];
+        let columnDataset = [];
+        let clientNames = new Set();
+
+        for (let Journalist in news_data) {
+            if (news_data.hasOwnProperty(Journalist)) {
+                JournalistLabels.push(Journalist);
+
+                news_data[Journalist].forEach(news => clientNames.add(news.Client_name));
+            }
+        }
+
+        let finalData = Array.from(clientNames).map(clientName => {
+            let counts = [];
+            for (let Journalist in news_data) {
+                let JournalistData = news_data[Journalist];
+                let countData = JournalistData.find(news => news.Client_name === clientName);
+                counts.push(countData ? countData.Count : 0);
+            }
+            return {
+                label: clientName,
+                count: counts
+            };
+        });
+
+        finalData.forEach(dataItem => {
+            let color = getRandomColor(0.1);
+            lineDataset.push({
+                label: dataItem.label,
+                data: dataItem.count,
+                backgroundColor: color.background,
+                borderColor: color.border,
+                borderWidth: 2,
+                fill: true
+            });
+
+            barDataset.push({
+                label: dataItem.label,
+                data: dataItem.count,
+                backgroundColor: color.background,
+                borderColor: color.border,
+                borderWidth: 1
+            });
+
+            columnDataset.push({
+                label: dataItem.label,
+                data: dataItem.count,
+                backgroundColor: color.background,
+                borderColor: color.border,
+                borderWidth: 1
+            });
+        });
+
+        updateChart(journalistBarChart, JournalistLabels, barDataset);
+        updateChart(journalistLineChart, JournalistLabels, lineDataset);
+        updateChart(journalistVerticalBarChart, JournalistLabels, columnDataset);
+    }
+
     function getRandomColor(opacity) {
         let r = Math.floor(Math.random() * 255);
         let g = Math.floor(Math.random() * 255);
@@ -397,6 +939,7 @@
         table.appendChild(totalRow);
         container.appendChild(table);
     }
+
     window.showChart = function(chartId) {
         const charts = document.querySelectorAll('.chart-container');
         charts.forEach(chart => {
@@ -404,7 +947,13 @@
         });
         document.getElementById(chartId).classList.add('active');
     }
-
+    window.showChart2 = function(chartId) {
+        const charts = document.querySelectorAll('.chart-container-2');
+        charts.forEach(chart => {
+            chart.classList.remove('active');
+        });
+        document.getElementById(chartId).classList.add('active');
+    }
     window.showChart3 = function(chartId) {
         const charts = document.querySelectorAll('.chart-container-3');
         charts.forEach(chart => {
@@ -413,17 +962,61 @@
         document.getElementById(chartId).classList.add('active');
     }
 
+    window.showChart4 = function(chartId) {
+        const charts = document.querySelectorAll('.chart-container-4');
+        charts.forEach(chart => {
+            chart.classList.remove('active');
+        });
+        document.getElementById(chartId).classList.add('active');
+    }
+
+    window.showChart5 = function(chartId) {
+        const charts = document.querySelectorAll('.chart-container-5');
+        charts.forEach(chart => {
+            chart.classList.remove('active');
+        });
+        document.getElementById(chartId).classList.add('active');
+    }
+    window.showChart6 = function(chartId) {
+        const charts = document.querySelectorAll('.chart-container-6');
+        charts.forEach(chart => {
+            chart.classList.remove('active');
+        });
+        document.getElementById(chartId).classList.add('active');
+    }
+    window.showChart7 = function(chartId) {
+        const charts = document.querySelectorAll('.chart-container-7');
+        charts.forEach(chart => {
+            chart.classList.remove('active');
+        });
+        document.getElementById(chartId).classList.add('active');
+    }
     window.handleChartTypeChange = function() {
         const selectedValue = document.getElementById('chartTypeSelector').value;
         const quantityCharts = document.querySelector('.quantity');
+        const sizeCharts = document.querySelector('.size');
         const mediaCharts = document.querySelector('.media');
-
+        const publicationCharts = document.querySelector('.publication');
+        const geographyCharts = document.querySelector('.geography');
+        const journalistCharts = document.querySelector('.journalist');
+        const aveCharts = document.querySelector('.ave');
         quantityCharts.style.display = selectedValue === 'Quantity' ? 'block' : 'none';
+        sizeCharts.style.display = selectedValue === 'Size' ? 'block' : 'none';
         mediaCharts.style.display = selectedValue === 'Media' ? 'block' : 'none';
+        publicationCharts.style.display = selectedValue === 'Publication' ? 'block' : 'none';
+        geographyCharts.style.display = selectedValue === 'Geography' ? 'block' : 'none';
+        journalistCharts.style.display = selectedValue === 'Journalist' ? 'block' : 'none';
+        aveCharts.style.display = selectedValue === 'ave' ? 'block' : 'none';
+        
     }
 
     showChart('lineChart');
-    showChart3('mediaLineChart');
+    showChart2('sizelineChart');
+    showChart3('medialineChart');
+    showChart4('publicationlineChart');
+    showChart5('geographylineChart');
+    showChart6('journalistlineChart');
+    showChart7('aveLineChart');
     handleChartTypeChange();
 </script>
 <script>
