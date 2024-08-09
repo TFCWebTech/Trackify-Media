@@ -39,6 +39,7 @@ use App\http\Controllers\NewsArtical;
 use App\http\Controllers\ClientDashboard\ClientLogin;
 use App\http\Controllers\ClientDashboard\ganerateReport;
 use App\http\Controllers\ClientDashboard\ProCompare;
+use App\http\Controllers\ClientDashboard\ProAnalytics;
 // Route::get('/', function () {
 //     return view('welcome');
 // });  
@@ -55,6 +56,9 @@ Route::post('/get-news-word', [ganerateReport::class, 'getNewsArticleInword'])->
 Route::get('/pro-compare-charts', [ProCompare::class, 'index'])->name('charts.ProCompare');
 // Route::post('/get-pro-compare-charts', [ProCompare::class, 'fetchClientData']);
 Route::post('/fetchClientData', [ProCompare::class, 'fetchClientData'])->name('fetchClientData');
+Route::get('/pro-analytics-charts', [ProAnalytics::class, 'index'])->name('charts.ProAnalytics');
+Route::post('/fetchAnalyticsData', [ProAnalytics::class, 'fetchAnalyticsData'])->name('fetchAnalyticsData');
+
 
 Route::get('/', [Login::class, 'index'])->name('login');
 Route::post('/login', [Login::class, 'loginUser'])->name('login.user');

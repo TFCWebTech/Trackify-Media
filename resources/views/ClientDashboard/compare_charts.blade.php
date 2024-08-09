@@ -79,7 +79,7 @@
     <div id="content">
         <div class="container-fluid">
             <div class="row mb-2">
-            <div class="col-md-12 d-flex justify-content-between ">
+            <div class="col-md-12 d-flex justify-content-between">
                 <div class="div d-flex">
                 <form id="clientForm" class="d-flex" style="height:35px;">
                         <label class="px-1 font-weight-bold mt-1" for="publication_type">Select Client</label>
@@ -143,13 +143,13 @@
                 </div>
              </div>
            
-             <div class="media">
+            <div class="media">
                 <div class="row">
                     <div class="col-md-12 text-center">
                         <h6 class="text-primary">Overview / Media</h6>
                     </div>
                 </div>
-               
+            
                 <div id="mediabarChart" class="chart-container-3">
                     <canvas id="mediaBarChart"></canvas>
                 </div>
@@ -160,13 +160,13 @@
                     <canvas id="mediaVerticalBarChart"></canvas>
                 </div>
                 <div id="showMediaTableData" class="chart-container-3" style="display: none;">
-                    <table id="mediaTable" style="width:100%; border: 1px solid gray;" >
+                    <table id="mediaTable" style="width:100%; border: 1px solid gray;">
                         <thead>
-                            <tr >
-                                <th style= "border: 1px solid gray;">Name</th>
-                                <th style= "border: 1px solid gray;">Media Type</th>
-                                <th style= "border: 1px solid gray;">Count</th>
-                                <th style= "border: 1px solid gray;">AVE</th>
+                            <tr>
+                                <th style="border: 1px solid gray;">Client Name</th>
+                                <th style="border: 1px solid gray;">Media Type</th>
+                                <th style="border: 1px solid gray;">Count</th>
+                                <th style="border: 1px solid gray;">AVE</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -181,6 +181,7 @@
                     <button class="btn btn-primary" onclick="showChart3('showMediaTableData')">Table Data</button>
                 </div>
             </div>
+
             <div class="size">
                 <div class="row">
                     <div class="col-md-12 text-center">
@@ -218,6 +219,7 @@
                     <button class="btn btn-primary" onclick="showChart2('showSizeTableData')">Table Data</button>
                 </div>
             </div>
+         
             <div class="publication">
                 <div class="row">
                     <div class="col-md-12 text-center">
@@ -331,12 +333,10 @@
                     <button class="btn btn-primary" onclick="showChart6('showJournalistTableData')">Table Data</button>
                 </div>
             </div>
-            
             <div class="ave">
-           
                 <div class="row">
                     <div class="col-md-12 text-center">
-                        <h6 class="text-primary">Overview / Media</h6>
+                        <h6 class="text-primary">Overview / AVE</h6>
                     </div>
                 </div>
                
@@ -388,35 +388,34 @@
     let pieChart = initializeChart('myPieChart', 'doughnut');
     let barChart = initializeChart('myBarChart', 'bar');
     let lineChart = initializeChart('myLineChart', 'line');
-    let verticalBarChart = initializeChart('myVerticalBarChart', 'bar');
+    let verticalBarChart = initializeChart('myVerticalBarChart', 'bar', true);
 
     let sizeBarChart = initializeChart('sizeBarChart', 'bar');
     let sizeLineChart = initializeChart('sizeLineChart', 'line');
-    let sizeVerticalBarChart = initializeChart('sizeVerticalBarChart', 'bar');
+    let sizeVerticalBarChart = initializeChart('sizeVerticalBarChart', 'bar', true);
 
     let mediaBarChart = initializeChart('mediaBarChart', 'bar');
     let mediaLineChart = initializeChart('mediaLineChart', 'line');
-    let mediaVerticalBarChart = initializeChart('mediaVerticalBarChart', 'bar');
+    let mediaVerticalBarChart = initializeChart('mediaVerticalBarChart', 'bar', true);
     
     let publicationBarChart = initializeChart('publicationBarChart', 'bar');
     let publicationLineChart = initializeChart('publicationLineChart', 'line');
-    let publicationVerticalBarChart = initializeChart('publicationVerticalBarChart', 'bar');
+    let publicationVerticalBarChart = initializeChart('publicationVerticalBarChart', 'bar', true);
 
     let geographyBarChart = initializeChart('geographyBarChart', 'bar');
     let geographyLineChart = initializeChart('geographyLineChart', 'line');
-    let geographyVerticalBarChart = initializeChart('geographyVerticalBarChart', 'bar');
+    let geographyVerticalBarChart = initializeChart('geographyVerticalBarChart', 'bar', true);
 
     let journalistBarChart = initializeChart('journalistBarChart', 'bar');
     let journalistLineChart = initializeChart('journalistLineChart', 'line');
-    let journalistVerticalBarChart = initializeChart('journalistVerticalBarChart', 'bar');
-
+    let journalistVerticalBarChart = initializeChart('journalistVerticalBarChart', 'bar', true);
 
     let avePieChart = initializeChart('avePieChart', 'pie');
     let aveBarChart = initializeChart('aveBarChart', 'bar');
     let aveLineChart = initializeChart('aveLineChart', 'line');
-    let aveVerticalBarChart = initializeChart('aveVerticalBarChart', 'bar');
+    let aveVerticalBarChart = initializeChart('aveVerticalBarChart', 'bar', true);
    
-    function initializeChart(ctxId, type) {
+    function initializeChart(ctxId, type, isHorizontal = false) {
         return new Chart(document.getElementById(ctxId).getContext('2d'), {
             type: type,
             data: {
@@ -425,6 +424,7 @@
             },
             options: {
                 maintainAspectRatio: false,
+                indexAxis: isHorizontal ? 'y' : 'x', // Add this line to toggle between vertical and horizontal
                 scales: {
                     y: {
                         beginAtZero: true,
@@ -451,14 +451,34 @@
             },
             success: function(response) {
                 if (response.get_quantity_compare_data && response.media_data) {
+                    // funcation call for data show in charts of quantity 
                     updateCharts(response.get_quantity_compare_data);
-                    updateMediaCharts(response.media_data);
-                    updatePublicationCharts(response.publication_data);
-                    updateGeographyCharts(response.geography_data);
-                    updateJournalistCharts(response.journalist_data);
-                    updateSizeCharts(response.size_data);
-                    updateAveCharts(response.ave_data);
+                    // funcation call for data show in table of quantity  
                     updateClientNewsCount(response.get_quantity_compare_data);
+                    // funcation call for data show in charts of Media
+                    updateMediaCharts(response.media_data);
+                    // funcation call for data show in table of Media
+                    updateMediaTable(response.media_data);
+                    // funcation call for data show in charts of Publication
+                    updatePublicationCharts(response.publication_data);
+                    // funcation call for data show in table of Publication
+                    updatePublicationTable(response.publication_data);
+                    // funcation call for data show in charts of Geography
+                    updateGeographyCharts(response.geography_data);
+                    // funcation call for data show in table of Geography
+                    updateGeographyTable(response.geography_data);
+                    // funcation call for data show in charts of Journalist
+                    updateJournalistCharts(response.journalist_data);
+                    // funcation call for data show in table of Journalist
+                    updateJournalistTable(response.journalist_data);
+                     // funcation call for data show in charts of Size
+                    updateSizeCharts(response.size_data);
+                    // funcation call for data show in table of Journalist
+                    updateSizeTable(response.size_data);
+                    // funcation call for data show in charts of AVE
+                    updateAveCharts(response.ave_data);
+                    // funcation call for data show in table of Journalist
+                    updateAveTable(response.size_data);
                     console.log('Data fetched and charts updated.');
                 } else {
                     console.error('Invalid data format received:', response);
@@ -500,72 +520,72 @@
     }
     function updateSizeCharts(news_data) 
     {
-    let sizeLabels = [];
-    let lineDataset = [];
-    let barDataset = [];
-    let columnDataset = [];
-    let category = new Set();
+        let sizeLabels = [];
+        let lineDataset = [];
+        let barDataset = [];
+        let columnDataset = [];
+        let category = new Set();
 
-    // Process the news_data array
-    news_data.forEach(item => {
-        sizeLabels.push(item.label);
+        // Process the news_data array
+        news_data.forEach(item => {
+            sizeLabels.push(item.label);
 
-        // Add categories to the set
-        category.add(item.category);
-    });
-
-    // Create final data structure
-    let finalData = Array.from(category).map(cat => {
-        let counts = [];
-        let labels = [];
-
-        sizeLabels.forEach(label => {
-            let dataItem = news_data.find(news => news.label === label && news.category === cat);
-            counts.push(dataItem ? dataItem.count || 0 : 0);
-            labels.push(dataItem ? dataItem.label : '');
+            // Add categories to the set
+            category.add(item.category);
         });
 
-        return {
-            label: cat,
-            count: counts,
-            labels: labels
-        };
-    });
+        // Create final data structure
+        let finalData = Array.from(category).map(cat => {
+            let counts = [];
+            let labels = [];
 
-    // Update datasets for chart types
-    finalData.forEach(dataItem => {
-        let color = getRandomColor(0.1);
-        lineDataset.push({
-            label: dataItem.label,
-            data: dataItem.count,
-            backgroundColor: color.background,
-            borderColor: color.border,
-            borderWidth: 2,
-            fill: true
+            sizeLabels.forEach(label => {
+                let dataItem = news_data.find(news => news.label === label && news.category === cat);
+                counts.push(dataItem ? dataItem.count || 0 : 0);
+                labels.push(dataItem ? dataItem.label : '');
+            });
+
+            return {
+                label: cat,
+                count: counts,
+                labels: labels
+            };
         });
 
-        barDataset.push({
-            label: dataItem.label,
-            data: dataItem.count,
-            backgroundColor: color.background,
-            borderColor: color.border,
-            borderWidth: 1
+        // Update datasets for chart types
+        finalData.forEach(dataItem => {
+            let color = getRandomColor(0.1);
+            lineDataset.push({
+                label: dataItem.label,
+                data: dataItem.count,
+                backgroundColor: color.background,
+                borderColor: color.border,
+                borderWidth: 2,
+                fill: true
+            });
+
+            barDataset.push({
+                label: dataItem.label,
+                data: dataItem.count,
+                backgroundColor: color.background,
+                borderColor: color.border,
+                borderWidth: 1
+            });
+
+            columnDataset.push({
+                label: dataItem.label,
+                data: dataItem.count,
+                backgroundColor: color.background,
+                borderColor: color.border,
+                borderWidth: 1
+            });
         });
 
-        columnDataset.push({
-            label: dataItem.label,
-            data: dataItem.count,
-            backgroundColor: color.background,
-            borderColor: color.border,
-            borderWidth: 1
-        });
-    });
-
-    // Update the charts with the new datasets
-    updateChart(sizeBarChart, sizeLabels, barDataset);
-    updateChart(sizeLineChart, sizeLabels, lineDataset);
-    updateChart(sizeVerticalBarChart, sizeLabels, columnDataset);
-}
+        // Update the charts with the new datasets
+        updateChart(sizeBarChart, sizeLabels, barDataset);
+        updateChart(sizeLineChart, sizeLabels, lineDataset);
+        updateChart(sizeVerticalBarChart, sizeLabels, columnDataset);
+    }
     function updateMediaCharts(news_data) {
         let mediaLabels = [];
         let lineDataset = [];
@@ -626,81 +646,82 @@
         updateChart(mediaLineChart, mediaLabels, lineDataset);
         updateChart(mediaVerticalBarChart, mediaLabels, columnDataset);
     }
+
     function updateAveCharts(news_data) {
-    let AveLabels = [];
-    let lineDataset = [];
-    let barDataset = [];
-    let columnDataset = [];
-    let aveSet = new Set();
+        let AveLabels = [];
+        let lineDataset = [];
+        let barDataset = [];
+        let columnDataset = [];
+        let aveSet = new Set();
 
-    // Process the news_data array
-    news_data.forEach(item => {
-        // Collect unique labels
-        if (!AveLabels.includes(item.label)) {
-            AveLabels.push(item.label);
-        }
+        // Process the news_data array
+        news_data.forEach(item => {
+            // Collect unique labels
+            if (!AveLabels.includes(item.label)) {
+                AveLabels.push(item.label);
+            }
 
-        // Collect unique ave values
-        aveSet.add(item.ave);
-    });
-
-    // Create final data structure
-    let finalData = Array.from(aveSet).map(ave => {
-        let counts = [];
-        let labels = [];
-
-        AveLabels.forEach(label => {
-            // Find data items that match both the label and ave
-            let dataItem = news_data.find(news => news.label === label && news.ave === ave);
-            counts.push(dataItem ? dataItem.count || 0 : 0);
-            labels.push(dataItem ? dataItem.label : '');
+            // Collect unique ave values
+            aveSet.add(item.ave);
         });
 
-        return {
-            label: `AVE ${ave}`,  // Prefix label with 'AVE' for clarity
-            count: counts
-        };
-    });
+        // Create final data structure
+        let finalData = Array.from(aveSet).map(ave => {
+            let counts = [];
+            let labels = [];
 
-    // Update datasets for chart types
-    finalData.forEach(dataItem => {
-        let color = getRandomColor(0.1);
-        
-        // Line Chart Dataset
-        lineDataset.push({
-            label: dataItem.label,
-            data: dataItem.count,
-            backgroundColor: color.background,
-            borderColor: color.border,
-            borderWidth: 2,
-            fill: true
+            AveLabels.forEach(label => {
+                // Find data items that match both the label and ave
+                let dataItem = news_data.find(news => news.label === label && news.ave === ave);
+                counts.push(dataItem ? dataItem.count || 0 : 0);
+                labels.push(dataItem ? dataItem.label : '');
+            });
+
+            return {
+                label: `AVE ${ave}`,  // Prefix label with 'AVE' for clarity
+                count: counts
+            };
         });
 
-        // Bar Chart Dataset
-        barDataset.push({
-            label: dataItem.label,
-            data: dataItem.count,
-            backgroundColor: color.background,
-            borderColor: color.border,
-            borderWidth: 1
+        // Update datasets for chart types
+        finalData.forEach(dataItem => {
+            let color = getRandomColor(0.1);
+            
+            // Line Chart Dataset
+            lineDataset.push({
+                label: dataItem.label,
+                data: dataItem.count,
+                backgroundColor: color.background,
+                borderColor: color.border,
+                borderWidth: 2,
+                fill: true
+            });
+
+            // Bar Chart Dataset
+            barDataset.push({
+                label: dataItem.label,
+                data: dataItem.count,
+                backgroundColor: color.background,
+                borderColor: color.border,
+                borderWidth: 1
+            });
+
+            // Column Chart Dataset
+            columnDataset.push({
+                label: dataItem.label,
+                data: dataItem.count,
+                backgroundColor: color.background,
+                borderColor: color.border,
+                borderWidth: 1
+            });
         });
 
-        // Column Chart Dataset
-        columnDataset.push({
-            label: dataItem.label,
-            data: dataItem.count,
-            backgroundColor: color.background,
-            borderColor: color.border,
-            borderWidth: 1
-        });
-    });
-
-    // Update the charts with the new datasets
-    updateChart(avePieChart, AveLabels, lineDataset); // Ensure 'line' is correct for pie chart
-    updateChart(aveBarChart, AveLabels, barDataset); // Update bar chart
-    updateChart(aveLineChart, AveLabels, lineDataset); // Update line chart
-    updateChart(aveVerticalBarChart, AveLabels, columnDataset); // Update vertical bar chart
-}
+        // Update the charts with the new datasets
+        updateChart(avePieChart, AveLabels, lineDataset); // Ensure 'line' is correct for pie chart
+        updateChart(aveBarChart, AveLabels, barDataset); // Update bar chart
+        updateChart(aveLineChart, AveLabels, lineDataset); // Update line chart
+        updateChart(aveVerticalBarChart, AveLabels, columnDataset); // Update vertical bar chart
+    }
     function updatePublicationCharts(news_data) {
         let publicationLabels = [];
         let lineDataset = [];
@@ -940,6 +961,496 @@
         container.appendChild(table);
     }
 
+    function updateMediaTable(mediaData) {
+        const tableBody = document.querySelector('#mediaTable tbody');
+        const tableHead = document.querySelector('#mediaTable thead');
+        tableBody.innerHTML = ''; // Clear existing table rows
+        tableHead.innerHTML = ''; // Clear existing table header
+
+        // Collect client names and initialize structure for rows
+        const clientNames = {};
+        const rows = {};
+
+        // Iterate through media types and populate client data
+        Object.keys(mediaData).forEach(mediaType => {
+            mediaData[mediaType].forEach(client => {
+                const clientName = client.Client_name;
+                const aveValue = client.ave !== undefined && client.ave !== null ? parseFloat(client.ave) : 0;
+                const countValue = client.Count !== undefined && client.Count !== null ? parseInt(client.Count, 10) : 0;
+
+                // Ensure the client name is in the clientNames object
+                if (!clientNames[clientName]) {
+                    clientNames[clientName] = true;
+                }
+
+                // Initialize rows structure
+                if (!rows[mediaType]) {
+                    rows[mediaType] = {
+                        counts: {},
+                        totalAve: 0,
+                        aveCount: 0
+                    };
+                }
+                rows[mediaType].counts[clientName] = countValue;
+                rows[mediaType].totalAve += aveValue;
+                rows[mediaType].aveCount += aveValue ? 1 : 0;
+            });
+        });
+
+        // Create table header
+        const headerRow = document.createElement('tr');
+        headerRow.innerHTML = `
+            <th style="border: 1px solid gray;">Media Type</th>
+            ${Object.keys(clientNames).map(name => `<th style="border: 1px solid gray;">${name}</th>`).join('')}
+            <th style="border: 1px solid gray;">AVE</th>
+        `;
+        tableHead.appendChild(headerRow);
+
+        let totalCounts = {};
+        let totalAve = 0;
+        let totalAveCount = 0;
+
+        // Create table body rows
+        Object.keys(rows).forEach(mediaType => {
+            const row = document.createElement('tr');
+            const counts = rows[mediaType].counts;
+            const avgAve = rows[mediaType].aveCount > 0 ? (rows[mediaType].totalAve / rows[mediaType].aveCount).toFixed(2) : 0;
+
+            row.innerHTML = `
+                <td style="border: 1px solid gray;">${mediaType}</td>
+                ${Object.keys(clientNames).map(name => {
+                    const count = counts[name] || 0;
+                    totalCounts[name] = (totalCounts[name] || 0) + count;
+                    return `<td style="border: 1px solid gray;">${count}</td>`;
+                }).join('')}
+                <td style="border: 1px solid gray;">${avgAve}</td>
+            `;
+            tableBody.appendChild(row);
+
+            totalAve += parseFloat(avgAve);
+            totalAveCount += rows[mediaType].aveCount;
+        });
+
+        const overallAvgAve = totalAveCount > 0 ? (totalAve / totalAveCount).toFixed(2) : 0;
+
+        // Create total row
+        const totalRow = document.createElement('tr');
+        totalRow.style.fontWeight = 'bold';
+        totalRow.innerHTML = `
+            <td style="border: 1px solid gray;">Total</td>
+            ${Object.keys(clientNames).map(name => `<td style="border: 1px solid gray;">${totalCounts[name]}</td>`).join('')}
+            <td style="border: 1px solid gray;">${overallAvgAve}</td>
+        `;
+        tableBody.appendChild(totalRow);
+    }
+
+    function updatePublicationTable(publicationData) {
+        const tableBody = document.querySelector('#publicationTable tbody');
+        const tableHead = document.querySelector('#publicationTable thead');
+        tableBody.innerHTML = ''; // Clear existing table rows
+        tableHead.innerHTML = ''; // Clear existing table header
+
+        // Collect client names and initialize structure for rows
+        const clientNames = {};
+        const rows = {};
+
+        // Iterate through publication types and populate client data
+        Object.keys(publicationData).forEach(publicationName => {
+            publicationData[publicationName].forEach(client => {
+                const clientName = client.Client_name;
+                const aveValue = client.ave !== undefined && client.ave !== null ? parseFloat(client.ave) : 0;
+                const countValue = client.Count !== undefined && client.Count !== null ? parseInt(client.Count, 10) : 0;
+
+                // Ensure the client name is in the clientNames object
+                if (!clientNames[clientName]) {
+                    clientNames[clientName] = true;
+                }
+
+                // Initialize rows structure
+                if (!rows[publicationName]) {
+                    rows[publicationName] = {
+                        counts: {},
+                        totalAve: 0,
+                    };
+                }
+
+                rows[publicationName].counts[clientName] = countValue;
+                rows[publicationName].totalAve += aveValue;
+            });
+        });
+
+        // Create table header
+        const headerRow = document.createElement('tr');
+        headerRow.innerHTML = `
+            <th style="border: 1px solid gray;">Publication Type</th>
+            ${Object.keys(clientNames).map(name => `<th style="border: 1px solid gray;">${name}</th>`).join('')}
+            <th style="border: 1px solid gray;">AVE</th>
+        `;
+        tableHead.appendChild(headerRow);
+
+        let totalCounts = {};
+        let totalAve = 0;
+        let totalPublications = 0;
+
+        // Create table body rows
+        Object.keys(rows).forEach(publicationType => {
+            const row = document.createElement('tr');
+            const counts = rows[publicationType].counts;
+            const totalPublicationAve = rows[publicationType].totalAve;
+
+            row.innerHTML = `
+                <td style="border: 1px solid gray;">${publicationType}</td>
+                ${Object.keys(clientNames).map(name => {
+                    const count = counts[name] || 0;
+                    totalCounts[name] = (totalCounts[name] || 0) + count;
+                    return `<td style="border: 1px solid gray;">${count}</td>`;
+                }).join('')}
+                <td style="border: 1px solid gray;">${totalPublicationAve.toFixed(2)}</td>
+            `;
+            tableBody.appendChild(row);
+
+            // Accumulate total AVE values
+            totalAve += totalPublicationAve;
+            totalPublications += 1;
+        });
+
+        // Calculate overall average AVE
+        const overallAvgAve = totalPublications > 0 ? (totalAve / totalPublications).toFixed(2) : 0;
+
+        // Create total row
+        const totalRow = document.createElement('tr');
+        totalRow.style.fontWeight = 'bold';
+        totalRow.innerHTML = `
+            <td style="border: 1px solid gray;">Total</td>
+            ${Object.keys(clientNames).map(name => `<td style="border: 1px solid gray;">${totalCounts[name]}</td>`).join('')}
+            <td style="border: 1px solid gray;">${totalAve.toFixed(2)}</td>
+        `;
+        tableBody.appendChild(totalRow);
+    }
+
+    function updateGeographyTable(geographyData) {
+        const tableBody = document.querySelector('#geographyTable tbody');
+        const tableHead = document.querySelector('#geographyTable thead');
+        tableBody.innerHTML = ''; // Clear existing table rows
+        tableHead.innerHTML = ''; // Clear existing table header
+
+        // Collect client names and initialize structure for rows
+        const clientNames = {};
+        const rows = {};
+
+        // Iterate through geography data and populate client data
+        Object.keys(geographyData).forEach(geographyName => {
+            geographyData[geographyName].forEach(client => {
+                const clientName = client.Client_name.trim(); // Trim whitespace for consistency
+                const aveValue = client.ave !== undefined && client.ave !== null ? parseFloat(client.ave) : 0;
+                const countValue = client.Count !== undefined && client.Count !== null ? parseInt(client.Count, 10) : 0;
+
+                // Ensure the client name is in the clientNames object
+                if (!clientNames[clientName]) {
+                    clientNames[clientName] = true;
+                }
+
+                // Initialize rows structure
+                if (!rows[geographyName]) {
+                    rows[geographyName] = {
+                        counts: {},
+                        totalAve: 0,
+                    };
+                }
+
+                rows[geographyName].counts[clientName] = countValue;
+                rows[geographyName].totalAve += aveValue;
+            });
+        });
+
+        // Create table header
+        const headerRow = document.createElement('tr');
+        headerRow.innerHTML = `
+            <th style="border: 1px solid gray;">Geography Type</th>
+            ${Object.keys(clientNames).map(name => `<th style="border: 1px solid gray;">${name}</th>`).join('')}
+            <th style="border: 1px solid gray;">AVE</th>
+        `;
+        tableHead.appendChild(headerRow);
+
+        let totalCounts = {};
+        let totalAve = 0;
+        let totalEntries = 0; // Track number of entries for average calculation
+
+        // Create table body rows
+        Object.keys(rows).forEach(geographyType => {
+            const row = document.createElement('tr');
+            const counts = rows[geographyType].counts;
+            const totalGeographyAve = rows[geographyType].totalAve;
+
+            row.innerHTML = `
+                <td style="border: 1px solid gray;">${geographyType}</td>
+                ${Object.keys(clientNames).map(name => {
+                    const count = counts[name] || 0;
+                    totalCounts[name] = (totalCounts[name] || 0) + count;
+                    return `<td style="border: 1px solid gray;">${count}</td>`;
+                }).join('')}
+                <td style="border: 1px solid gray;">${totalGeographyAve.toFixed(2)}</td>
+            `;
+            tableBody.appendChild(row);
+
+            // Accumulate total AVE values
+            totalAve += totalGeographyAve;
+            totalEntries += geographyData[geographyType].length; // Increment by the number of entries in the geography
+        });
+
+        // Calculate overall average AVE
+        const overallAvgAve = totalEntries > 0 ? (totalAve / totalEntries).toFixed(2) : 0;
+
+        // Create total row
+        const totalRow = document.createElement('tr');
+        totalRow.style.fontWeight = 'bold';
+        totalRow.innerHTML = `
+            <td style="border: 1px solid gray;">Total</td>
+            ${Object.keys(clientNames).map(name => `<td style="border: 1px solid gray;">${totalCounts[name]}</td>`).join('')}
+            <td style="border: 1px solid gray;">${totalAve.toFixed(2)}</td>
+        `;
+        tableBody.appendChild(totalRow);
+    }
+
+    function updateJournalistTable(journalistData) {
+        const tableBody = document.querySelector('#journalistTable tbody');
+        const tableHead = document.querySelector('#journalistTable thead');
+        tableBody.innerHTML = ''; // Clear existing table rows
+        tableHead.innerHTML = ''; // Clear existing table header
+
+        // Collect client names and initialize structure for rows
+        const clientNames = {};
+        const rows = {};
+
+        // Iterate through journalist data and populate client data
+        Object.keys(journalistData).forEach(journalistName => {
+            journalistData[journalistName].forEach(client => {
+                const clientName = client.Client_name.trim(); // Trim whitespace for consistency
+                const aveValue = client.ave !== undefined && client.ave !== null ? parseFloat(client.ave) : 0;
+                const countValue = client.Count !== undefined && client.Count !== null ? parseInt(client.Count, 10) : 0;
+
+                // Ensure the client name is in the clientNames object
+                if (!clientNames[clientName]) {
+                    clientNames[clientName] = true;
+                }
+
+                // Initialize rows structure
+                if (!rows[journalistName]) {
+                    rows[journalistName] = {
+                        counts: {},
+                        totalAve: 0,
+                    };
+                }
+
+                rows[journalistName].counts[clientName] = countValue;
+                rows[journalistName].totalAve += aveValue;
+            });
+        });
+
+        // Create table header
+        const headerRow = document.createElement('tr');
+        headerRow.innerHTML = `
+            <th style="border: 1px solid gray;">Journalist Name</th>
+            ${Object.keys(clientNames).map(name => `<th style="border: 1px solid gray;">${name}</th>`).join('')}
+            <th style="border: 1px solid gray;">AVE</th>
+        `;
+        tableHead.appendChild(headerRow);
+
+        let totalCounts = {};
+        let totalAve = 0;
+        let totalEntries = 0; // Track number of entries for average calculation
+
+        // Create table body rows
+        Object.keys(rows).forEach(journalistName => {
+            const row = document.createElement('tr');
+            const counts = rows[journalistName].counts;
+            const totalJournalistAve = rows[journalistName].totalAve;
+
+            row.innerHTML = `
+                <td style="border: 1px solid gray;">${journalistName}</td>
+                ${Object.keys(clientNames).map(name => {
+                    const count = counts[name] || 0;
+                    totalCounts[name] = (totalCounts[name] || 0) + count;
+                    return `<td style="border: 1px solid gray;">${count}</td>`;
+                }).join('')}
+                <td style="border: 1px solid gray;">${totalJournalistAve.toFixed(2)}</td>
+            `;
+            tableBody.appendChild(row);
+
+            // Accumulate total AVE values
+            totalAve += totalJournalistAve;
+            totalEntries += journalistData[journalistName].length; // Increment by the number of entries for each journalist
+        });
+
+        // Calculate overall average AVE
+        const overallAvgAve = totalEntries > 0 ? (totalAve / totalEntries).toFixed(2) : 0;
+
+        // Create total row
+        const totalRow = document.createElement('tr');
+        totalRow.style.fontWeight = 'bold';
+        totalRow.innerHTML = `
+            <td style="border: 1px solid gray;">Total</td>
+            ${Object.keys(clientNames).map(name => `<td style="border: 1px solid gray;">${totalCounts[name]}</td>`).join('')}
+            <td style="border: 1px solid gray;">${totalAve.toFixed(2)}</td>
+        `;
+        tableBody.appendChild(totalRow);
+    }
+
+    function updateSizeTable(sizeData) {
+        const tableBody = document.querySelector('#sizeTable tbody');
+        const tableHead = document.querySelector('#sizeTable thead');
+        tableBody.innerHTML = ''; // Clear existing table rows
+        tableHead.innerHTML = ''; // Clear existing table header
+
+        // Collect category names and initialize structure for rows
+        const categories = {};
+        const rows = {};
+
+        // Iterate through size data and populate category data
+        sizeData.forEach(client => {
+            const clientName = client.label.trim(); // Trim whitespace for consistency
+            const category = client.category || 'Unknown'; // Use 'Unknown' if category is missing
+            const aveValue = client.ave !== undefined && client.ave !== null ? parseFloat(client.ave) : 0;
+            const countValue = client.count !== undefined && client.count !== null ? parseInt(client.count, 10) : 0;
+
+            // Ensure the category is in the categories object
+            if (!categories[category]) {
+                categories[category] = true;
+            }
+
+            // Initialize rows structure
+            if (!rows[clientName]) {
+                rows[clientName] = {
+                    counts: {},
+                    totalAve: 0,
+                };
+            }
+
+            rows[clientName].counts[category] = countValue;
+            rows[clientName].totalAve += aveValue;
+        });
+
+        // Create table header
+        const headerRow = document.createElement('tr');
+        headerRow.innerHTML = `
+            <th style="border: 1px solid gray;">Client Name</th>
+            ${Object.keys(categories).map(cat => `<th style="border: 1px solid gray;">${cat}</th>`).join('')}
+            <th style="border: 1px solid gray;">AVE</th>
+        `;
+        tableHead.appendChild(headerRow);
+
+        let totalCounts = {};
+        let totalAve = 0;
+        let totalEntries = 0; // Track number of entries for average calculation
+
+        // Create table body rows
+        Object.keys(rows).forEach(clientName => {
+            const row = document.createElement('tr');
+            const counts = rows[clientName].counts;
+            const totalClientAve = rows[clientName].totalAve;
+
+            row.innerHTML = `
+                <td style="border: 1px solid gray;">${clientName}</td>
+                ${Object.keys(categories).map(cat => {
+                    const count = counts[cat] || 0;
+                    totalCounts[cat] = (totalCounts[cat] || 0) + count;
+                    return `<td style="border: 1px solid gray;">${count}</td>`;
+                }).join('')}
+                <td style="border: 1px solid gray;">${totalClientAve.toFixed(2)}</td>
+            `;
+            tableBody.appendChild(row);
+
+            // Accumulate total AVE values
+            totalAve += totalClientAve;
+            totalEntries += sizeData.filter(data => data.label.trim() === clientName).length; // Increment by the number of entries for each client
+        });
+
+        // Calculate overall average AVE
+        const overallAvgAve = totalEntries > 0 ? (totalAve / totalEntries).toFixed(2) : 0;
+
+        // Create total row
+        const totalRow = document.createElement('tr');
+        totalRow.style.fontWeight = 'bold';
+        totalRow.innerHTML = `
+            <td style="border: 1px solid gray;">Total</td>
+            ${Object.keys(categories).map(cat => `<td style="border: 1px solid gray;">${totalCounts[cat]}</td>`).join('')}
+            <td style="border: 1px solid gray;">${totalAve.toFixed(2)}</td>
+        `;
+        tableBody.appendChild(totalRow);
+    }
+    function updateAveTable(aveData) {
+    const tableBody = document.querySelector('#aveTable tbody');
+    const tableHead = document.querySelector('#aveTable thead');
+    tableBody.innerHTML = ''; // Clear existing table rows
+    tableHead.innerHTML = ''; // Clear existing table header
+
+    // Collect company names and initialize structure for rows
+    const companies = {};
+    const rows = {};
+
+    // Iterate through AVE data and populate company data
+    aveData.forEach(client => {
+        const clientName = client.label.trim(); // Trim whitespace for consistency
+        const aveValue = client.ave !== undefined && client.ave !== null ? parseFloat(client.ave) : 0;
+        const countValue = client.count !== undefined && client.count !== null ? parseInt(client.count, 10) : 0;
+
+        // Ensure the company name is in the companies object
+        if (!companies[clientName]) {
+            companies[clientName] = true;
+        }
+
+        // Initialize rows structure
+        if (!rows[clientName]) {
+            rows[clientName] = {
+                count: 0,
+                totalAve: 0,
+            };
+        }
+
+        rows[clientName].count += countValue;
+        rows[clientName].totalAve += aveValue;
+    });
+
+    // Create table header
+    const headerRow = document.createElement('tr');
+    headerRow.innerHTML = `
+        <th style="border: 1px solid gray;">Company Name</th>
+        <th style="border: 1px solid gray;">Count</th>
+        <th style="border: 1px solid gray;">AVE</th>
+    `;
+    tableHead.appendChild(headerRow);
+
+    let totalCounts = {};
+    let totalAve = 0;
+
+    // Create table body rows
+    Object.keys(rows).forEach(clientName => {
+        const row = document.createElement('tr');
+        const count = rows[clientName].count;
+        const totalClientAve = rows[clientName].totalAve;
+
+        row.innerHTML = `
+            <td style="border: 1px solid gray;">${clientName}</td>
+            <td style="border: 1px solid gray;">${count}</td>
+            <td style="border: 1px solid gray;">${totalClientAve.toFixed(2)}</td>
+        `;
+        tableBody.appendChild(row);
+
+        // Accumulate total values
+        totalCounts[clientName] = count;
+        totalAve += totalClientAve;
+    });
+
+    // Create total row
+    const totalRow = document.createElement('tr');
+    totalRow.style.fontWeight = 'bold';
+    totalRow.innerHTML = `
+        <td style="border: 1px solid gray;">Total</td>
+        <td style="border: 1px solid gray;">${Object.values(totalCounts).reduce((a, b) => a + b, 0)}</td>
+        <td style="border: 1px solid gray;">${totalAve.toFixed(2)}</td>
+    `;
+    tableBody.appendChild(totalRow);
+}
     window.showChart = function(chartId) {
         const charts = document.querySelectorAll('.chart-container');
         charts.forEach(chart => {
@@ -961,7 +1472,6 @@
         });
         document.getElementById(chartId).classList.add('active');
     }
-
     window.showChart4 = function(chartId) {
         const charts = document.querySelectorAll('.chart-container-4');
         charts.forEach(chart => {
@@ -969,7 +1479,6 @@
         });
         document.getElementById(chartId).classList.add('active');
     }
-
     window.showChart5 = function(chartId) {
         const charts = document.querySelectorAll('.chart-container-5');
         charts.forEach(chart => {
@@ -991,6 +1500,7 @@
         });
         document.getElementById(chartId).classList.add('active');
     }
+
     window.handleChartTypeChange = function() {
         const selectedValue = document.getElementById('chartTypeSelector').value;
         const quantityCharts = document.querySelector('.quantity');
@@ -1007,7 +1517,6 @@
         geographyCharts.style.display = selectedValue === 'Geography' ? 'block' : 'none';
         journalistCharts.style.display = selectedValue === 'Journalist' ? 'block' : 'none';
         aveCharts.style.display = selectedValue === 'ave' ? 'block' : 'none';
-        
     }
 
     showChart('lineChart');
@@ -1016,7 +1525,7 @@
     showChart4('publicationlineChart');
     showChart5('geographylineChart');
     showChart6('journalistlineChart');
-    showChart7('aveLineChart');
+    showChart7('avelineChart');
     handleChartTypeChange();
 </script>
 <script>

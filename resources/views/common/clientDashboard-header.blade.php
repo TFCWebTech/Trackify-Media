@@ -105,29 +105,28 @@
             <!-- Divider -->
             <hr class="sidebar-divider my-0">
             @if(session()->has('client_id'))
-@if(session()->get('client_type') == 'User')
-    
-    <li class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-        <a class="nav-link" href="{{ route('dashboard') }}">
-            <i class="fas fa-fw fa-tachometer-alt"></i>
-            <span>Dashboard</span>
-        </a>
-    </li>
-    <li class="nav-item {{ request()->routeIs('charts.ProCompare') ? 'active' : '' }}">
-        <a class="nav-link" href="{{ route('charts.ProCompare') }}">
-            <i class="fas fa-fw fa-tachometer-alt"></i>
-            <span>Pro Compare</span>
-        </a>
-    </li>
-    <li class="nav-item {{ request()->routeIs('generateReport') ? 'active' : '' }}">
-        <a class="nav-link" href="{{ route('generateReport') }}">
-            <i class="fas fa-fw fa-tachometer-alt"></i>
-            <span>Pro Report</span>
-        </a>
-    </li>
-@endif
-@endif
- 
+                @if(session()->get('client_type') == 'User')
+                    <li class="nav-item {{ request()->routeIs('charts.ProAnalytics') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('charts.ProAnalytics') }}">
+                            <i class="fas fa-fw fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item {{ request()->routeIs('charts.ProCompare') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('charts.ProCompare') }}">
+                            <i class="fas fa-fw fa-tachometer-alt"></i>
+                            <span>Pro Compare</span>
+                        </a>
+                    </li>
+                    <li class="nav-item {{ request()->routeIs('generateReport') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('generateReport') }}">
+                            <i class="fas fa-fw fa-tachometer-alt"></i>
+                            <span>Pro Report</span>
+                        </a>
+                    </li>
+                @endif
+                @endif
+                
 
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
