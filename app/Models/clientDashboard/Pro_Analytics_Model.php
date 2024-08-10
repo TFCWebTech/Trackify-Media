@@ -5,6 +5,7 @@ namespace App\Models\clientDashboard;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+
 class Pro_Analytics_Model extends Model
 {
     use HasFactory;
@@ -78,90 +79,7 @@ class Pro_Analytics_Model extends Model
         return $finalResult;
     }
 
-    public function get_media_data_by_timeframe_by_id($timeframe, $client_id, $from = null, $to = null) {
-        // Base SQL query for each timeframe
-        switch ($timeframe) {
-            case 'daily':
-                $sql = "SELECT DATE_FORMAT(nd.create_at, '%W') as label, COUNT(*) as count, md.MediaType, nd.media_type_id, nd.publication_id, nd.sizeofArticle
-                        FROM news_details as nd
-                        JOIN mediatype as md ON md.gidMediaType = nd.media_type_id
-                        WHERE FIND_IN_SET(?, nd.company) > 0";
-                if ($from && $to) {
-                    $sql .= " AND DATE(nd.create_at) BETWEEN ? AND ?";
-                } else {
-                    $sql .= " AND DATE(nd.create_at) >= DATE_SUB(CURDATE(), INTERVAL 1 WEEK)";
-                }
-                $sql .= " GROUP BY label, md.MediaType
-                        ORDER BY nd.create_at";
-                break;
-
-            case 'weekly':
-                $sql = "SELECT CONCAT('Week ', WEEK(nd.create_at)) as label, COUNT(*) as count, md.MediaType, nd.media_type_id, nd.publication_id, nd.sizeofArticle
-                        FROM news_details as nd
-                        JOIN mediatype as md ON md.gidMediaType = nd.media_type_id
-                        WHERE FIND_IN_SET(?, nd.company) > 0";
-                if ($from && $to) {
-                    $sql .= " AND DATE(nd.create_at) BETWEEN ? AND ?";
-                } else {
-                    $sql .= " AND DATE(nd.create_at) >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)";
-                }
-                $sql .= " GROUP BY label, md.MediaType
-                        ORDER BY nd.create_at";
-                break;
-
-            case 'monthly':
-                $sql = "SELECT DATE_FORMAT(nd.create_at, '%M') as label, COUNT(*) as count, md.MediaType, nd.media_type_id, nd.publication_id, nd.sizeofArticle
-                        FROM news_details as nd
-                        JOIN mediatype as md ON md.gidMediaType = nd.media_type_id
-                        WHERE FIND_IN_SET(?, nd.company) > 0";
-                if ($from && $to) {
-                    $sql .= " AND DATE(nd.create_at) BETWEEN ? AND ?";
-                } else {
-                    $sql .= " AND YEAR(nd.create_at) = YEAR(CURDATE())";
-                }
-                $sql .= " GROUP BY label, md.MediaType
-                        ORDER BY nd.create_at";
-                break;
-
-            default:
-                return [];
-        }
-
-        // Bind parameters
-        $params = [$client_id];
-        if ($from && $to) {
-            $params[] = $from;
-            $params[] = $to;
-        }
-
-        // Execute the query with bound parameters
-        $query = $this->db->query($sql, $params);
-        $result = $query->result_array();
-
-        // Calculate total AVE for all news
-        foreach ($result as &$value) {
-            $rates_data = $this->getRates($value['media_type_id'], $value['publication_id']);
-            $ave = 0;
-
-            if (!empty($rates_data)) {
-                $article_size = $value['sizeofArticle'] ?? 0;
-                $rate = $rates_data['Rate'];
-                $Circulation_Fig = $rates_data['Circulation_Fig'];
-                $ave = 3 * $article_size * $rate * $Circulation_Fig;
-                $value['total_ave'] = $ave; // Assign AVE to each item
-            } else {
-                $value['total_ave'] = 0; // No rates data found
-            }
-
-            // Remove unnecessary fields from the result
-            unset($value['media_type_id']);
-            unset($value['publication_id']);
-            unset($value['sizeofArticle']);
-        }
-
-        return $result;
-    }
-    
+   
     public function getRates($gidMediaType, $gidMediaOutlet)
     {
         return DB::table('AddRate')
@@ -169,5 +87,119 @@ class Pro_Analytics_Model extends Model
             ->where('gidMediaType', $gidMediaType)
             ->where('gidMediaOutlet', $gidMediaOutlet)
             ->first(); // Returns a single object
+    }
+
+    public function getPublicationDataByTimeframeById($timeframe, $clientId, $from = null, $to = null)
+    {
+        // Initialize query builder
+        $query = DB::table('news_details as nd')
+            ->join('mediaoutlet as m', 'm.gidMediaOutlet', '=', 'nd.publication_id')
+            ->selectRaw('
+                CASE 
+                    WHEN ? = "daily" THEN DATE_FORMAT(nd.create_at, "%W")
+                    WHEN ? = "weekly" THEN CONCAT("Week ", WEEK(nd.create_at))
+                    WHEN ? = "monthly" THEN DATE_FORMAT(nd.create_at, "%M")
+                END as label,
+                COUNT(*) as count,
+                m.MediaOutlet,
+                nd.media_type_id,
+                nd.publication_id,
+                nd.sizeofArticle
+            ', [$timeframe, $timeframe, $timeframe])
+            ->whereRaw('FIND_IN_SET(?, nd.company) > 0', [$clientId]);
+
+        // Apply date range filter if specified
+        if ($from && $to) {
+            $query->whereBetween(DB::raw('DATE(nd.create_at)'), [$from, $to]);
+        } else {
+            switch ($timeframe) {
+                case 'daily':
+                    $query->whereRaw('DATE(nd.create_at) >= DATE_SUB(CURDATE(), INTERVAL 1 WEEK)');
+                    break;
+                case 'weekly':
+                    $query->whereRaw('DATE(nd.create_at) >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)');
+                    break;
+                case 'monthly':
+                    $query->whereYear('nd.create_at', '=', DB::raw('YEAR(CURDATE())'));
+                    break;
+            }
+        }
+
+        // Include all non-aggregated columns in the GROUP BY clause
+        $query->groupBy('label', 'm.MediaOutlet', 'nd.media_type_id', 'nd.publication_id', 'nd.sizeofArticle')
+            ->orderBy('label'); // Changed to 'label' since 'nd.create_at' isn't aggregated
+
+        // Get the results
+        $results = $query->get();
+
+        // Calculate total AVE for all news
+        foreach ($results as &$result) {
+            $ratesData = $this->getRates($result->media_type_id, $result->publication_id);
+            $ave = 0;
+
+            if (!empty($ratesData)) {
+                $articleSize = $result->sizeofArticle ?? 0;
+                $rate = $ratesData->Rate ?? 0;
+                $circulationFig = $ratesData->Circulation_Fig ?? 0;
+                $ave = 3 * $articleSize * $rate * $circulationFig;
+                $result->total_ave = $ave; // Assign AVE to each item
+            } else {
+                $result->total_ave = 0; // No rates data found
+            }
+
+            // Remove unnecessary fields from the result
+            unset($result->media_type_id);
+            unset($result->publication_id);
+            unset($result->sizeofArticle);
+        }
+
+        return $results;
+    }
+    public function getMediaDataByTimeframeById($timeframe, $clientId, $from = null, $to = null)
+    {
+        // Initialize query builder
+        $query = DB::table('news_details as nd')
+            ->join('mediatype as md', 'md.gidMediaType', '=', 'nd.media_type_id')
+            ->selectRaw('
+                CASE 
+                    WHEN ? = "daily" THEN DATE_FORMAT(nd.create_at, "%W")
+                    WHEN ? = "weekly" THEN CONCAT("Week ", WEEK(nd.create_at))
+                    WHEN ? = "monthly" THEN DATE_FORMAT(nd.create_at, "%M")
+                END as label,
+                md.MediaType,
+                COUNT(*) as count,
+                SUM(nd.sizeofArticle * 3 * COALESCE(r.Rate, 0) * COALESCE(r.Circulation_Fig, 0)) as total_ave
+            ', [$timeframe, $timeframe, $timeframe])
+            ->leftJoin(DB::raw('(SELECT gidMediaType, gidMediaOutlet, Rate, Circulation_Fig FROM addrate) r'), function($join) {
+                $join->on('r.gidMediaType', '=', 'nd.media_type_id')
+                     ->on('r.gidMediaOutlet', '=', 'nd.publication_id');
+            })
+            ->whereRaw('FIND_IN_SET(?, nd.company) > 0', [$clientId]);
+    
+        // Apply date range filter if specified
+        if ($from && $to) {
+            $query->whereBetween(DB::raw('DATE(nd.create_at)'), [$from, $to]);
+        } else {
+            switch ($timeframe) {
+                case 'daily':
+                    $query->whereRaw('DATE(nd.create_at) >= DATE_SUB(CURDATE(), INTERVAL 1 WEEK)');
+                    break;
+                case 'weekly':
+                    $query->whereRaw('DATE(nd.create_at) >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)');
+                    break;
+                case 'monthly':
+                    $query->whereYear('nd.create_at', '=', DB::raw('YEAR(CURDATE())'));
+                    break;
+            }
+        }
+    
+        // Group by label and MediaType, and order by label
+        $query->groupBy('label', 'md.MediaType')
+              ->orderBy('label');
+    
+        // Get the results
+        $results = $query->get();
+    
+        return $results;
     }
 }

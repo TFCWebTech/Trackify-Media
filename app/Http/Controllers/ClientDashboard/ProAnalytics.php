@@ -35,11 +35,18 @@ class ProAnalytics extends Controller
             'quantity_graph_weekly' => $this->Pro_Analytics_Model->getDataByTimeframe('weekly', $client_id, $from, $to),
             'quantity_graph_monthly' => $this->Pro_Analytics_Model->getDataByTimeframe('monthly', $client_id, $from, $to),
         
-            'media_graph_daily' => $this->Pro_Analytics_Model->get_media_data_by_timeframe_by_id('monthly', $client_id, $from, $to),
-            'media_graph_weekly' => $this->Pro_Analytics_Model->get_media_data_by_timeframe_by_id('monthly', $client_id, $from, $to),
-            'media_graph_monthly' => $this->Pro_Analytics_Model->get_media_data_by_timeframe_by_id('monthly', $client_id, $from, $to),
+            'media_graph_daily' => $this->Pro_Analytics_Model->getMediaDataByTimeframeById('daily', $client_id, $from, $to),
+            'media_graph_weekly' => $this->Pro_Analytics_Model->getMediaDataByTimeframeById('weekly', $client_id, $from, $to),
+            'media_graph_monthly' => $this->Pro_Analytics_Model->getMediaDataByTimeframeById('monthly', $client_id, $from, $to),
+            
+            'publication_graph_daily' => $this->Pro_Analytics_Model->getPublicationDataByTimeframeById('daily', $client_id, $from, $to),
+            'publication_graph_weekly' => $this->Pro_Analytics_Model->getPublicationDataByTimeframeById('weekly', $client_id, $from, $to),
+            'publication_graph_monthly' => $this->Pro_Analytics_Model->getPublicationDataByTimeframeById('monthly', $client_id, $from, $to),
+        
+            
         ];
 
+        // print_r($data);
         return response()->json($data);
     }
 }

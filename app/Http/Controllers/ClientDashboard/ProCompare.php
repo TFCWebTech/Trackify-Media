@@ -60,10 +60,6 @@ class ProCompare extends Controller
             $ave_data = $this->Pro_Compare_model->getAVEDataByID('daily', $client_id, $from, $to);
             $size_data = $this->Pro_Compare_model->getSizeDataCompByID('daily', $client_id, $from, $to);
     
-            // Prepare data for response
-            // echo '<pre>';
-            // print_r($media_data);
-            // echo '</pre>';
             $data = [
                 'get_quantity_compare_data' => $compititers_data,
                 'media_data' => $media_data,
