@@ -43,7 +43,18 @@ class ProAnalytics extends Controller
             'publication_graph_weekly' => $this->Pro_Analytics_Model->getPublicationDataByTimeframeById('weekly', $client_id, $from, $to),
             'publication_graph_monthly' => $this->Pro_Analytics_Model->getPublicationDataByTimeframeById('monthly', $client_id, $from, $to),
         
+            'geography_graph_daily' => $this->Pro_Analytics_Model->getGeographyDataByTimeframeById('daily', $client_id, $from, $to),
+            'geography_graph_weekly' => $this->Pro_Analytics_Model->getGeographyDataByTimeframeById('weekly', $client_id, $from, $to),
+            'geography_graph_monthly' => $this->Pro_Analytics_Model->getGeographyDataByTimeframeById('monthly', $client_id, $from, $to),
+        
+            'Journalist_graph_daily' => $this->Pro_Analytics_Model->getJournalistDataByTimeframeById('daily', $client_id, $from, $to),
+            'Journalist_graph_weekly' => $this->Pro_Analytics_Model->getJournalistDataByTimeframeById('weekly', $client_id, $from, $to),
+            'Journalist_graph_monthly' => $this->Pro_Analytics_Model->getJournalistDataByTimeframeById('monthly', $client_id, $from, $to),
             
+            'size_daily_data' => $this->Pro_Analytics_Model->getSizeDataById('daily', $client_id, $from, $to),
+            'size_weekly_data' => $this->Pro_Analytics_Model->getSizeDataById('weekly', $client_id, $from, $to),
+            'size_monthly_data' => $this->Pro_Analytics_Model->getSizeDataById('monthly', $client_id, $from, $to),
+
         ];
 
         // print_r($data);
