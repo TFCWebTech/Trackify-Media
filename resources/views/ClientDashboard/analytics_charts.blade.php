@@ -75,7 +75,6 @@ body {
                                         @endforeach
                                     </select>
                                 </form>
-
                             </div>
                             <div class="d-flex">
                                 <form method="post" action="">
@@ -84,21 +83,21 @@ body {
                                         <input id="from-date" name="from" class="form-control" type="date"  required> &nbsp;
                                         <label for="to-date"> To: </label> &nbsp;
                                         <input id="to-date" name="to" class="form-control" type="date"  required>
-                                        &nbsp;<button type="submit" class="bg-primary border-primary text-light"> <i class="fa fa-search "></i></button> 
+                                        &nbsp;<button type="button" onclick="getDataByDate()" class="bg-primary border-primary text-light"> <i class="fa fa-search "></i></button> 
                                     </div>
                                 </form> &nbsp;&nbsp;
                                 <!-- <input type="text" name="daterange" value="01/01/2015 - 01/31/2015" /> -->
-                            <div class="mb-4">
-                                <select name="" id="chartTypeSelector" class="form-control" onchange="handleChartTypeChange()">
-                                        <option value="Quantity">Quantity</option>
-                                        <option value="Size">Size</option>
-                                        <option value="Media">Media</option>
-                                        <option value="Publication">Publication</option>
-                                        <option value="Geography">Geography</option>
-                                        <option value="Journalist">Journalist</option>
-                                      
-                                </select>
-                            </div>
+                                <div class="mb-4">
+                                    <select name="" id="chartTypeSelector" class="form-control" onchange="handleChartTypeChange()">
+                                            <option value="Quantity">Quantity</option>
+                                            <option value="Size">Size</option>
+                                            <option value="Media">Media</option>
+                                            <option value="Publication">Publication</option>
+                                            <option value="Geography">Geography</option>
+                                            <option value="Journalist">Journalist</option>
+                                        
+                                    </select>
+                                </div>
                         </div>
                     </div>
                 </div>
@@ -163,55 +162,55 @@ body {
             </div>
 
             <div class="size">
-            <div class="row">
-                <div class="col-md-12 d-flex justify-content-between">
-                    <div class="mb-4">
-                        <button class="btn btn-secondary" onclick="updateChart2('daily')">Daily</button>
-                        <button class="btn btn-secondary" onclick="updateChart2('weekly')">Weekly</button>
-                        <button class="btn btn-secondary" onclick="updateChart2('monthly')">Monthly</button>
+                <div class="row">
+                    <div class="col-md-12 d-flex justify-content-between">
+                        <div class="mb-4">
+                            <button class="btn btn-secondary" onclick="updateChart2('daily')">Daily</button>
+                            <button class="btn btn-secondary" onclick="updateChart2('weekly')">Weekly</button>
+                            <button class="btn btn-secondary" onclick="updateChart2('monthly')">Monthly</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12 text-center">
-                    <h6 class="text-primary">Overview / Size</h6>
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <h6 class="text-primary">Overview / Size</h6>
+                    </div>
+                </div>
+                <div id="sizeareaChart" class="chart-container-2">
+                    <canvas id="sizeAreaChart"></canvas>
+                </div>
+                <div id="sizepieChart" class="chart-container-2">
+                    <canvas id="sizePieChart"></canvas>
+                </div>
+                <div id="sizebarChart" class="chart-container-2">
+                    <canvas id="sizeBarChart"></canvas>
+                </div>
+                <div id="sizelineChart" class="chart-container-2">
+                    <canvas id="sizeLineChart"></canvas>
+                </div>
+                <div id="sizeverticalBarChart" class="chart-container-2">
+                    <canvas id="sizeVerticalBarChart"></canvas>
+                </div>
+                <div id="sizeShowTable" class="chart-container-2" style="display: none;">
+                    <table id="sizeTable" style="width:100%; border: 1px solid gray;">
+                        <thead>
+                            <tr id="sizeTableHeader">
+                                <!-- Dynamic header will be inserted here -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be appended here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="my-4">
+                    <button class="btn btn-primary" onclick="showChart2('sizepieChart')">Pie Chart</button>
+                    <button class="btn btn-primary" onclick="showChart2('sizebarChart')">Bar Chart</button>
+                    <button class="btn btn-primary" onclick="showChart2('sizelineChart')">Line Chart</button>
+                    <button class="btn btn-primary" onclick="showChart2('sizeverticalBarChart')">Column Chart</button>
+                    <button class="btn btn-primary" onclick="showChart2('sizeShowTable')">Show Table</button>
                 </div>
             </div>
-            <div id="sizeareaChart" class="chart-container-2">
-                <canvas id="sizeAreaChart"></canvas>
-            </div>
-            <div id="sizepieChart" class="chart-container-2">
-                <canvas id="sizePieChart"></canvas>
-            </div>
-            <div id="sizebarChart" class="chart-container-2">
-                <canvas id="sizeBarChart"></canvas>
-            </div>
-            <div id="sizelineChart" class="chart-container-2">
-                <canvas id="sizeLineChart"></canvas>
-            </div>
-            <div id="sizeverticalBarChart" class="chart-container-2">
-                <canvas id="sizeVerticalBarChart"></canvas>
-            </div>
-            <div id="sizeShowTable" class="chart-container-2" style="display: none;">
-                <table id="sizeTable" style="width:100%; border: 1px solid gray;">
-                    <thead>
-                        <tr id="sizeTableHeader">
-                            <!-- Dynamic header will be inserted here -->
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Data will be appended here -->
-                    </tbody>
-                </table>
-            </div>
-            <div class="my-4">
-                <button class="btn btn-primary" onclick="showChart2('sizepieChart')">Pie Chart</button>
-                <button class="btn btn-primary" onclick="showChart2('sizebarChart')">Bar Chart</button>
-                <button class="btn btn-primary" onclick="showChart2('sizelineChart')">Line Chart</button>
-                <button class="btn btn-primary" onclick="showChart2('sizeverticalBarChart')">Column Chart</button>
-                <button class="btn btn-primary" onclick="showChart2('sizeShowTable')">Show Table</button>
-            </div>
-        </div>
             <div class="media">
                 <div class="row">
                     <div class="col-md-12 d-flex justify-content-between">
@@ -439,7 +438,10 @@ body {
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
 <script>
+
     $('#select_client').change(function() {
         const clientId = $(this).val();
 
@@ -483,18 +485,20 @@ body {
                     weekly: response.Journalist_graph_weekly,
                     monthly: response.Journalist_graph_monthly
                 };
+
                 sizeData = {
                     daily: response.size_daily_data,
                     weekly: response.size_weekly_data,
                     monthly: response.size_monthly_data
                 };
+
                 // Update charts and table with daily data as default
                 updateChart('daily');
                 showChart('lineChart'); // Show the line chart by default
                 updateChart3('daily');
-                showChart3('mediaLineChart'); // Show the line chart by default
+                showChart3('medialineChart'); // Show the line chart by default
                 updateChart4('daily');
-                showChart4('publicationLineChart'); // Show the line chart by default
+                showChart4('publicationlineChart'); // Show the line chart by default
                 updateChart5('daily');
                 showChart5('geographylineChart'); // Show the line chart by default
                 updateChart6('daily'); // This selects the daily data as the default
@@ -752,191 +756,285 @@ body {
         monthly: []
     };
 
-// Chart contexts
-const sizeAreaChartCtx = document.getElementById('sizeAreaChart').getContext('2d');
-const sizePieChartCtx = document.getElementById('sizePieChart').getContext('2d');
-const sizeBarChartCtx = document.getElementById('sizeBarChart').getContext('2d');
-const sizeLineChartCtx = document.getElementById('sizeLineChart').getContext('2d');
-const sizeVerticalBarChartCtx = document.getElementById('sizeVerticalBarChart').getContext('2d');
+    // Chart contexts
+    const sizeAreaChartCtx = document.getElementById('sizeAreaChart').getContext('2d');
+    const sizePieChartCtx = document.getElementById('sizePieChart').getContext('2d');
+    const sizeBarChartCtx = document.getElementById('sizeBarChart').getContext('2d');
+    const sizeLineChartCtx = document.getElementById('sizeLineChart').getContext('2d');
+    const sizeVerticalBarChartCtx = document.getElementById('sizeVerticalBarChart').getContext('2d');
 
-// Initialize charts
-let sizeAreaChart = new Chart(sizeAreaChartCtx, {
-    type: 'line',
-    data: {
-        labels: [],
-        datasets: [
-            { label: 'Small', data: [], backgroundColor: 'rgba(78, 115, 223, 0.1)', borderColor: 'rgba(78, 115, 223, 1)', borderWidth: 2, fill: true },
-            { label: 'Medium', data: [], backgroundColor: 'rgba(78, 115, 223, 0.1)', borderColor: 'rgba(78, 115, 223, 1)', borderWidth: 2, fill: true },
-            { label: 'Large', data: [], backgroundColor: 'rgba(78, 115, 223, 0.1)', borderColor: 'rgba(78, 115, 223, 1)', borderWidth: 2, fill: true }
-        ]
-    },
-    options: {
-        maintainAspectRatio: false,
-        scales: { y: { beginAtZero: true } }
-    }
-});
-
-let sizePieChart = new Chart(sizePieChartCtx, {
-    type: 'doughnut',
-    data: { labels: ['Small', 'Medium', 'Large'], datasets: [{ data: [], backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc'] }] },
-    options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-});
-
-let sizeBarChart = new Chart(sizeBarChartCtx, {
-    type: 'bar',
-    data: {
-        labels: [],
-        datasets: [
-            { label: 'Small', data: [], backgroundColor: 'rgba(78, 115, 223, 1)', borderColor: 'rgba(78, 115, 223, 1)', borderWidth: 1 },
-            { label: 'Medium', data: [], backgroundColor: 'rgba(78, 115, 223, 1)', borderColor: 'rgba(78, 115, 223, 1)', borderWidth: 1 },
-            { label: 'Large', data: [], backgroundColor: 'rgba(78, 115, 223, 1)', borderColor: 'rgba(78, 115, 223, 1)', borderWidth: 1 }
-        ]
-    },
-    options: { indexAxis: 'y', maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
-});
-
-let sizeLineChart = new Chart(sizeLineChartCtx, {
-    type: 'line',
-    data: {
-        labels: [],
-        datasets: [
-            { label: 'Small', data: [], backgroundColor: 'rgba(78, 115, 223, 0.1)', borderColor: 'rgba(78, 115, 223, 1)', borderWidth: 2, fill: true },
-            { label: 'Medium', data: [], backgroundColor: 'rgba(78, 115, 223, 0.1)', borderColor: 'rgba(78, 115, 223, 1)', borderWidth: 2, fill: true },
-            { label: 'Large', data: [], backgroundColor: 'rgba(78, 115, 223, 0.1)', borderColor: 'rgba(78, 115, 223, 1)', borderWidth: 2, fill: true }
-        ]
-    },
-    options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
-});
-
-let sizeVerticalBarChart = new Chart(sizeVerticalBarChartCtx, {
-    type: 'bar',
-    data: {
-        labels: [],
-        datasets: [{ label: '', data: [], backgroundColor: 'rgba(78, 115, 223, 1)', borderColor: 'rgba(78, 115, 223, 1)', borderWidth: 1 }]
-    },
-    options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
-});
-
-// Function to update chart data
-function updateChartData2(chart, labels, data) {
-    chart.data.labels = labels;
-    chart.data.datasets.forEach((dataset, index) => {
-        dataset.data = data[index] || [];
-    });
-    chart.update();
-}
-
-// Function to show the selected chart and populate quantity table
-function showChart2(chartId) {
-    const charts = document.querySelectorAll('.chart-container-2');
-    charts.forEach(chart => chart.classList.remove('active'));
-    document.getElementById(chartId).classList.add('active');
-    if (chartId === 'sizeShowTable') {
-        populateSizeTable(sizeData.daily); 
-    }
-}
-
-// Function to populate the quantity table with data
-function populateSizeTable(data) {
-    const tableBody = document.querySelector("#sizeTable tbody");
-    const tableHeader = document.querySelector("#sizeTable thead tr");
-
-    // Clear existing headers and rows
-    tableHeader.innerHTML = "";
-    tableBody.innerHTML = "";
-
-    let groupedData = {};
-
-    data.forEach(item => {
-        if (!groupedData[item.category]) {
-            groupedData[item.category] = {};
-        }
-        if (!groupedData[item.category][item.label]) {
-            groupedData[item.category][item.label] = {
-                count: 0,
-                total_ave: 0
-            };
-        }
-        groupedData[item.category][item.label].count += parseInt(item.count, 10);
-        groupedData[item.category][item.label].total_ave += parseInt(item.total_ave, 10);
-    });
-
-    let uniqueLabels = [...new Set(data.map(item => item.label))];
-    let headerRow = "<th style='border: 1px solid gray;'>Media Type</th>";
-    uniqueLabels.forEach(label => {
-        headerRow += `<th style='border: 1px solid gray;'>${label}</th>`;
-    });
-    headerRow += "<th style='border: 1px solid gray;'>AVE</th>";
-    tableHeader.innerHTML = headerRow;
-
-    Object.keys(groupedData).forEach(category => {
-        let row = document.createElement("tr");
-        let categoryCell = document.createElement("td");
-        categoryCell.textContent = category || "N/A";
-        categoryCell.style.border = "1px solid gray";
-        row.appendChild(categoryCell);
-
-        let totalAve = 0;
-        uniqueLabels.forEach(label => {
-            let count = groupedData[category][label] ? groupedData[category][label].count : 0;
-            let countCell = document.createElement("td");
-            countCell.textContent = count;
-            countCell.style.border = "1px solid gray";
-            row.appendChild(countCell);
-
-            totalAve += groupedData[category][label] ? groupedData[category][label].total_ave : 0;
+    // Initialize charts
+    let sizeAreaChart = new Chart(sizeAreaChartCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: '',
+                    data: [],
+                    backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                    borderColor: 'rgba(78, 115, 223, 1)',
+                    borderWidth: 2,
+                    fill: true
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '';
+                            }
+                        }
+                    }
+                }
+            }
         });
 
-        let aveCell = document.createElement("td");
-        aveCell.textContent = totalAve;
-        aveCell.style.border = "1px solid gray";
-        row.appendChild(aveCell);
+        let sizePieChart = new Chart(sizePieChartCtx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: '',
+                        data: [],
+                        backgroundColor: 'rgba(78, 115, 223, 0.5)',
+                        borderColor: 'rgba(78, 115, 223, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: '',
+                        data: [],
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        stacked: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    },
+                    x: {
+                        stacked: true
+                    }
+                }
+            }
+        });
 
-        tableBody.appendChild(row);
-    });
+        let sizeBarChart = new Chart(sizeBarChartCtx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: '',
+                    data: [],
+                    backgroundColor: 'rgba(78, 115, 223, 1)',
+                    borderColor: 'rgba(78, 115, 223, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '';
+                            }
+                        }
+                    }
+                }
+            }
+        });
 
-    let totalRow = document.createElement("tr");
-    let totalCell = document.createElement("td");
-    totalCell.textContent = "Total";
-    totalCell.style.border = "1px solid gray";
-    totalRow.appendChild(totalCell);
+        let sizeLineChart = new Chart(sizeLineChartCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: '',
+                    data: [],
+                    backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                    borderColor: 'rgba(78, 115, 223, 1)',
+                    borderWidth: 2,
+                    fill: true
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '';
+                            }
+                        }
+                    }
+                }
+            }
+        });
 
-    uniqueLabels.forEach(label => {
-        let totalMonthCount = data.filter(item => item.label === label).reduce((acc, item) => acc + parseInt(item.count, 10), 0);
-        let totalMonthCell = document.createElement("td");
-        totalMonthCell.textContent = totalMonthCount;
-        totalMonthCell.style.border = "1px solid gray";
-        totalRow.appendChild(totalMonthCell);
-    });
+        let sizeVerticalBarChart = new Chart(sizeVerticalBarChartCtx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: '',
+                    data: [],
+                    backgroundColor: 'rgba(78, 115, 223, 1)',
+                    borderColor: 'rgba(78, 115, 223, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '';
+                            }
+                        }
+                    }
+                }
+            }
+        });
 
-    let totalAve = data.reduce((acc, item) => acc + parseInt(item.total_ave, 10), 0);
-    let totalAveCell = document.createElement("td");
-    totalAveCell.textContent = totalAve;
-    totalAveCell.style.border = "1px solid gray";
-    totalRow.appendChild(totalAveCell);
+    // Function to update chart data
+   
+    function updateChartData2(chart, labels, data) {
+            chart.data.labels = labels;
+            chart.data.datasets.forEach((dataset) => {
+                dataset.data = data;
+            });
+            chart.update();
+        }
+    // Function to show the selected chart and populate quantity table
+    function showChart2(chartId) {
+        const charts = document.querySelectorAll('.chart-container-2');
+        charts.forEach(chart => chart.classList.remove('active'));
+        document.getElementById(chartId).classList.add('active');
+        if (chartId === 'sizeShowTable') {
+            populateSizeTable(sizeData.daily); 
+        }
+    }
 
-    tableBody.appendChild(totalRow);
-}
+    // Function to populate the quantity table with data
+    function populateSizeTable(data) {
+        const tableBody = document.querySelector("#sizeTable tbody");
+        const tableHeader = document.querySelector("#sizeTable thead tr");
 
-// Function to update charts and table
-function updateData(data, timeframe) {
-    sizeData[timeframe] = data;
+        // Clear existing headers and rows
+        tableHeader.innerHTML = "";
+        tableBody.innerHTML = "";
 
-    const labels = data.map(item => item.label);
-    const counts = data.map(item => item.count);
-    const avValues = data.map(item => item.total_ave);
+        let groupedData = {};
 
-    updateChartData2(sizeAreaChart, labels, [counts, avValues, counts]);
-    updateChartData2(sizePieChart, ['Small', 'Medium', 'Large'], [data.filter(d => d.size === 'Small').length, data.filter(d => d.size === 'Medium').length, data.filter(d => d.size === 'Large').length]);
-    updateChartData2(sizeBarChart, labels, [counts, avValues, counts]);
-    updateChartData2(sizeLineChart, labels, [counts, avValues, counts]);
-    updateChartData2(sizeVerticalBarChart, labels, counts);
+        data.forEach(item => {
+            if (!groupedData[item.category]) {
+                groupedData[item.category] = {};
+            }
+            if (!groupedData[item.category][item.label]) {
+                groupedData[item.category][item.label] = {
+                    count: 0,
+                    total_ave: 0
+                };
+            }
+            groupedData[item.category][item.label].count += parseInt(item.count, 10);
+            groupedData[item.category][item.label].total_ave += parseInt(item.total_ave, 10);
+        });
 
-    showChart2('sizeShowTable');
-}
+        let uniqueLabels = [...new Set(data.map(item => item.label))];
+        let headerRow = "<th style='border: 1px solid gray;'>Media Type</th>";
+        uniqueLabels.forEach(label => {
+            headerRow += `<th style='border: 1px solid gray;'>${label}</th>`;
+        });
+        headerRow += "<th style='border: 1px solid gray;'>AVE</th>";
+        tableHeader.innerHTML = headerRow;
+
+        Object.keys(groupedData).forEach(category => {
+            let row = document.createElement("tr");
+            let categoryCell = document.createElement("td");
+            categoryCell.textContent = category || "N/A";
+            categoryCell.style.border = "1px solid gray";
+            row.appendChild(categoryCell);
+
+            let totalAve = 0;
+            uniqueLabels.forEach(label => {
+                let count = groupedData[category][label] ? groupedData[category][label].count : 0;
+                let countCell = document.createElement("td");
+                countCell.textContent = count;
+                countCell.style.border = "1px solid gray";
+                row.appendChild(countCell);
+
+                totalAve += groupedData[category][label] ? groupedData[category][label].total_ave : 0;
+            });
+
+            let aveCell = document.createElement("td");
+            aveCell.textContent = totalAve;
+            aveCell.style.border = "1px solid gray";
+            row.appendChild(aveCell);
+
+            tableBody.appendChild(row);
+        });
+
+        let totalRow = document.createElement("tr");
+        let totalCell = document.createElement("td");
+        totalCell.textContent = "Total";
+        totalCell.style.border = "1px solid gray";
+        totalRow.appendChild(totalCell);
+
+        uniqueLabels.forEach(label => {
+            let totalMonthCount = data.filter(item => item.label === label).reduce((acc, item) => acc + parseInt(item.count, 10), 0);
+            let totalMonthCell = document.createElement("td");
+            totalMonthCell.textContent = totalMonthCount;
+            totalMonthCell.style.border = "1px solid gray";
+            totalRow.appendChild(totalMonthCell);
+        });
+
+        let totalAve = data.reduce((acc, item) => acc + parseInt(item.total_ave, 10), 0);
+        let totalAveCell = document.createElement("td");
+        totalAveCell.textContent = totalAve;
+        totalAveCell.style.border = "1px solid gray";
+        totalRow.appendChild(totalAveCell);
+
+        tableBody.appendChild(totalRow);
+    }
 
 
-    let mediaData = {
+    function updateChart2(timeFrame) {
+            let selectedData = sizeData[timeFrame];
+            let labels = selectedData.map(item => `${item.label} - ${item.category}`);
+            let data = selectedData.map(item => item.count);
+
+            updateChartData3(sizeAreaChart, labels, data);
+            updateChartData3(sizePieChart, labels.slice(0, 3), data.slice(0, 3)); 
+            updateChartData3(sizeBarChart, labels, data);
+            updateChartData3(sizeLineChart, labels, data);
+            updateChartData3(sizeVerticalBarChart, labels, data);
+
+            console.log(`Updated size charts for: ${timeFrame}`);
+            populateSizeTable(selectedData);
+            console.log(`Updated charts and table for: ${timeFrame}`);
+        }
+
+    
+        let mediaData = {
         daily: [],    // Initially empty, will be populated after AJAX success
         weekly: [],
         monthly: []
@@ -1513,7 +1611,6 @@ function updateData(data, timeframe) {
             weekly: [],
             monthly: []
         }; 
-        console.log( geographyData);
         const geographyAreaChartCtx = document.getElementById('geographyAreaChart').getContext('2d');
         const geographyPieChartCtx = document.getElementById('geographyPieChart').getContext('2d');
         const geographyBarChartCtx = document.getElementById('geographyBarChart').getContext('2d');
@@ -1811,155 +1908,276 @@ function updateData(data, timeframe) {
         }
         
         let journalistData = {
-            daily: [],
-            weekly: [],
-            monthly: []
-        };
-        const journalistAreaChartCtx = document.getElementById('journalistAreaChart').getContext('2d');
-        const journalistPieChartCtx = document.getElementById('journalistPieChart').getContext('2d');
-        const journalistBarChartCtx = document.getElementById('journalistBarChart').getContext('2d');
-        const journalistLineChartCtx = document.getElementById('journalistLineChart').getContext('2d');
-        const journalistVerticalBarChartCtx = document.getElementById('journalistVerticalBarChart').getContext('2d');
+                daily: [],
+                weekly: [],
+                monthly: []
+            };
+
+            const journalistAreaChartCtx = document.getElementById('journalistAreaChart').getContext('2d');
+            const journalistPieChartCtx = document.getElementById('journalistPieChart').getContext('2d');
+            const journalistBarChartCtx = document.getElementById('journalistBarChart').getContext('2d');
+            const journalistLineChartCtx = document.getElementById('journalistLineChart').getContext('2d');
+            const journalistVerticalBarChartCtx = document.getElementById('journalistVerticalBarChart').getContext('2d');
 
         // Initialize charts
         let journalistAreaChart = new Chart(journalistAreaChartCtx, {
             type: 'line',
-            data: { labels: [], datasets: [{ label: 'Earnings', data: [], backgroundColor: 'rgba(78, 115, 223, 0.1)', borderColor: 'rgba(78, 115, 223, 1)', borderWidth: 2, fill: true }] },
-            options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { callback: function(value) { return value + ''; } } } } }
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Earnings',
+                    data: [],
+                    backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                    borderColor: 'rgba(78, 115, 223, 1)',
+                    borderWidth: 2,
+                    fill: true
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '';
+                            }
+                        }
+                    }
+                }
+            }
         });
 
         let journalistPieChart = new Chart(journalistPieChartCtx, {
             type: 'bar',
-            data: { labels: [], datasets: [{ label: '', data: [], backgroundColor: 'rgba(78, 115, 223, 0.5)', borderColor: 'rgba(78, 115, 223, 1)', borderWidth: 1 }, { label: '', data: [], backgroundColor: 'rgba(54, 162, 235, 0.5)', borderColor: 'rgba(54, 162, 235, 1)', borderWidth: 1 }] },
-            options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, stacked: true, ticks: { callback: function(value) { return value + '%'; } } }, x: { stacked: true } } }
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: '',
+                        data: [],
+                        backgroundColor: 'rgba(78, 115, 223, 0.5)',
+                        borderColor: 'rgba(78, 115, 223, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: '',
+                        data: [],
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        stacked: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    },
+                    x: {
+                        stacked: true
+                    }
+                }
+            }
         });
 
         let journalistBarChart = new Chart(journalistBarChartCtx, {
             type: 'bar',
-            data: { labels: [], datasets: [{ label: '', data: [], backgroundColor: 'rgba(78, 115, 223, 1)', borderColor: 'rgba(78, 115, 223, 1)', borderWidth: 1 }] },
-            options: { indexAxis: 'y', maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { callback: function(value) { return value + ''; } } } } }
+            data: {
+                labels: [],
+                datasets: [{
+                    label: '',
+                    data: [],
+                    backgroundColor: 'rgba(78, 115, 223, 1)',
+                    borderColor: 'rgba(78, 115, 223, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '';
+                            }
+                        }
+                    }
+                }
+            }
         });
 
         let journalistLineChart = new Chart(journalistLineChartCtx, {
             type: 'line',
-            data: { labels: [], datasets: [{ label: '', data: [], backgroundColor: 'rgba(78, 115, 223, 0.1)', borderColor: 'rgba(78, 115, 223, 1)', borderWidth: 2, fill: true }] },
-            options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { callback: function(value) { return value + ''; } } } } }
+            data: {
+                labels: [],
+                datasets: [{
+                    label: '',
+                    data: [],
+                    backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                    borderColor: 'rgba(78, 115, 223, 1)',
+                    borderWidth: 2,
+                    fill: true
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '';
+                            }
+                        }
+                    }
+                }
+            }
         });
 
         let journalistVerticalBarChart = new Chart(journalistVerticalBarChartCtx, {
             type: 'bar',
-            data: { labels: [], datasets: [{ label: '', data: [], backgroundColor: 'rgba(78, 115, 223, 1)', borderColor: 'rgba(78, 115, 223, 1)', borderWidth: 1 }] },
-            options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { callback: function(value) { return value + ''; } } } } }
+            data: {
+                labels: [],
+                datasets: [{
+                    label: '',
+                    data: [],
+                    backgroundColor: 'rgba(78, 115, 223, 1)',
+                    borderColor: 'rgba(78, 115, 223, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '';
+                            }
+                        }
+                    }
+                }
+            }
         });
 
         // Function to update the chart data
         function updateChartData6(chart, labels, data) {
-            chart.data.labels = labels;
-            chart.data.datasets.forEach(dataset => {
-                dataset.data = data;
-            });
-            chart.update();
+    chart.data.labels = labels;
+    chart.data.datasets.forEach(dataset => {
+        dataset.data = data;
+    });
+    chart.update();
+}
+
+// Function to show the appropriate chart and populate the table
+function showChart6(chartId) {
+    const charts = document.querySelectorAll('.chart-container-6');
+    charts.forEach(chart => {
+        chart.classList.remove('active');
+    });
+    document.getElementById(chartId).classList.add('active');
+    if (chartId === 'journalistShowTable') {
+        populateJournalistTable(journalistData.daily); // Adjust according to your data structure
+    }
+    console.log(`Showing chart: ${chartId}`);
+}
+
+// Function to populate the journalist table with data
+function populateJournalistTable(data) {
+    const tableBody = document.querySelector("#journalistTable tbody");
+    const tableHeader = document.querySelector("#journalistTable thead tr");
+
+    // Clear existing headers and rows
+    tableHeader.innerHTML = "";
+    tableBody.innerHTML = "";
+
+    // Initialize an object to store grouped data
+    let groupedData = {};
+
+    // Group data by Journalist and label
+    data.forEach(item => {
+        if (!groupedData[item.Journalist]) {
+            groupedData[item.Journalist] = {};
         }
-
-        // Function to show the appropriate chart and populate the table
-        function showChart6(chartId) {
-            const charts = document.querySelectorAll('.chart-container-6');
-            charts.forEach(chart => {
-                chart.classList.remove('active');
-            });
-            document.getElementById(chartId).classList.add('active');
-            if (chartId === 'journalistShowTable') {
-                populateJournalistTable(journalistData.daily); // Adjust according to your data structure
-            }
-            console.log(`Showing chart: ${chartId}`);
+        if (!groupedData[item.Journalist][item.label]) {
+            groupedData[item.Journalist][item.label] = {
+                count: 0,
+                total_ave: 0
+            };
         }
+        groupedData[item.Journalist][item.label].count += parseInt(item.count);
+        groupedData[item.Journalist][item.label].total_ave += parseInt(item.total_ave);
+    });
 
-        // Function to populate the journalist table with data
-        function populateJournalistTable(data) {
-            const tableBody = document.querySelector("#journalistTable tbody");
-            const tableHeader = document.querySelector("#journalistTable thead tr");
+    // Prepare headers for each unique label
+    let uniqueLabels = [...new Set(data.map(item => item.label))];
+    let headerRow = "<th style='border: 1px solid gray;'>Journalist</th>";
+    uniqueLabels.forEach(label => {
+        headerRow += `<th style='border: 1px solid gray;'>${label}</th>`;
+    });
+    headerRow += "<th style='border: 1px solid gray;'>AVE</th>";
+    tableHeader.innerHTML = headerRow;
 
-            // Clear existing headers and rows
-            tableHeader.innerHTML = "";
-            tableBody.innerHTML = "";
+    // Loop through Journalists to populate rows
+    Object.keys(groupedData).forEach(Journalist => {
+        let row = document.createElement("tr");
 
-            // Initialize an object to store grouped data
-            let groupedData = {};
+        let journalistCell = document.createElement("td");
+        journalistCell.textContent = Journalist || "N/A";
+        journalistCell.style.border = "1px solid gray";
+        row.appendChild(journalistCell);
 
-            // Group data by Journalist and label
-            data.forEach(item => {
-                if (!groupedData[item.Edition]) {
-                    groupedData[item.Edition] = {};
-                }
-                if (!groupedData[item.Edition][item.label]) {
-                    groupedData[item.Edition][item.label] = {
-                        count: 0,
-                        total_ave: 0
-                    };
-                }
-                groupedData[item.Edition][item.label].count += parseInt(item.count);
-                groupedData[item.Edition][item.label].total_ave += parseInt(item.total_ave);
-            });
+        // Populate counts for each label
+        let totalAve = 0;
+        uniqueLabels.forEach(label => {
+            let count = groupedData[Journalist][label] ? groupedData[Journalist][label].count : 0;
+            let ave = groupedData[Journalist][label] ? groupedData[Journalist][label].total_ave / groupedData[Journalist][label].count : 0;
 
-            // Prepare headers for each unique label
-            let uniqueLabels = [...new Set(data.map(item => item.label))];
-            let headerRow = "<th style='border: 1px solid gray;'>Journalist</th>";
-            uniqueLabels.forEach(label => {
-                headerRow += `<th style='border: 1px solid gray;'>${label}</th>`;
-            });
-            headerRow += "<th style='border: 1px solid gray;'>AVE</th>";
-            tableHeader.innerHTML = headerRow;
+            let countCell = document.createElement("td");
+            countCell.textContent = count;
+            countCell.style.border = "1px solid gray";
+            row.appendChild(countCell);
 
-            // Loop through Journalists to populate rows
-            Object.keys(groupedData).forEach(Edition => {
-                let row = document.createElement("tr");
+            // Accumulate total ave for this Journalist
+            totalAve += ave;
+        });
 
-                let MediaOutletCell = document.createElement("td");
-                MediaOutletCell.textContent = Edition || "N/A";
-                MediaOutletCell.style.border = "1px solid gray";
-                row.appendChild(MediaOutletCell);
+        // Add the total AVE cell to the row
+        let aveCell = document.createElement("td");
+        aveCell.textContent = totalAve.toFixed(2); // Assuming ave is a numeric value
+        aveCell.style.border = "1px solid gray";
+        row.appendChild(aveCell);
 
-                // Populate counts for each label
-                let totalAve = 0;
-                uniqueLabels.forEach(label => {
-                    let count = groupedData[Edition][label] ? groupedData[Edition][label].count : 0;
-                    let ave = groupedData[Edition][label] ? groupedData[Edition][label].total_ave / groupedData[Edition][label].count : 0;
-
-                    let countCell = document.createElement("td");
-                    countCell.textContent = count;
-                    countCell.style.border = "1px solid gray";
-                    row.appendChild(countCell);
-
-                    // Accumulate total ave for this Journalist
-                    totalAve += ave;
-                });
-
-                // Add the total AVE cell to the row
-                let aveCell = document.createElement("td");
-                aveCell.textContent = totalAve.toFixed(2); // Assuming ave is a numeric value
-                aveCell.style.border = "1px solid gray";
-                row.appendChild(aveCell);
-
-                // Append the row to the table body
-                tableBody.appendChild(row);
-            });
-        }
+        // Append the row to the table body
+        tableBody.appendChild(row);
+    });
+}
 
 // Function to update the chart based on the selected timeframe
-        function updateChart6(timeframe) {
-            let selectedData = journalistData[timeframe];
-            let labels = selectedData.map(item => item.labels);
-            let data = selectedData.map(item => item.earnings); // Or another property based on the chart type
+function updateChart6(timeframe) {
+    let selectedData = journalistData[timeframe];
+    let labels = selectedData.map(item => `${item.label} - ${item.Journalist}`);
+    let data = selectedData.map(item => item.count);
 
-            updateChartData6(journalistAreaChart, labels, data);
-            updateChartData6(journalistPieChart, labels, data);
-            updateChartData6(journalistBarChart, labels, data);
-            updateChartData6(journalistLineChart, labels, data);
-            updateChartData6(journalistVerticalBarChart, labels, data);
+    updateChartData6(journalistAreaChart, labels, data);
+    updateChartData6(journalistPieChart, labels.slice(0, 3), data.slice(0, 3));
+    updateChartData6(journalistBarChart, labels, data);
+    updateChartData6(journalistLineChart, labels, data);
+    updateChartData6(journalistVerticalBarChart, labels, data);
 
-            populateJournalistTable(selectedData);
-        }
-
+    populateJournalistTable(selectedData);
+}
     function handleChartTypeChange() {
         const selectedValue = document.getElementById('chartTypeSelector').value;
         const quantityCharts = document.querySelector('.quantity');

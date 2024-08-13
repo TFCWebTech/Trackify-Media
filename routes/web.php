@@ -55,7 +55,6 @@ Route::post('/get-news-word', [ganerateReport::class, 'getNewsArticleInword'])->
 
 Route::post('/get-news-word', [ganerateReport::class, 'getNewsArticleInword'])->name('getNewsArticleInWord');
 
-
 Route::get('/pro-compare-charts', [ProCompare::class, 'index'])->name('charts.ProCompare');
 // Route::post('/get-pro-compare-charts', [ProCompare::class, 'fetchClientData']);
 Route::post('/fetchClientData', [ProCompare::class, 'fetchClientData'])->name('fetchClientData');
@@ -128,7 +127,6 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 Route::get('/compare_charts',[CompareChartConteoller::class, 'index'])->name('compare_charts');
 
 //Reporter upload 
-
 
 
 Route::get('/reporterOldUpload', [ReportUpload::class, 'reporterOldUpload'])->name('old_report_upload');
