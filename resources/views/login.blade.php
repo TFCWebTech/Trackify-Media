@@ -25,6 +25,9 @@ dl, ol, ul {
     margin-top: 0;
     margin-bottom: 0rem !important;
 }
+#display-error{
+    display: none;
+}
 </style>
 
 <!-- Include the necessary CSS and JS libraries for DataTables -->
@@ -85,61 +88,59 @@ dl, ol, ul {
     </div>
 
     <div class="modal" id="forgotModal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <!-- Modal Header -->
-                <div class="modal-header">
-                    <h4 class="modal-title">Forget Password</h4>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">Forget Password</h4>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
 
-                <!-- Modal body -->
-                <div class="modal-body">
-                    <form method="post">
-                
-                        <div class="mb-1 mt-0">
-                            <p class="pb-1">Please enter your email address. You will receive a link to create a new password via email.</p>
-                            <input type="email" class="form-control" id="email" placeholder="Enter email" name="send_email" onchange="checkEmail()" required >
-                            <p class="text-danger" id="display-error">This email does not exist.</p>
-                        </div>
-                        <div class="float-right pt-1">
-                            <button type="submit" class="btn btn-primary" id="submitBtn">Submit</button>
-                        </div>
-                    </form>
-                </div>
-
+            <!-- Modal body -->
+            <div class="modal-body">
+                <form method="post" action="{{ route('user.sendForgotPasswordMail') }}">
+                    <div class="mb-1 mt-0">
+                        <p class="pb-1">Please enter your email address. You will receive a link to create a new password via email.</p>
+                        <input type="email" class="form-control" id="email" placeholder="Enter email" name="send_email" onchange="checkEmail()" required>
+                        <p class="text-danger" id="display-error" style="display: none;">This email does not exist.</p>
+                    </div>
+                    <div class="float-right pt-1">
+                        <button type="submit" class="btn btn-primary" id="submitBtn" disabled>Submit</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+</div>
 
-
-    <!-- <script>
-    function checkEmail() {
-        var searchEmail = $('#email').val();
-
-        $.ajax({
-            type: 'POST',
-             url: "{{route('check.userMail')}} ",
-             dataType: "html",
-            data: {
-                searchEmail: searchEmail,
-                _token: '{{ csrf_token() }}', // Include CSRF token
-            },
-            success: function(data) {
-                if (data === 'false') {
-                    $('#display-error').show();
-                    $('#email').val('');
-
-                    setTimeout(function() {
-                        $('#display-error').hide();
-                    }, 5000);
-                }
+<script>
+function checkEmail() {
+    var searchEmail = $('#email').val();
+    $.ajax({
+        type: 'POST',
+        url: "{{ route('check.userMail') }}",
+        dataType: "html",
+        data: {
+            searchEmail: searchEmail,
+            _token: '{{ csrf_token() }}',
+        },
+        success: function(data) {
+            if (data === 'false') {
+                $('#display-error').show();
+                $('#submitBtn').prop('disabled', true);
+                setTimeout(function() {
+                    $('#display-error').hide();
+                }, 5000);
+            } else {
+                $('#display-error').hide();
+                $('#submitBtn').prop('disabled', false);
             }
-        });
-    }
-    </script> -->
+        }
+    });
+}
+</script>
 
     <script>
     $(document).ready(function() {

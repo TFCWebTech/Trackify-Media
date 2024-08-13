@@ -260,7 +260,7 @@ class Pro_Compare_model extends Model
                    ->where('publication_id', $gidMediaOutlet);
         
         if ($from && $to) {
-            $query->whereBetween('created_at', [$from, $to]);
+            $query->whereBetween('create_at', [$from, $to]);
         }
     
         $query->whereRaw("FIND_IN_SET(?, client_id)", [$client_id]);
@@ -307,7 +307,7 @@ class Pro_Compare_model extends Model
         $query = DB::table('news_details');
     
         if ($from && $to) {
-            $query->whereBetween('created_at', [$from, $to]);
+            $query->whereBetween('create_at', [$from, $to]);
         }
     
         if ($gidMediaOutlet) {
@@ -401,7 +401,7 @@ class Pro_Compare_model extends Model
             ->where('edition_id', $gidEdition);
         
         if ($from !== null && $to !== null) {
-            $query->whereBetween('created_at', [$from, $to]);
+            $query->whereBetween('create_at', [$from, $to]);
         }
         
         $query->whereRaw("FIND_IN_SET(?, client_id)", [$client_id]);
@@ -447,7 +447,7 @@ class Pro_Compare_model extends Model
         $query = DB::table('news_details');
     
         if ($from && $to) {
-            $query->whereBetween('created_at', [$from, $to]);
+            $query->whereBetween('create_at', [$from, $to]);
         }
     
         if ($gidEdition) {

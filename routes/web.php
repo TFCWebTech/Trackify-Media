@@ -46,6 +46,7 @@ use App\http\Controllers\ClientDashboard\ProAnalytics;
 
 //this routes for the client dashboard login 
 Route::get('/admin-login', [ClientLogin::class, 'index'])->name('ClientLogin');
+Route::post('/admin-logout', [ClientLogin::class, 'Logout'])->name('logout.client');
 Route::post('/login-client', [ClientLogin::class, 'loginClient'])->name('login.client');
 //this is for the Pro Report funcationality 
 Route::get('/generate-report', [ganerateReport::class, 'index'])->name('generateReport');
@@ -66,7 +67,7 @@ Route::get('/', [Login::class, 'index'])->name('login');
 Route::post('/login', [Login::class, 'loginUser'])->name('login.user');
 Route::post('/logout', [Login::class, 'userLogout'])->name('logout.user');
 Route::post('/check-user-mail', [Login::class, 'checkUserMail'])->name('check.userMail');
-Route::post('/forgot-password', [Login::class, 'forgotPassword'])->name('user.forgotPassword');
+Route::post('/forgot-password', [Login::class, 'forgotPassword'])->name('user.sendForgotPasswordMail');
 
 Route::get('/NewsUpload', [NewsUpload::class, 'index'])->name('news_upload');
 Route::post('/NewsUpload/saveArticalImage', [NewsUpload::class, 'saveArticalImage'])->name('newsUpload.saveArticalImage');

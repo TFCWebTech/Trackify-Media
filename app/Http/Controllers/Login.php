@@ -62,13 +62,25 @@ class Login extends Controller
     {
         $searchEmail = $request->input('searchEmail');
         // $check_mail1 = $user->checkUserEmail($searchEmail);
-        $check_mail1 = Admin::where('admin_mail', $searchEmail)->first();;
+        $check_mail1 = User::where('user_email', $searchEmail)->first();
         if ($check_mail1) {
             echo "true";
         } else {
             echo "false";
         }
     }
+
+    // public function checkUserMail(Request $request)
+    // {
+    //     $searchEmail = $request->input('searchEmail');
+    //     // $check_mail1 = $user->checkUserEmail($searchEmail);
+    //     $check_mail1 = Admin::where('admin_mail', $searchEmail)->first();;
+    //     if ($check_mail1) {
+    //         echo "true";
+    //     } else {
+    //         echo "false";
+    //     }
+    // }
 
     public function forgotPassword(Request $request){
         $validator = Validator::make($request->all(), [
@@ -80,14 +92,14 @@ class Login extends Controller
         }
     
         $send_email = $request->input('send_email');
-        $admin = Admin::where('admin_mail', $send_email)->first();
+        $check_mail1 = User::where('user_email', $searchEmail)->first();
     
-        if (!$admin) {
-            return redirect()->back()->with('error', 'Admin not found.'); // Handle case where admin with specified email does not exist
+        if (!$check_mail1) {
+            return redirect()->back()->with('error', 'User not found.'); // Handle case where admin with specified email does not exist
         }
     
         $token = Str::random(60);
-        $admin->update(['teset_token' => $token]); // Note: Ensure you have 'teset_token' spelled correctly
+        $check_mail1->update(['teset_token' => $token]); // Note: Ensure you have 'teset_token' spelled correctly
     
         try {
             Mail::to($admin->admin_mail)->send(new \App\Mail\ResetPassword($admin, $token));

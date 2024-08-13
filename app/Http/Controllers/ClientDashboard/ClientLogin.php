@@ -57,4 +57,10 @@ class ClientLogin extends Controller
         }
     }
 
+    public function Logout(Request $request){
+        Auth::logout(); // Logout the user
+        $request->session()->invalidate(); // Invalidate the session
+        $request->session()->regenerateToken(); // Regenerate the CSRF token
+        return redirect('/admin-login'); 
+    }
 }

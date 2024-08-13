@@ -81,7 +81,7 @@
             <div class="row mb-2">
             <div class="col-md-12 d-flex justify-content-between">
                 <div class="div d-flex">
-                <form id="clientForm" class="d-flex" style="height:35px;">
+                    <form id="clientForm" class="d-flex" style="height:35px;">
                         <label class="px-1 font-weight-bold mt-1" for="publication_type">Select Client</label>
                         <select class="form-control" name="select_client" id="select_client" style="width:200px;">
                             @foreach($client_list as $clients)
@@ -98,7 +98,7 @@
                                 <input id="from-date" name="from" class="form-control" type="date"  required> &nbsp;
                                 <label for="to-date"> To: </label> &nbsp;
                                 <input id="to-date" name="to" class="form-control" type="date"  required>
-                                &nbsp;<button type="submit" class="bg-primary border-primary text-light"> <i class="fa fa-search "></i></button> 
+                                &nbsp;<button type="button" onclick="getDataByDate()"  class="bg-primary border-primary text-light"> <i class="fa fa-search "></i></button> 
                         </div>
                         </form> &nbsp;&nbsp;
                         <!-- <input type="text" name="daterange" value="01/01/2015 - 01/31/2015" /> -->
@@ -439,15 +439,23 @@
         });
     }
 
-    $('#select_client').change(function() {
-        const clientId = $(this).val();
-
+    // $('#select_client').change(function() {
+        function getDataByDate(){
+        var select_client = document.getElementById('select_client').value;
+        var from_date = document.getElementById('from-date').value;
+        var to_date = document.getElementById('to-date').value;
+        console.log(select_client);
+        console.log(from_date);
+        // const clientId = $(this).val();
         $.ajax({
             url: '{{ route('fetchClientData') }}',
             method: 'POST',
             data: {
                 _token: '{{ csrf_token() }}',
-                select_client: clientId
+                // select_client: clientId
+                select_client: select_client,
+                from_date: from_date,
+                to_date: to_date
             },
             success: function(response) {
                 if (response.get_quantity_compare_data && response.media_data) {
@@ -488,7 +496,7 @@
                 console.error('Error fetching data:', xhr.responseText);
             }
         });
-    });
+    };
 
     function updateCharts(data) {
         let labels = [];
@@ -1539,4 +1547,4 @@
 
         document.getElementById('to-date').value = getCurrentDate();
     </script>
-@include('common\footer')
+@include('common\clientDashboard_footer')

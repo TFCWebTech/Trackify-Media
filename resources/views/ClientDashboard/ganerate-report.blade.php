@@ -295,4 +295,4 @@ function downloadWord() {
 }
 
 </script>
-@include('common\footer')
+@include('common\clientDashboard_footer')

@@ -439,18 +439,48 @@ body {
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-
 <script>
+    // function getDataByDate(){
+        
+    //     var select_client = document.getElementById('select_client').value;
+    //     var from_date = document.getElementById('from-date').value;
+    //     var to_date = document.getElementById('to-date').value;
+    //     console.log(select_client);
+    //     console.log(from_date);
+    //     $.ajax({
+    //         url: '{{ route('fetchAnalyticsData') }}',
+    //         method: 'POST',
+    //         data: {
+    //             _token: '{{ csrf_token() }}',
+    //             select_client: select_client,
+    //             from_date: from_date,
+    //             to_date: to_date
+    //         },
+    //         success: function(response) {
+    //             console.log(response);
+    //         }
 
-    $('#select_client').change(function() {
-        const clientId = $(this).val();
+    //     });
+    // }
+</script>
+<script>
+// $('#select_client').change(function()
+    function getDataByDate(){
+        var select_client = document.getElementById('select_client').value;
+        var from_date = document.getElementById('from-date').value;
+        var to_date = document.getElementById('to-date').value;
+        console.log(select_client);
+        console.log(from_date);
+        // const clientId = $(this).val();
 
         $.ajax({
             url: '{{ route('fetchAnalyticsData') }}',
             method: 'POST',
             data: {
                 _token: '{{ csrf_token() }}',
-                select_client: clientId
+                select_client: select_client,
+                from_date: from_date,
+                to_date: to_date
             },
             success: function(response) {
                 console.log(response);
@@ -511,7 +541,7 @@ body {
                 console.error('Error fetching data:', xhr.responseText);
             }
         });
-    });
+    };
 
     let quantityData = {
         daily: [],    // Initially empty, will be populated after AJAX success
@@ -2242,4 +2272,4 @@ function updateChart6(timeframe) {
 </script>
 </div>
 </div>
-@include('common\footer')
+@include('common\clientDashboard_footer')

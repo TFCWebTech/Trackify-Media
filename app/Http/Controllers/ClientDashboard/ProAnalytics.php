@@ -27,8 +27,11 @@ class ProAnalytics extends Controller
     public function fetchAnalyticsData(Request $request)
     {
         $client_id = $request->input('select_client');
-        $from = null; // Define $from as needed
-        $to = null; // Define $to as needed
+        $from_date = $request->input('from_date');
+        $to_date = $request->input('to_date');
+
+        $from = $from_date ?: null;
+        $to = $to_date ?: null;
 
         $data = [
             'quantity_graph_daily' => $this->Pro_Analytics_Model->getDataByTimeframe('daily', $client_id, $from, $to),

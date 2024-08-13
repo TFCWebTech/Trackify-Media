@@ -32,11 +32,12 @@ class ProCompare extends Controller
     {
         {
             $client_id = $request->input('select_client');
+            $from_date = $request->input('from_date');
+            $to_date = $request->input('to_date');
             $compititers_data = [];
     
-            $from = null; // Define the $from variable as per your requirement
-            $to = null; // Define the $to variable as per your requirement
-    
+            $from = $from_date ?: null;
+            $to = $to_date ?: null;
             // Get client name and news count
             $client_name_array = $this->Pro_Compare_model->getClientName($client_id);
             $client_name = $client_name_array ? $client_name_array->client_name : '';
