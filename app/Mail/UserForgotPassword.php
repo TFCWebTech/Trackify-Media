@@ -13,14 +13,22 @@ class UserForgotPassword extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public $user;
+    public $token;
+
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct($user, $token)
     {
-        //
+        $this->user = $user;
+        $this->token = $token;
     }
-
+    public function build()
+    {
+        return $this->subject('Welcome to Trackify Media')
+                    ->view('emails.user_resproter_password_mail');
+    }
     /**
      * Get the message envelope.
      */

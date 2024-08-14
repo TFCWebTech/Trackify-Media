@@ -68,6 +68,8 @@ Route::post('/login', [Login::class, 'loginUser'])->name('login.user');
 Route::post('/logout', [Login::class, 'userLogout'])->name('logout.user');
 Route::post('/check-user-mail', [Login::class, 'checkUserMail'])->name('check.userMail');
 Route::post('/forgot-password', [Login::class, 'forgotPassword'])->name('user.sendForgotPasswordMail');
+Route::get('/ganerate-users-reporter-password/{id}/{token}', [Login::class, 'ganerateUserPassword'])->name('ganeratePasswordForAdmin_reporter');
+Route::post('setUserRepoterPassword/', [Login::class, 'setUserRepoterPassword'])->name('setUserRepoterPassword');
 
 Route::get('/NewsUpload', [NewsUpload::class, 'index'])->name('news_upload');
 Route::post('/NewsUpload/saveArticalImage', [NewsUpload::class, 'saveArticalImage'])->name('newsUpload.saveArticalImage');

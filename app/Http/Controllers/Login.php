@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Log;
 use App\Mail\ResetPassword;
+use App\MAil\UserForgotPassword;
 use Illuminate\Support\Facades\Hash;
 class Login extends Controller
 {
@@ -82,36 +83,72 @@ class Login extends Controller
     //     }
     // }
 
-    public function forgotPassword(Request $request){
-        $validator = Validator::make($request->all(), [
-            'send_email' => 'required|email', // Corrected the validation rule
+    public function forgotPassword(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'send_email' => 'required|email', // Corrected the validation rule
+    ]);
+
+    if ($validator->fails()) {
+        return redirect()->back()->with('error', 'Enter a valid E-mail.');
+    }
+
+    $send_email = $request->input('send_email');
+    $user = User::where('user_email', $send_email)->first();
+
+    if (!$user) {
+        return redirect()->back()->with('error', 'User not found.'); // Handle case where user with specified email does not exist
+    }
+
+    $token = Str::random(60);
+    $user->update(['reset_token' => $token]); // Ensure 'reset_token' is the correct column name
+
+    try {
+        Mail::to($user->user_email)->send(new \App\Mail\UserForgotPassword($user, $token));
+        Log::info("Password reset link sent to {$user->user_email}");
+        return redirect()->back()->with('success', 'Password reset link sent to your email.');
+
+    } catch (\Exception $e) {
+        Log::error("Error sending password reset email: {$e->getMessage()}");
+        return redirect()->back()->with('error', 'Error sending password reset link. Please try again later.');
+    }
+}
+    
+public function ganerateUserPassword(Request $request, $id, $token){
+    $User = user::findOrFail($id);
+    // Check if the token matches
+    $userId = $User->user_id;
+    $userEmail = $User->user_email;
+    return view('emails.set_admin_reporter_password', compact('User'));
+}
+public function setUserRepoterPassword(Request $request)
+    {
+        // Validate the request
+        $request->validate([
+            'client_id' => 'required|integer|exists:client,client_id',
+            'password1' => 'required|string|min:6',
+            'password2' => 'required|string|same:password1', // Ensure passwords match
+            'token' => 'required|string' // Ensure token is present
         ]);
     
-        if ($validator->fails()) {
-            return redirect()->back()->with('error', 'Enter a valid E-mail.');
+        // Retrieve the user by client_id and token
+        $User = user::where('user_id', $request->input('user_id'))
+                            ->where('token', $request->input('token'))
+                            ->first();
+    
+        // Check if user exists and token matches
+        if (!$User) {
+            return redirect()->back()->with('error', 'Something went wrong.');
         }
     
-        $send_email = $request->input('send_email');
-        $check_mail1 = User::where('user_email', $searchEmail)->first();
+        // Update the password securely
+        $User->user_password = Hash::make($request->input('password1'));
+        // Invalidate the token after password reset
+        $User->token = null;
+        $User->save(); // Save the changes
     
-        if (!$check_mail1) {
-            return redirect()->back()->with('error', 'User not found.'); // Handle case where admin with specified email does not exist
-        }
-    
-        $token = Str::random(60);
-        $check_mail1->update(['teset_token' => $token]); // Note: Ensure you have 'teset_token' spelled correctly
-    
-        try {
-            Mail::to($admin->admin_mail)->send(new \App\Mail\ResetPassword($admin, $token));
-            Log::info("Password reset link sent to {$admin->admin_mail}");
-            return redirect()->back()->with('success', 'Password reset link sent to your email.');
-    
-        } catch (\Exception $e) {
-            Log::error("Error sending password reset email: {$e->getMessage()}");
-            return redirect()->back()->with('error', 'Error sending password reset link. Please try again later.');
-        }
+        return redirect()->route('login')->with('success', 'Password updated successfully! Please log in.');
     }
-    
 
     public function userLogout(Request $request) {
         Auth::logout(); // Logout the user
