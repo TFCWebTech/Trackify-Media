@@ -1,4 +1,4 @@
-@include('common\header')
+@include('common/header')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
 <style>
@@ -99,7 +99,7 @@ body {
     @foreach ($newsDetail['news_articles'] as $index => $article)
         @php
             $lightboxId = "img" . $index;
-            $imageUrl = !empty($article['article_images']['artical_images_name']) ? asset('storage/uploads/' . $article['article_images']['artical_images_name']) : '';
+            $imageUrl = !empty($article['article_images']['artical_images_name']) ? asset('storage/app/public/uploads/' . $article['article_images']['artical_images_name']) : '';
         @endphp
         <div class="row p-2">
             <div class="col-md-3">
@@ -149,7 +149,7 @@ body {
                     @foreach ($newsDetail['news_articles'] as $index => $article)
                     @php
                         $lightboxId = "img" . $index;
-                        $imageUrl = !empty($article['artical_images_name']) ? asset('storage/uploads/' . $article['artical_images_name']) : '';
+                        $imageUrl = !empty($article['artical_images_name']) ? asset('storage/app/public/uploads/' . $article['artical_images_name']) : '';
                     @endphp
                         <div class="col-md-12 pt-1">
                             <h6>{{ $article['news_artical'] }}</h6>
@@ -206,4 +206,4 @@ body {
         });
     });
     </script>
-    @include('common\footer')
+    @include('common/footer')

@@ -1,4 +1,4 @@
-@include('common\header')
+@include('common/header')
 
 <!-- Include the necessary CSS and JS libraries for DataTables -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
@@ -347,4 +347,4 @@ function addKeywordInput2() {
 
 </div>
 
-@include('common\footer')
+@include('common/footer')

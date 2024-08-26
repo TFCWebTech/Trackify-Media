@@ -1,10 +1,10 @@
-@include('common\header')
+@include('common/header')
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"> -->
   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
@@ -367,6 +367,63 @@ th {
         </div>
     </div>
 </div>
+<script>  
+
+function deleteNews(news_details_id, client_id) {
+    console.log("news id :", news_details_id);
+    console.log("client_id :", client_id);
+    
+    $.ajax({
+        type: "POST",
+        url: "{{ route('deleteNews') }}",
+        dataType: 'json',
+        data: {
+            news_details_id: news_details_id,
+            client_id: client_id,
+            type: 'delete',
+            _token: '{{ csrf_token() }}' // Include CSRF token
+        },
+        success: function(response) {
+            if (response.status === 'success') {
+                // alert(response.message);
+                location.reload(); // Uncomment if you want to reload the page
+            }
+        },
+        error: function(xhr) {
+            console.error(xhr.responseText);
+        }
+    });
+}
+
+    function hideNews(news_details_id, client_id)
+    {
+
+        console.log("news id :", news_details_id);
+        console.log("client_id :", client_id);
+    
+        $.ajax({
+            type: "POST",
+            url: "{{ route('deleteNews') }}",
+            dataType: 'json',
+            data: {
+                news_details_id: news_details_id,
+                client_id: client_id,
+                type: 'hide',
+                _token: '{{ csrf_token() }}' // Include CSRF token
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    // alert(response.message);
+                    location.reload(); // Uncomment if you want to reload the page
+                }
+            },
+            error: function(xhr) {
+                console.error(xhr.responseText);
+            }
+        });
+    }
+
+</script>
 <script>
 
 
@@ -528,4 +585,4 @@ function getEmail(client_id)
 </script>
 
 
-@include('common\footer')
+@include('common/footer')

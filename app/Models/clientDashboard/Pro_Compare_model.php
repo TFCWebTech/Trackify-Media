@@ -20,43 +20,97 @@ class Pro_Compare_model extends Model
             ->first(); // Use first() to get a single result
     }
 
-    public function getClientNewsCount($timeframe, $client_id, $from = null, $to = null)
-    {
-        $query = DB::table('news_details')
-            ->select('*');
+      public function getClientNewsCount($timeframe, $client_id, $from = null, $to = null)
+{
+    $query = DB::table('news_details')
+        ->select('*');
 
-        // if ($from !== null && $to !== null) {
-        //     $query->whereBetween('create_at', [$from, $to]);
-        // }
-
-        $query->whereRaw("FIND_IN_SET(?, company)", [$client_id]);
-
-        $result = $query->get();
-        $total_ave = 0;
-        $news_count = 0;
-
-        foreach ($result as $value) {
-            $rates_data = $this->getRates($value->media_type_id, $value->publication_id);
-            $ave = 0;
-            if ($rates_data) { // Check if rates_data is not null
-                $article_size = $value->sizeofArticle ?? 0;
-                $rate = $rates_data->Rate ?? 0; // Access properties using -> for stdClass
-                $Circulation_Fig = $rates_data->Circulation_Fig ?? 0; // Access properties using -> for stdClass
-                $ave = 3 * $article_size * $rate * $Circulation_Fig;
-            }
-            $total_ave += $ave;
-            $news_count++;
-        }
-
-        return [
-            'news_count' => $news_count,
-            'total_ave' => $total_ave
-        ];
+    if ($from !== null && $to !== null) {
+        $query->whereBetween('create_at', [$from, $to]);
     }
+
+    $query->whereRaw("FIND_IN_SET(?, company)", [$client_id]);
+
+    $result = $query->get()->toArray();
+    $total_ave = 0;
+    $news_count = 0;
+
+    foreach ($result as $value) {
+        $rates_data = $this->getRates($value->media_type_id, $value->publication_id);
+        $ave = 0;
+        if ($rates_data) { 
+            $article_size = $value->sizeofArticle ?? 0;
+            $rate = $rates_data->Rate ?? 0;
+            $Circulation_Fig = $rates_data->Circulation_Fig ?? 0;
+            $ave = 3 * $article_size * $rate * $Circulation_Fig;
+        }
+        $total_ave += $ave;
+        $news_count++;
+    }
+
+    return [
+        'news_count' => $news_count,
+        'total_ave' => $total_ave
+    ];
+}
+public function getCompDataQ($timeframe, $client_id, $from = null, $to = null)
+{
+    $result = DB::table('competitor')
+        ->where('client_id', $client_id)
+        ->get()
+        ->toArray();
+
+    $outArr = array();
+    foreach ($result as $row) {
+        $news_data = $this->getCompNewsByKeyQ($row->Keywords, $client_id, $from, $to);
+        $totalAve = array_reduce($news_data, function($carry, $item) {
+            return $carry + ($item->ave ?? 0);
+        }, 0);
+
+        $outArr[] = array(
+            'label' => $row->Competitor_name,
+            'Count' => count($news_data), // News count
+            'ave' => $totalAve, // Total ave value
+        );
+    }
+    return $outArr;
+}
+public function getCompNewsByKeyQ($Keywords, $client_id, $from = null, $to = null)
+{
+    $query = DB::table('news_details');
+
+    if ($from !== null && $to !== null) {
+        $query->whereBetween('create_at', [$from, $to]);
+    }
+
+    $query->whereRaw("NOT FIND_IN_SET(?, company)", [$client_id]);
+
+    $query->where(function ($q) use ($Keywords) {
+        foreach (explode(',', $Keywords) as $keyword) {
+            $keyword = trim($keyword);
+            $q->orWhereRaw("FIND_IN_SET(?, keywords) > 0", [$keyword]);
+        }
+    });
+
+    $result = $query->get()->toArray();
+    foreach ($result as &$value) {
+        $rates_data = $this->getRates($value->media_type_id, $value->publication_id);
+        $ave = 0;
+
+        if ($rates_data) {
+            $article_size = $value->sizeofArticle ?? 0;
+            $rate = $rates_data->Rate ?? 0;
+            $Circulation_Fig = $rates_data->Circulation_Fig ?? 0;
+            $ave = 3 * $article_size * $rate * $Circulation_Fig;
+        }
+        $value->ave = $ave;
+    }
+    return $result;
+}
 
     public function getRates($gidMediaType, $gidMediaOutlet)
     {
-        return DB::table('AddRate')
+        return DB::table('addrate')
             ->select('Rate', 'Circulation_Fig')
             ->where('gidMediaType', $gidMediaType)
             ->where('gidMediaOutlet', $gidMediaOutlet)

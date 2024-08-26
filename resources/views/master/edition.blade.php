@@ -1,4 +1,4 @@
-@include('common\header')
+@include('common/header')
 <!-- Include the necessary CSS and JS libraries for DataTables -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css">
@@ -171,7 +171,7 @@ function editEdition(edition) {
     console.log('edition data:', editionobject);
    
     $('#modal-title').text('Update Edition');
-    $('#editionForm').attr('action', `/Edition/update/${editionobject.gidEdition_id}`);
+    $('#editionForm').attr('action', `/NRS/Edition/update/${editionobject.gidEdition_id}`);
 
     // Populate the form fields with the supplement data
     $('input[name="Edition"]').val(editionobject.Edition);
@@ -198,4 +198,4 @@ function editEdition(edition) {
 </div>
 
 <!-- End of Main Content -->
-@include('common\footer')
+@include('common/footer')

@@ -1,4 +1,4 @@
-@include('common\header')
+@include('common/header')
 <!-- Include the necessary CSS and JS libraries for DataTables -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css">
@@ -238,7 +238,7 @@ label {
 <script>
  function editAddRate(add_rate_data) {
   $('#modal-title').text('Update Add Rate');
-  $('#addRateForm').attr('action', `/AddRate/update/${add_rate_data.gidAddRate_id}`);
+  $('#addRateForm').attr('action', `/NRS/AddRate/update/${add_rate_data.gidAddRate_id}`);
   
   // Set media type
   $('select[name="media_type"]').val(add_rate_data.gidMediaType);
@@ -384,5 +384,5 @@ function addAddRate() {
 </script>
 
 </div>
-@include('common\footer')
+@include('common/footer')
             <!-- End of Main Content -->

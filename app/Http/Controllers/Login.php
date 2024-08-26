@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Log;
 use App\Mail\ResetPassword;
-use App\MAil\UserForgotPassword;
 use Illuminate\Support\Facades\Hash;
 class Login extends Controller
 {
@@ -24,6 +23,7 @@ class Login extends Controller
     
     public function loginUser(Request $request)
     {
+        // Validate the input fields
         $request->validate([
             'userId' => 'required',
             'user_password' => 'required'
@@ -31,20 +31,35 @@ class Login extends Controller
     
         $userId = $request->input('userId');
         $userPassword = $request->input('user_password');
-    //  \Log::info('Attempting to find user:', ['userId' => $userId]);
-
+    
+        // Attempt to find the user by user_name
         $check = User::where('user_name', $userId)->first();
     
         if ($check) {
+            // Check if the provided password matches the stored hashed password
             if (Hash::check($userPassword, $check->user_password)) {
+                // Store user information in the session
                 Session::put('user_id', $check->user_id);
                 Session::put('user_name', $check->user_name);
                 Session::put('user_type', $check->user_type);
     
-                return response()->json([
-                    'success' => true,
-                    'redirect' => route('news_latter')
-                ]);
+                // Redirect based on user type
+                if ($check->user_type === 'Admin') {
+                    return response()->json([
+                        'success' => true,
+                        'redirect' => route('news_latter')
+                    ]);
+                } elseif ($check->user_type === 'Reporter') {
+                    return response()->json([
+                        'success' => true,
+                        'redirect' => route('news_upload')
+                    ]);
+                } else {
+                    return response()->json([
+                        'success' => false,
+                        'error' => 'Unauthorized user type.',
+                    ], 403); // 403 Forbidden if user type is not recognized
+                }
             } else {
                 return response()->json([
                     'success' => false,
@@ -84,48 +99,59 @@ class Login extends Controller
     // }
 
     public function forgotPassword(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'send_email' => 'required|email', // Corrected the validation rule
-    ]);
+    {
+        // Validate email input
+        $validator = Validator::make($request->all(), [
+            'send_email' => 'required|email',
+        ]);
 
-    if ($validator->fails()) {
-        return redirect()->back()->with('error', 'Enter a valid E-mail.');
-    }
+        if ($validator->fails()) {
+            return redirect()->back()->with('error', 'Enter a valid E-mail.');
+        }
 
-    $send_email = $request->input('send_email');
-    $user = User::where('user_email', $send_email)->first();
+        $send_email = $request->input('send_email');
+        $user = User::where('user_email', $send_email)->first();
 
-    if (!$user) {
-        return redirect()->back()->with('error', 'User not found.'); // Handle case where user with specified email does not exist
-    }
+        if (!$user) {
+            return redirect()->back()->with('error', 'User not found.');
+        }
 
-    $token = Str::random(60);
-    $user->update(['reset_token' => $token]); // Ensure 'reset_token' is the correct column name
+        // Generate a token
+        $token = Str::random(60);
 
-    try {
-        Mail::to($user->user_email)->send(new \App\Mail\UserForgotPassword($user, $token));
-        Log::info("Password reset link sent to {$user->user_email}");
-        return redirect()->back()->with('success', 'Password reset link sent to your email.');
+        // Update the user's token in the database
+        $user->update(['token' => $token]);
 
-    } catch (\Exception $e) {
-        Log::error("Error sending password reset email: {$e->getMessage()}");
-        return redirect()->back()->with('error', 'Error sending password reset link. Please try again later.');
-    }
-}
+        // Debugging: Verify if token is updated
+
+        try {
+           $user_id =  $user->user_id;
+    Mail::to($user->user_email)->send(new \App\Mail\UserForgotPassword($user_id, $token));
     
-public function ganerateUserPassword(Request $request, $id, $token){
-    $User = user::findOrFail($id);
-    // Check if the token matches
-    $userId = $User->user_id;
-    $userEmail = $User->user_email;
-    return view('emails.set_admin_reporter_password', compact('User'));
+    if (count(Mail::failures()) > 0) {
+        Log::error('Failed to send email to: ' . implode(', ', Mail::failures()));
+        return redirect()->back()->with('error', 'Failed to send email.');
+    } else {
+        Log::info("Password reset link sent to {$user->user_email}");
+        return redirect()->back()->with('success', 'Passwords reset link sent to your email.');
+    }
+} catch (\Exception $e) {
+    Log::error("Error sending password reset email: {$e->getMessage()}");
+    return redirect()->back()->with('error', 'Error sending password reset link. Please try again later.');
 }
-public function setUserRepoterPassword(Request $request)
+    }
+    public function ganerateUserPassword(Request $request, $id, $token){
+        $User = user::findOrFail($id);
+        // Check if the token matches
+        $userId = $User->user_id;
+         $userEmail = $User->user_email;
+        return view('emails.set_admin_reporter_password', compact('User'));
+    }
+    public function setUserRepoterPassword(Request $request)
     {
         // Validate the request
         $request->validate([
-            'client_id' => 'required|integer|exists:client,client_id',
+            'user_id' => 'required|integer|exists:user,user_id',
             'password1' => 'required|string|min:6',
             'password2' => 'required|string|same:password1', // Ensure passwords match
             'token' => 'required|string' // Ensure token is present

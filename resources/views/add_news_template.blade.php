@@ -1,4 +1,4 @@
-@include('common\header')
+@include('common/header')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <style>
     .modal-footer{
@@ -487,4 +487,4 @@
         });
     });
 </script>
-@include('common\footer')
+@include('common/footer')

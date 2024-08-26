@@ -40,7 +40,14 @@ dl, ol, ul {
 <body class="bg-gradient-primary">
 
     <div class="container"> 
-
+@if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show mt-2" role="alert">
+                {{ session('success') }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        @endif
         <!-- Outer Row -->
         <div class="row justify-content-center">
 
@@ -101,6 +108,7 @@ dl, ol, ul {
             <!-- Modal body -->
             <div class="modal-body">
                 <form method="post" action="{{ route('user.sendForgotPasswordMail') }}">
+                @csrf
                     <div class="mb-1 mt-0">
                         <p class="pb-1">Please enter your email address. You will receive a link to create a new password via email.</p>
                         <input type="email" class="form-control" id="email" placeholder="Enter email" name="send_email" onchange="checkEmail()" required>

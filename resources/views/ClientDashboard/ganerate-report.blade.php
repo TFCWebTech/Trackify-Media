@@ -1,4 +1,4 @@
-@include('common\clientDashboard-header')
+@include('common/clientDashboard-header')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
@@ -260,7 +260,11 @@ function downloadWord() {
     var publication_type = document.getElementById('publication_type').value;
     var Cities = document.getElementById('Cities').value;
     var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
+console.log('select_client :', select_client);
+    console.log('From Date:', from_date);
+    console.log('To Date:', to_date);
+    console.log('Publication Type:', publication_type);
+    console.log('Cities:', Cities);
     $.ajax({
         type: "POST",
         url: "{{ route('getNewsArticleData') }}",
@@ -295,4 +299,4 @@ function downloadWord() {
 }
 
 </script>
-@include('common\clientDashboard_footer')
+@include('common/clientDashboard_footer')

@@ -1,4 +1,4 @@
-@include('common\header')
+@include('common/header')
 <!-- Include the necessary CSS and JS libraries for DataTables -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css">
@@ -188,7 +188,7 @@ select.form-control[multiple], select.form-control[size] {
   function editIndustry(industrys) {
     console.log(industrys);
     $('#modal-title').text('Update Industry');
-    $('#IndustryForm').attr('action', `/industry/update/${industrys.Industry_id}`);
+    $('#IndustryForm').attr('action', `/NRS/industry/update/${industrys.Industry_id}`);
     
     // Populate the form fields with the industry data
     $('input[name="Industry_name"]').val(industrys.Industry_name);
@@ -265,5 +265,5 @@ select.form-control[multiple], select.form-control[size] {
     $('table').DataTable();
 </script>
 </div>
-@include('common\footer')
+@include('common/footer')
             <!-- End of Main Content -->    

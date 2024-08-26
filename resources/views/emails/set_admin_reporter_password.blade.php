@@ -48,7 +48,7 @@
                         <img src="{{ asset('assets/img/images/logo.png') }}" style="width:100%;" alt="">
                         <h4>Reset Password</h4>
                     </div>
-                    <form class="user" method="post" action="{{ route('admin.setPassword') }}" onsubmit="return checkPassword()">
+                    <form class="user" method="post" action="{{ route('setUserRepoterPassword') }}" onsubmit="return checkPassword()">
                         @csrf
                         <div class="form-group mt-3">
                             <input type="password" id="password1" name="password1" class="form-control input-shadow" placeholder="New Password" required>

@@ -125,6 +125,7 @@ class ClientController extends Controller
 
             // Update the client record
             Client_Model::where('client_id', $existingClientId)->update($data);
+            return redirect()->back()->with('success', 'User Mail added successfully!');
         } else {
             $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
             $randomString = '';

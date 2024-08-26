@@ -11,7 +11,7 @@
         <h3 align='center'> <span style="font-size:18px;">Generate Password</span> <br>
             Hello,</h3>
         <p style='color: #757272; text-align:center:'>To generate your password please click on the button below.
-            <a href="{{ route('ganeratePasswordForAdmin_reporter', [$clientId, $token]) }}" style="text-decoration: none; ">Generate Password</a>
+            <a href="{{ route('ganeratePasswordForAdmin_reporter', [$user, $token]) }}" style="text-decoration: none; ">Generate Password</a>
         </p>
     </div>
     <p>Thank you for joining our Team.</p>

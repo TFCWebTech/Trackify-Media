@@ -1,4 +1,4 @@
-@include('common\header')
+@include('common/header')
 
 <!-- Include the necessary CSS and JS libraries for DataTables -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
@@ -155,7 +155,7 @@ margin-bottom: 5px !important;
 <script>
  function editReporter(reporter) {
     $('#modal-title').text('Update Reporter');
-    $('#reporterForm').attr('action', `/reporter/update/${reporter.user_id}`);
+    $('#reporterForm').attr('action', `/NRS/reporter/update/${reporter.user_id}`);
     
     // Populate the form fields with the reporter data
     $('input[name="update_reporter_name"]').val(reporter.user_name);
@@ -180,4 +180,4 @@ margin-bottom: 5px !important;
 </div>
 
             <!-- End of Main Content -->
-@include('common\footer')
+@include('common/footer')

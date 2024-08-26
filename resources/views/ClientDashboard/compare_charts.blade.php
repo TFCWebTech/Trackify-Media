@@ -1,4 +1,4 @@
-@include('common\clientDashboard-header')
+@include('common/clientDashboard-header')
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
 <style>
@@ -121,7 +121,7 @@
                     <canvas id="myAreaChart"></canvas>
                 </div>
                 <div id="pieChart" class="chart-container">
-                    <canvas id="myPieChart"></canvas>
+                    <canvas id="myqPieChart"></canvas>
                 </div>
                 <div id="barChart" class="chart-container">
                     <canvas id="myBarChart"></canvas>
@@ -385,7 +385,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     let areaChart = initializeChart('myAreaChart', 'line');
-    let pieChart = initializeChart('myPieChart', 'doughnut');
+    let pieChart = initializeChart('myqPieChart', 'pie');
     let barChart = initializeChart('myBarChart', 'bar');
     let lineChart = initializeChart('myLineChart', 'line');
     let verticalBarChart = initializeChart('myVerticalBarChart', 'bar', true);
@@ -416,28 +416,41 @@
     let aveVerticalBarChart = initializeChart('aveVerticalBarChart', 'bar', true);
    
     function initializeChart(ctxId, type, isHorizontal = false) {
-        return new Chart(document.getElementById(ctxId).getContext('2d'), {
-            type: type,
-            data: {
-                labels: [],
-                datasets: []
-            },
-            options: {
-                maintainAspectRatio: false,
-                indexAxis: isHorizontal ? 'y' : 'x', // Add this line to toggle between vertical and horizontal
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return value + '';
-                            }
-                        }
+    const options = {
+        maintainAspectRatio: false,
+        indexAxis: isHorizontal ? 'y' : 'x',
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return value + '';
                     }
                 }
             }
-        });
+        }
+    };
+
+    // Disable scales and gridlines for pie charts
+    if (type === 'pie' || type === 'doughnut') {
+        options.scales = {};
+        options.plugins = {
+            legend: {
+                display: true,
+                position: 'top'
+            }
+        };
     }
+
+    return new Chart(document.getElementById(ctxId).getContext('2d'), {
+        type: type,
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: options
+    });
+}
 
     // $('#select_client').change(function() {
         function getDataByDate(){
@@ -498,7 +511,7 @@
         });
     };
 
-    function updateCharts(data) {
+     function updateCharts(data) {
         let labels = [];
         let datasets = [{
             label: 'Quantity Data',
@@ -924,51 +937,54 @@
     }
 
     function updateClientNewsCount(data) {
-        const container = document.getElementById('clientNewsCountContainer');
-        container.innerHTML = '';
+    const container = document.getElementById('clientNewsCountContainer');
+    container.innerHTML = '';
 
-        const table = document.createElement('table');
-        table.style.width = '100%';
-        table.innerHTML = `
-            <tr>
-                <th>Company Name</th>
-                <th>Count</th>
-                <th>AVE</th>
-            </tr>
+    const table = document.createElement('table');
+    table.style.width = '100%';
+    table.style.borderCollapse = 'collapse'; // Ensure borders are not double
+
+    table.innerHTML = `
+        <tr>
+            <th style="border: 1px solid #000; padding: 8px;">Company Name</th>
+            <th style="border: 1px solid #000; padding: 8px;">Count</th>
+            <th style="border: 1px solid #000; padding: 8px;">AVE</th>
+        </tr>
+    `;
+
+    let totalCount = 0;
+    let totalAve = 0;
+    let aveCount = 0;
+
+    data.forEach(client => {
+        const row = document.createElement('tr');
+        const countValue = client.count !== undefined && client.count !== null ? parseInt(client.count, 10) : 0;
+        const aveValue = client.ave !== undefined && client.ave !== null ? parseFloat(client.ave) : 0.00;
+
+        row.innerHTML = `
+            <td style="border: 1px solid #000; padding: 8px;">${client.label}</td>
+            <td style="border: 1px solid #000; padding: 8px;">${countValue}</td>
+            <td style="border: 1px solid #000; padding: 8px;">${aveValue.toFixed(2)}</td>
         `;
+        table.appendChild(row);
 
-        let totalCount = 0;
-        let totalAve = 0;
-        let aveCount = 0;
+        totalCount += countValue;
+        totalAve += aveValue;
+        aveCount += aveValue > 0 ? 1 : 0;
+    });
 
-        data.forEach(client => {
-            const row = document.createElement('tr');
-            const aveValue = client.ave !== undefined && client.ave !== null ? client.ave : 0;
-            row.innerHTML = `
-                <td>${client.label}</td>
-                <td>${client.count}</td>
-                <td>${aveValue}</td>
-            `;
-            table.appendChild(row);
+    const avgAve = aveCount > 0 ? (totalAve / aveCount).toFixed(2) : '0.00';
 
-            totalCount += parseInt(client.count, 10);
-            totalAve += parseFloat(aveValue);
-            aveCount += aveValue ? 1 : 0;
-        });
-
-        const avgAve = aveCount > 0 ? (totalAve / aveCount).toFixed(2) : 0;
-
-        const totalRow = document.createElement('tr');
-        totalRow.style.fontWeight = 'bold';
-        totalRow.innerHTML = `
-            <td>Total</td>
-            <td>${totalCount}</td>
-            <td>${avgAve}</td>
-        `;
-        table.appendChild(totalRow);
-        container.appendChild(table);
-    }
-
+    const totalRow = document.createElement('tr');
+    totalRow.style.fontWeight = 'bold';
+    totalRow.innerHTML = `
+        <td style="border: 1px solid #000; padding: 8px;">Total</td>
+        <td style="border: 1px solid #000; padding: 8px;">${totalCount}</td>
+        <td style="border: 1px solid #000; padding: 8px;">${avgAve}</td>
+    `;
+    table.appendChild(totalRow);
+    container.appendChild(table);
+}
     function updateMediaTable(mediaData) {
         const tableBody = document.querySelector('#mediaTable tbody');
         const tableHead = document.querySelector('#mediaTable thead');
@@ -1547,4 +1563,4 @@
 
         document.getElementById('to-date').value = getCurrentDate();
     </script>
-@include('common\clientDashboard_footer')
+@include('common/clientDashboard_footer')

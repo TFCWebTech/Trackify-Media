@@ -1,4 +1,4 @@
-@include('common\header')
+@include('common/header')
 
 <!-- Include the necessary CSS and JS libraries for DataTables -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
@@ -218,7 +218,7 @@ margin-bottom: 5px !important;
   function editPublication(Publications) {
     console.log(Publications);
     $('#modal-title').text('Update Publications');
-    $('#publicationForm').attr('action', `/Publication/update/${Publications.gidMediaOutlet_id}`);
+    $('#publicationForm').attr('action', `/NRS/Publication/update/${Publications.gidMediaOutlet_id}`);
     
     // Populate the form fields with the reporter data
     $('input[name="publiction_name"]').val(Publications.MediaOutlet);
@@ -244,4 +244,4 @@ margin-bottom: 5px !important;
 </script>
 </div>
 
-@include('common\footer')
+@include('common/footer')

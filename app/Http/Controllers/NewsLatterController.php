@@ -228,7 +228,7 @@ class NewsLatterController extends Controller
         ->leftJoin('edition', 'news_details.edition_id', '=', 'edition.gidEdition')
         ->leftJoin('supplements', 'news_details.supplement_id', '=', 'supplements.gidSupplement')
         ->leftJoin('journalist', 'news_details.journalist_id', '=', 'journalist.gidJournalist')
-        ->leftJoin('Agency', 'news_details.journalist_id', '=', 'Agency.gidAgency')
+        ->leftJoin('agency', 'news_details.journalist_id', '=', 'agency.gidAgency')
         ->whereDate('news_details.create_at', $date)
         ->where('is_send', 0)
         ->where(function($query) use ($client_id) {
@@ -291,7 +291,7 @@ class NewsLatterController extends Controller
         ->leftJoin('edition', 'news_details.edition_id', '=', 'edition.gidEdition')
         ->leftJoin('supplements', 'news_details.supplement_id', '=', 'supplements.gidSupplement')
         ->leftJoin('journalist', 'news_details.journalist_id', '=', 'journalist.gidJournalist')
-        ->leftJoin('Agency', 'news_details.journalist_id', '=', 'Agency.gidAgency')
+        ->leftJoin('agency', 'news_details.journalist_id', '=', 'agency.gidAgency')
         ->whereDate('news_details.create_at', $date)
         ->where('is_send', 0)
         ->where(function($query) use ($client_id) {

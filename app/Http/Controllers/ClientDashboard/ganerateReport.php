@@ -30,70 +30,71 @@ class ganerateReport extends Controller
 
    
     public function getNewsArticleData(Request $request)
-    {
-        try {
-            // Collect necessary POST data
-            $select_client = $request->input('select_client');
-            $from_date = $request->input('from_date');
-            $to_date = $request->input('to_date');
-            $publication_type = $request->input('publication_type');
-            $Cities = $request->input('Cities');
+{
+    try {
+        // Collect necessary POST data
+        $select_client = $request->input('select_client');
+        $from_date = $request->input('from_date');
+        $to_date = $request->input('to_date');
+        $publication_type = $request->input('publication_type');
+        $Cities = $request->input('Cities');
 
-            $details = $this->getClientById($select_client);
-            $get_client_details = $this->getNewsDetails3($select_client, $from_date, $to_date, $publication_type, $Cities);
+        $details = $this->getClientById($select_client);
+        $get_client_details = $this->getNewsDetails3($select_client, $from_date, $to_date, $publication_type, $Cities);
 
-            $data = [
-                'details' => $details,
-                'get_client_details' => $get_client_details,
-                'from_date' => $from_date, // Pass the from_date to the view
-                'to_date' => $to_date // Pass the to_date to the view
-            ];
+        $data = [
+            'details' => $details,
+            'get_client_details' => $get_client_details,
+            'from_date' => $from_date, // Pass the from_date to the view
+            'to_date' => $to_date // Pass the to_date to the view
+        ];
 
-            // Create PDF object
-            $pdf = new TCPDF();
+        // Create PDF object
+        $pdf = new TCPDF();
 
-            // Set properties of the PDF
-            $pdf->SetCreator(PDF_CREATOR);
-            $pdf->SetTitle('Your PDF Title');
+        // Set properties of the PDF
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetTitle('Your PDF Title');
 
-            // Load the view file into HTML
-            $html = view('ClientDashboard.dowload_pdf', $data)->render(); // Assuming 'dowload_pdf.blade.php' is your view file
+        // Load the view file into HTML
+        $html = view('ClientDashboard.dowload_pdf', $data)->render(); // Assuming 'dowload_pdf.blade.php' is your view file
 
-            // Add a page to the PDF
-            $pdf->AddPage();
+        // Add a page to the PDF
+        $pdf->AddPage();
 
-            // Set font
-            $pdf->SetFont('times', 'N', 12);
+        // Set font
+        $pdf->SetFont('times', 'N', 12);
 
-            // Add the HTML content to the PDF
-            $pdf->writeHTML($html, true, false, true, false, '');
+        // Add the HTML content to the PDF
+        $pdf->writeHTML($html, true, false, true, false, '');
 
-            // Save the PDF to a folder on the server
-            $pdfPath = public_path('download_pdf/'); // Ensure 'download_pdf' folder exists and is writable
-            if (!is_dir($pdfPath)) {
-                mkdir($pdfPath, 0777, true); // Create directory if it doesn't exist
-            }
-            $pdfName = 'downloaded_pdf.pdf'; // Name of the PDF file
-            $outputPath = $pdfPath . $pdfName;
-
-            // Save PDF to file
-            $pdf->Output($outputPath, 'F');
-
-            // Prepare response for AJAX
-            $response = [
-                'success' => true,
-                'pdf_url' => url('download_pdf/' . $pdfName) // URL to download the PDF
-            ];
-
-            return response()->json($response);
-        } catch (\Exception $e) {
-            // Log the error
-            Log::error('Error generating PDF: ' . $e->getMessage());
-            // Return a JSON response with the error
-            return response()->json(['success' => false, 'error' => 'Error generating PDF.']);
+        // Save the PDF to a folder on the server
+        $pdfPath = public_path('downloadPdf/'); // Ensure 'download_pdf' folder exists and is writable
+        if (!is_dir($pdfPath)) {
+            mkdir($pdfPath, 0777, true); // Create directory if it doesn't exist
         }
-    }
 
+        // Generate a unique name for the PDF file
+        $pdfName = 'downloadedPdf_' . time() . '_' . uniqid() . '.pdf';
+        $outputPath = $pdfPath . $pdfName;
+
+        // Save PDF to file
+        $pdf->Output($outputPath, 'F');
+
+        // Prepare response for AJAX
+        $response = [
+            'success' => true,
+            'pdf_url' => url('public/downloadPdf/' . $pdfName) // Correct URL to include 'public'
+        ];
+
+        return response()->json($response);
+    } catch (\Exception $e) {
+        // Log the error
+        Log::error('Error generating PDF: ' . $e->getMessage());
+        // Return a JSON response with the error
+        return response()->json(['success' => false, 'error' => 'Error generating PDF.']);
+    }
+}
     public function getClientById($client_id)
     {
         return Client_Model::find($client_id);

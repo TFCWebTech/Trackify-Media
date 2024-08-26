@@ -1,4 +1,4 @@
-@include('common\header')
+@include('common/header')
 
 <!-- Include the necessary CSS and JS libraries for DataTables -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
@@ -162,7 +162,7 @@ function editSupplement(supplement) {
     console.log('Supplement data:', supplementObject);
    
     $('#modal-title').text('Update Supplement');
-    $('#supplementForm').attr('action', `/Supplement/update/${supplementObject.supplement_id}`);
+    $('#supplementForm').attr('action', `/NRS/Supplement/update/${supplementObject.supplement_id}`);
 
     // Populate the form fields with the supplement data
     $('input[name="Supplement_name"]').val(supplementObject.Supplement);
@@ -214,4 +214,4 @@ function editSupplement(supplement) {
 </div>
 
             <!-- End of Main Content -->
-@include('common\footer')
+@include('common/footer')

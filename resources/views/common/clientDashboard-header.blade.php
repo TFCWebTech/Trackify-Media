@@ -113,13 +113,13 @@
                     </li>
                     <li class="nav-item {{ request()->routeIs('charts.ProCompare') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ route('charts.ProCompare') }}">
-                            <i class="fas fa-fw fa-tachometer-alt"></i>
+                            <i class="fa fa-exchange"></i>
                             <span>Pro Compare</span>
                         </a>
                     </li>
                     <li class="nav-item {{ request()->routeIs('generateReport') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ route('generateReport') }}">
-                            <i class="fas fa-fw fa-tachometer-alt"></i>
+                            <i class="fa fa-file"></i>
                             <span>Pro Report</span>
                         </a>
                     </li>

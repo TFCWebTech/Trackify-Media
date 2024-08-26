@@ -1,4 +1,4 @@
-@include('common\header')
+@include('common/header')
 
 
 <div class="container">
@@ -121,4 +121,4 @@
             });
         });
 </script>
-@include('common\footer')
+@include('common/footer')

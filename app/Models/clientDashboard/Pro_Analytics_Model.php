@@ -82,7 +82,7 @@ class Pro_Analytics_Model extends Model
    
     public function getRates($gidMediaType, $gidMediaOutlet)
     {
-        return DB::table('AddRate')
+        return DB::table('addrate')
             ->select('Rate', 'Circulation_Fig')
             ->where('gidMediaType', $gidMediaType)
             ->where('gidMediaOutlet', $gidMediaOutlet)

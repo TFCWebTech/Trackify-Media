@@ -1,4 +1,4 @@
-@include('common\clientDashboard-header')
+@include('common/clientDashboard-header')
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
 <style>
@@ -124,7 +124,7 @@ body {
                     <canvas id="myAreaChart"></canvas>
                 </div>
                 <div id="pieChart" class="chart-container">
-                    <canvas id="myPieChart"></canvas>
+                    <canvas id="myqPieChart"></canvas>
                 </div>
                 <div id="barChart" class="chart-container">
                     <canvas id="myBarChart"></canvas>
@@ -204,7 +204,7 @@ body {
                     </table>
                 </div>
                 <div class="my-4">
-                    <button class="btn btn-primary" onclick="showChart2('sizepieChart')">Pie Chart</button>
+                    <button class="btn btn-primary" onclick="showChart2('sizepieChart')">Stacked Chart</button>
                     <button class="btn btn-primary" onclick="showChart2('sizebarChart')">Bar Chart</button>
                     <button class="btn btn-primary" onclick="showChart2('sizelineChart')">Line Chart</button>
                     <button class="btn btn-primary" onclick="showChart2('sizeverticalBarChart')">Column Chart</button>
@@ -551,7 +551,7 @@ body {
 
     // Chart contexts
     const areaChartCtx = document.getElementById('myAreaChart').getContext('2d');
-    const pieChartCtx = document.getElementById('myPieChart').getContext('2d');
+    const pieChartCtx = document.getElementById('myqPieChart').getContext('2d');
     const barChartCtx = document.getElementById('myBarChart').getContext('2d');
     const lineChartCtx = document.getElementById('myLineChart').getContext('2d');
     const verticalBarChartCtx = document.getElementById('myVerticalBarChart').getContext('2d');
@@ -684,73 +684,77 @@ body {
     });
 
     // Function to show the selected chart and populate quantity table
-    function showChart(chartId) {
-        const charts = document.querySelectorAll('.chart-container');
-        charts.forEach(chart => chart.classList.remove('active'));
-        document.getElementById(chartId).classList.add('active');
-        
-        if (chartId === 'quantityShowTable') {
-            populateQuantityTable(quantityData.daily); 
-        }
+   function showChart(chartId) {
+    const charts = document.querySelectorAll('.chart-container');
+    charts.forEach(chart => chart.classList.remove('active'));
+    document.getElementById(chartId).classList.add('active');
+    
+    if (chartId === 'quantityShowTable') {
+        populateQuantityTable(quantityData.daily); 
     }
+}
 
-    // Function to populate the quantity table with data
-    function populateQuantityTable(data) {
-        const tableBody = document.querySelector("#quantityTable tbody");
-        tableBody.innerHTML = ""; 
+function populateQuantityTable(data) {
+    const tableBody = document.querySelector("#quantityTable tbody");
+    tableBody.innerHTML = ""; 
 
-        let totalNewsCount = 0;
-        let totalAve = 0;
+    let totalNewsCount = 0;
+    let totalSumAve = 0; // Sum of weighted averages
+    let totalCount = 0;  // Total count across all rows
 
-        data.forEach(item => {
-            let row = document.createElement("tr");
+    data.forEach(item => {
+        let row = document.createElement("tr");
 
-            let labelCell = document.createElement("td");
-            labelCell.textContent = item.label || "N/A";
-            labelCell.style.border = "1px solid gray"; 
-            row.appendChild(labelCell);
+        let labelCell = document.createElement("td");
+        labelCell.textContent = item.label || "N/A";
+        labelCell.style.border = "1px solid gray"; 
+        row.appendChild(labelCell);
 
-            let countCell = document.createElement("td");
-            countCell.textContent = item.count || "N/A";
-            countCell.style.border = "1px solid gray"; 
-            row.appendChild(countCell);
+        let countCell = document.createElement("td");
+        let countValue = item.count ? parseInt(item.count) : 0;
+        countCell.textContent = countValue.toLocaleString('en-US');
+        countCell.style.border = "1px solid gray"; 
+        row.appendChild(countCell);
 
-            let aveCell = document.createElement("td");
-            aveCell.textContent = item.total_ave ? item.total_ave.toLocaleString() : "N/A";
-            aveCell.style.border = "1px solid gray"; 
-            row.appendChild(aveCell);
+        let aveCell = document.createElement("td");
+        let aveValue = item.total_ave ? parseFloat(item.total_ave) : 0;
+        aveCell.textContent = aveValue.toLocaleString('en-US');
+        aveCell.style.border = "1px solid gray"; 
+        row.appendChild(aveCell);
 
-            tableBody.appendChild(row);
+        tableBody.appendChild(row);
 
-            // Calculate totals
-            totalNewsCount += item.count || 0;
-            totalAve += item.total_ave || 0;
-        });
+        // Calculate totals
+        totalNewsCount += countValue;
+        totalSumAve += aveValue * countValue; // Sum of weighted averages
+        totalCount += countValue;
+    });
 
-        // Add a summary row for totals
-        let totalRow = document.createElement("tr");
+    // Add a summary row for totals
+    let totalRow = document.createElement("tr");
 
-        let totalLabelCell = document.createElement("td");
-        totalLabelCell.textContent = "Total";
-        totalLabelCell.style.fontWeight = "bold";
-        totalLabelCell.style.border = "1px solid gray"; 
-        totalRow.appendChild(totalLabelCell);
+    let totalLabelCell = document.createElement("td");
+    totalLabelCell.textContent = "Total";
+    totalLabelCell.style.fontWeight = "bold";
+    totalLabelCell.style.border = "1px solid gray"; 
+    totalRow.appendChild(totalLabelCell);
 
-        let totalCountCell = document.createElement("td");
-        totalCountCell.textContent = totalNewsCount;
-        totalCountCell.style.fontWeight = "bold";
-        totalCountCell.style.border = "1px solid gray"; 
-        totalRow.appendChild(totalCountCell);
+    let totalCountCell = document.createElement("td");
+    totalCountCell.textContent = totalNewsCount.toLocaleString('en-US');
+    totalCountCell.style.fontWeight = "bold";
+    totalCountCell.style.border = "1px solid gray"; 
+    totalRow.appendChild(totalCountCell);
 
-        let totalAveCell = document.createElement("td");
-        totalAveCell.textContent = totalAve ? totalAve.toLocaleString() : "N/A";
-        totalAveCell.style.fontWeight = "bold";
-        totalAveCell.style.border = "1px solid gray"; 
-        totalRow.appendChild(totalAveCell);
+    let totalAveCell = document.createElement("td");
+    // Calculate overall average
+    let overallAve = totalCount > 0 ? (totalSumAve / totalCount).toFixed(2) : "0.00";
+    totalAveCell.textContent = parseFloat(overallAve).toLocaleString('en-US');
+    totalAveCell.style.fontWeight = "bold";
+    totalAveCell.style.border = "1px solid gray"; 
+    totalRow.appendChild(totalAveCell);
 
-        tableBody.appendChild(totalRow);
-    }
-
+    tableBody.appendChild(totalRow);
+}
     // Function to update all charts based on selected time frame
     function updateChart(timeFrame) {
         let data = [];
@@ -1388,30 +1392,39 @@ body {
         }
     });
 
-    let publicationPieChart = new Chart(publicationPieChartCtx, {
-        type: 'pie',
-        data: {
-            labels: [],
-            datasets: [{
-                label: '',
-                data: [],
-                backgroundColor: [
-                    'rgba(78, 115, 223, 0.5)',
-                    'rgba(54, 162, 235, 0.5)',
-                    'rgba(255, 206, 86, 0.5)'
-                ],
-                borderColor: [
-                    'rgba(78, 115, 223, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)'
-                ],
-                borderWidth: 1
-            }]
+  let publicationPieChart = new Chart(publicationPieChartCtx, {
+    type: 'bar', // Change the chart type to 'bar'
+    data: {
+        labels: [], // Add your labels here
+        datasets: [{
+            label: '', // Label for the first dataset
+            data: [], // Add your data here
+            backgroundColor: 'rgba(78, 115, 223, 0.5)',
+            borderColor: 'rgba(78, 115, 223, 1)',
+            borderWidth: 1
         },
-        options: {
-            maintainAspectRatio: false
+        {
+            label: '', // Label for the second dataset
+            data: [], // Add your data here
+            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+        },
+        ]
+    },
+    options: {
+        maintainAspectRatio: false,
+        scales: {
+            x: {
+                stacked: true // Stack the bars on the x-axis
+            },
+            y: {
+                stacked: true // Stack the bars on the y-axis
+            }
         }
-    });
+    }
+});
+
 
     let publicationBarChart = new Chart(publicationBarChartCtx, {
         type: 'bar',
@@ -2122,7 +2135,6 @@ function showChart6(chartId) {
     }
     console.log(`Showing chart: ${chartId}`);
 }
-
 // Function to populate the journalist table with data
 function populateJournalistTable(data) {
     const tableBody = document.querySelector("#journalistTable tbody");
@@ -2159,6 +2171,10 @@ function populateJournalistTable(data) {
     headerRow += "<th style='border: 1px solid gray;'>AVE</th>";
     tableHeader.innerHTML = headerRow;
 
+    // Initialize totals
+    let grandTotalCount = 0;
+    let grandTotalAve = 0;
+
     // Loop through Journalists to populate rows
     Object.keys(groupedData).forEach(Journalist => {
         let row = document.createElement("tr");
@@ -2169,6 +2185,7 @@ function populateJournalistTable(data) {
         row.appendChild(journalistCell);
 
         // Populate counts for each label
+        let totalCount = 0;
         let totalAve = 0;
         uniqueLabels.forEach(label => {
             let count = groupedData[Journalist][label] ? groupedData[Journalist][label].count : 0;
@@ -2179,19 +2196,45 @@ function populateJournalistTable(data) {
             countCell.style.border = "1px solid gray";
             row.appendChild(countCell);
 
-            // Accumulate total ave for this Journalist
-            totalAve += ave;
+            // Accumulate total count and total ave for this Journalist
+            totalCount += count;
+            totalAve += ave * count; // Multiplying average by count to get total average
         });
 
-        // Add the total AVE cell to the row
+        // Add the average cell to the row
         let aveCell = document.createElement("td");
-        aveCell.textContent = totalAve.toFixed(2); // Assuming ave is a numeric value
+        aveCell.textContent = (totalAve / totalCount).toFixed(2); // Calculating average of averages
         aveCell.style.border = "1px solid gray";
         row.appendChild(aveCell);
 
         // Append the row to the table body
         tableBody.appendChild(row);
+
+        // Update grand totals
+        grandTotalCount += totalCount;
+        grandTotalAve += totalAve;
     });
+
+    // Add the total count row
+    let totalRow = document.createElement("tr");
+
+    let totalLabelCell = document.createElement("td");
+    totalLabelCell.textContent = "Total Count";
+    totalLabelCell.style.border = "1px solid gray";
+    totalRow.appendChild(totalLabelCell);
+
+
+    let totalCountCell = document.createElement("td");
+    totalCountCell.textContent = grandTotalCount;
+    totalCountCell.style.border = "1px solid gray";
+    totalRow.appendChild(totalCountCell);
+
+    let totalAveCell = document.createElement("td");
+    totalAveCell.textContent = (grandTotalAve / grandTotalCount).toFixed(2); // Calculating overall average
+    totalAveCell.style.border = "1px solid gray";
+    totalRow.appendChild(totalAveCell);
+
+    tableBody.appendChild(totalRow);
 }
 
 // Function to update the chart based on the selected timeframe
@@ -2272,4 +2315,4 @@ function updateChart6(timeframe) {
 </script>
 </div>
 </div>
-@include('common\clientDashboard_footer')
+@include('common/clientDashboard_footer')

@@ -288,7 +288,15 @@ function changeEdition(edition)
     });
   });
 }
-
+  document.getElementById('journalist_name').addEventListener('change', function() {
+            var authorInput = document.getElementById('author');
+            if (this.value) {
+                authorInput.disabled = true;
+                authorInput.value = '';
+            } else {
+                authorInput.disabled = false;
+            }
+        });
 </script>
 <script src="https://cdn.ckeditor.com/4.13.0/standard/ckeditor.js"></script>
 <!-- <script src="https://cdn.ckeditor.com/4.24.0/standard/ckeditor.js"></script> -->

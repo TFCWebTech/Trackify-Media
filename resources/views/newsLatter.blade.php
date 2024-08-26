@@ -1,4 +1,4 @@
-@include('common\header')
+@include('common/header')
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -828,4 +828,4 @@ function updateNewsContent3(news_details_id, client_id) {
     }
 }
 </script>
-@include('common\footer')
+@include('common/footer')

@@ -1,4 +1,4 @@
-@include('common\header')
+@include('common/header')
 
 <!-- Include the necessary CSS and JS libraries for DataTables -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
@@ -1835,4 +1835,4 @@
 
 
             <!-- End of Main Content -->
-@include('common\footer')
+@include('common/footer')

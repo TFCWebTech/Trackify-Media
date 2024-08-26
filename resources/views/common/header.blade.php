@@ -98,7 +98,7 @@
             <!-- Sidebar - Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" >
                 <div class="sidebar-brand-icon rotate-n-15">
-                    <i class="fas fa-laugh-wink"></i>
+                   <!-- <i class="fas fa-laugh-wink"></i>-->
                 </div>
                 <div class="sidebar-brand-text mx-3">Admin</div>
             </a>
@@ -243,7 +243,7 @@
                                 </span>
                     </span>
                     <img class="img-profile rounded-circle"
-                        src="{{ 'assets/img/undraw_profile.svg'; }}">
+    src="{{ asset('assets/img/undraw_profile.svg') }}">
                 </a>
                 <!-- Dropdown - User Information -->
                 <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
