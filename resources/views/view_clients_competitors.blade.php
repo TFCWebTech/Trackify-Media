@@ -142,8 +142,12 @@ function addKeywordInput2() {
         <div class="row">
             <div class="col-md-12 text-right p-2">
             <div class="d-sm-flex align-items-center justify-content-between mb-4">
-              <h1 class="h5 mb-0 text-gray-800 ">Manage Client</h1>
-                <button class="btn btn-primary" onclick="addClient()">Add Client</button>
+              <h1 class="h5 mb-0 text-gray-800 ">Manage Competitor for  {{ $client->client_name }}</h1>
+                <!-- <button class="btn btn-primary" onclick="addClient()">Add Client</button> -->
+                <button type="button" class="btn btn-primary" onclick="addCompetitor({{ $client->client_id }})">
+                    Add Competitor
+                </button>
+
             </div>
             </div>
         </div>
@@ -154,40 +158,31 @@ function addKeywordInput2() {
             <!-- <table class="table table-bordered table-hover dt-responsive"> -->
                 <thead >
                 <tr>
-                    <th>Client Name</th>
+                    <th>Competitor_name</th>
                     <th>Keywords</th>
                     <th>Status</th>
-                    <th>View User Email</th>
-                    <th>View Competitors</th>
-                    <!-- <th>Created At</th> -->
-                    <th> Email Template</th>
+                   
+                  
                     <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
                     <?php 
                     $i = 0; ?>
-                    @foreach($clients as $values)
+                    @foreach($competitors as $values)
                     <?php $i++; ?>
                 <tr>
-                    <td>{{ $values -> client_name}}</td>
-                    <td>{{ $values -> client_keywords}}</td>
-                    @if ($values -> cilent_status == '1')
-                        <td> <i class="text-primary font-weight-bold "> Active</i></td>
-                    @elseif ($values -> cilent_status == '0')
-                        <td> <i class="text-danger font-weight-bold "> InActive</i></td>
-                    @else
-                        <td>NA</td>
-                    @endif
+                    <td>{{ $values -> Competitor_name}}</td>
+                    <td>{{ $values -> Keywords}}</td>
+                    <td>@if($values->is_active == 1) Active @else Inactive @endif</td>
+                   
+                    <!-- <td class="text-center"><a class="btn btn-primary" onclick="addEmail('{{$values ->client_id }}')" > ADD USER</a></td>
+                    <td class="text-center"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCompitetor">
+    Add Competitor
+</button></td>
                     <td class="text-center">
-    <a class="btn btn-primary" href="{{ route('view_user', ['id' => $values->client_id]) }}">VIEW USER</a>
-</td>
-                    <td class="text-center">
-    <a class="btn btn-primary" href="{{ route('user.viewClientsCompetitors', ['id' => $values->client_id]) }}">View Competitors</a>
-</td>
-                    <td class="text-center">
-                      <a class="btn btn-primary" href="{{ route('addNewsTemplate', ['client_id' => $values->client_id]) }}"> Manage Template</a>
-                    </td>
+                      <a class="btn btn-primary" href="{{ route('addNewsTemplate', ['client_id' => $values->client_id]) }}"> ADD EMAIL </a>
+                    </td> -->
 					<td>
                          <i class="fa fa-edit text-primary" onclick="editClient({{ json_encode($values) }})"></i>
                     </td>
@@ -198,6 +193,53 @@ function addKeywordInput2() {
             </div>
             </div>
         </div>
+</div>
+
+<!-- Edit Competitor Modal -->
+<div class="modal fade" id="editCompetitorModal" tabindex="-1" role="dialog" aria-labelledby="editCompetitorModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="editCompetitorModalLabel">Edit Competitor</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <form action="{{ route('client.updateCompetitor') }}" method="POST">
+          @csrf
+          <!-- Hidden field for competitor id -->
+          <input type="hidden" id="competitor_id" name="competitor_id">
+          <input type="hidden" id="client_id" name="client_id">
+
+          <div class="form-group">
+            <label for="competitor_name">Competitor Name</label>
+            <input type="text" class="form-control" id="competitor_name" name="competitor_name" required>
+          </div>
+
+          <div class="form-group">
+            <label for="is_active">Status</label>
+            <select name="is_active" id="is_active" class="form-control">
+              <option value="1">Active</option>
+              <option value="0">Inactive</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="editKeywords">
+            <label for="competitor_keywords">Keywords</label>
+            <input type="text" class="form-control" id="competitor_keywords" name="competitor_keywords[]" required>
+          </div>
+
+          <div class="text-right pt-2">
+            <p onclick="addKeywordInputEdit()"><i class="text-primary cursor"><u> Add More Keywords</u></i></p>
+            <button type="submit" class="btn btn-primary">Update</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- The Modal -->
@@ -217,6 +259,7 @@ function addKeywordInput2() {
             @csrf
              <div class="row">
                 <div class="col-md-12">
+                <input type="hidden" id="competitor_id" name="competitor_id">
                     <label class="px-1 font-weight-bold" for="user_type">Client Name </label>
                     <input type="text" class="form-control" placeholder="Enter Client Name" name="client_name" required>
                 </div>
@@ -232,9 +275,6 @@ function addKeywordInput2() {
                     <label class="px-1 font-weight-bold" for="Sector">Sector</label>
                     <select name="Sector" class="form-control">
                         <option >Select</option>
-						@foreach($get_sector as $sector)
-                                                    <option value="{{$sector -> id}}">{{$sector -> sector_name }}</option>
-                                                @endforeach
                     </select>
                 </div>
             
@@ -259,31 +299,33 @@ function addKeywordInput2() {
 <div class="modal fade" id="addCompitetor" tabindex="-1" role="dialog" aria-labelledby="addCompitetorLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
+
       <!-- Modal Header -->
       <div class="modal-header">
-        <h5 class="modal-title" id="addCompitetorLabel">Add Competitor</h5>
+        <h5 class="modal-title" id="addCompetitor">Add Competitor</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
+
       <!-- Modal Body -->
       <div class="modal-body">
-        <form  action="{{route('client.addCompetitor')}}" method="post">
-         @csrf
+        <form action="{{ route('client.addCompetitor') }}" method="post">
+          @csrf
+          <input type="hidden" id="client_id" name="client_id" value="{{ $client->client_id }}" >
           <div class="form-group">
-            <input type="text" id="client_id" name="client_id" hidden>
             <label for="Competitor_name">Competitor Name</label>
             <input type="text" class="form-control" placeholder="Enter Competitor Name" name="Competitor_name" required>
           </div>
           <div class="form-group">
             <label for="is_active">Status</label>
-            <select name="is_active" class="form-control">
-              <option>Select</option>
+            <select name="is_active" class="form-control" required>
+              <option value="">Select</option>
               <option value="1">Active</option>
               <option value="0">Inactive</option>
             </select>
           </div>
-          <div class="form-group" id="additionalKeywords2">
+          <div class="form-group" id="additionalKeywords2" name="additionalKeywords2">
             <label for="CompetetorKeywords">Add Keywords</label>
             <input type="text" class="form-control" placeholder="Enter Keywords" name="CompetetorKeywords[]" required>
           </div>
@@ -296,99 +338,57 @@ function addKeywordInput2() {
     </div>
   </div>
 </div>
-<div class="modal" id="addEmail" tabindex="-1" role="dialog" aria-labelledby="addUserMail" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
 
-      <!-- Modal Header -->
-      <div class="modal-header">
-        <h4 class="modal-title" id="addUserMail">Add User Email <span id="client_name_1"></span> </h4>
-        <!-- Correct close button for Bootstrap 4 -->
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <!-- Modal Body -->
-      <div class="modal-body">
-      <form action="{{ route('addUsersEmail') }}" method="post">
-      @csrf
-                <div class="form-group" >
-                    <input type="text" id="client_id_1" name="client_id_1" hidden> 
-                    <label class="px-1 font-weight-bold" for="user_mails">Add Email</label>
-                    <input type="text" class="form-control" placeholder="Enter Email" name="client_email" required>
-                </div>
-                    <div class="form-group mt-2">
-                        <label class="px-1 font-weight-bold" for="report_Service">Report Service </label>
-                    <div class="d-flex justify-content-start px-2">
-                        <div class="form-check">
-                            <input type="radio" class="form-check-input" id="report_service_1" name="report_service" value="1" checked>
-                            <label class="form-check-label" for="report_service_1">YES</label>
-                        </div> &nbsp;&nbsp;&nbsp;&nbsp;
-                        <div class="form-check">
-                            <input type="radio" class="form-check-input" id="report_service_2" name="report_service" value="0">
-                            <label class="form-check-label" for="report_service_2">NO</label>
-                        </div>
-                    </div>
-                </div>
-                <div class="text-right pt-2">
-                 <button type="submit" class="btn btn-primary">ADD</button>
-                </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
 <script>
     $('table').DataTable();
 
 </script>
 
 <script>
-	
-	function editClient(client) {
-		$('#modal-title').text('Update Client');
-		$('#clientsForm').attr('action', `/NRS/client/update/${client.client_id}`);
+     function editClient(data) {
+      competitor_id
+      document.getElementById('competitor_id').value = data.competitor_id;
+    document.getElementById('client_id').value = data.client_id;
+    document.getElementById('competitor_name').value = data.Competitor_name;
+    document.getElementById('is_active').value = data.is_active;
 
-		// Populate the form fields with the reporter data
-		$('input[name="client_name"]').val(client.client_name);
-		$('select[name="is_active"]').val(client.cilent_status);
-		$('select[name="Sector"]').val(client.sector_id);
-		// Populate existing keywords
-		const additionalKeywordsDiv = $('#additionalKeywords');
-		additionalKeywordsDiv.empty(); // Clear any existing keyword inputs
-		
-		if (client.client_keywords != '') {
-			let separatedArray = client.client_keywords.split(',');
-			separatedArray.forEach(keyword => {
-				addKeywordInput(keyword);
-			});
-		} else {
-			// Add one empty input field if no keywords exist
-			addKeywordInput();
-		}
-		
-		// Show the modal
-		$('#myModal').modal('show');
-	  }
-	
-	function addClient() {
-		$('#modal-title').text('Add Client');
-		//$('#clientsForm').attr('action', '{{ route('reporter.store') }}');
-		$('#clientsForm').attr('action', '{{ route('client.store') }}');
-		$('#myModal').modal('show');
-	  }
+    let keywordsInput = document.getElementById('competitor_keywords');
+    keywordsInput.value = data.Keywords;
 
-    function addCompetotor(client) {
-    $('#client_id').val(client);
-
-    $('#addCompitetor').modal('show'); // Use Bootstrap's modal method
+    $('#editCompetitorModal').modal('show');
 }
 
-    function addEmail(client , client_name){
-        $('#client_id_1').val(client);
-        $('#client_name_1').val(client_name);
-        $('#addEmail').modal('show');
-    }
+  // Function to add more keyword inputs dynamically
+  function addKeywordInputEdit() {
+    let div = document.createElement('div');
+    div.classList.add('form-group');
+    div.innerHTML = '<input type="text" class="form-control" name="competitor_keywords[]" placeholder="Enter Keywords">';
+    document.getElementById('editKeywords').appendChild(div);
+  }
+	
+	
+	
+	
+
+  function addCompetitor(clientId) {
+    document.getElementById('client_id').value
+   
+    $('#addCompitetor').modal('show');
+}
+
+  function addKeywordInput2() {
+    // Append a new keyword input field
+    const container = document.getElementById('additionalKeywords2');
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.name = 'CompetetorKeywords[]';
+    input.className = 'form-control mt-2';
+    input.placeholder = 'Enter Keywords';
+    input.required = true;
+    container.appendChild(input);
+  }
+
+   
 </script>
 
 </div>

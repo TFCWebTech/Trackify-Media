@@ -69,9 +69,7 @@
                         Journalist / Agency: <span style="color:blue;">{{ $news['Journalist'] }}</span>,
                         Edition: <span style="color:blue;">{{ $news['Edition'] }}</span>,
                         Supplement: <span style="color:blue;">{{ $news['Supplement'] }}</span>,
-                        No of pages: <span style="color:blue;">{{ $news['page_count'] }}</span>,
-                        Circulation Figure: <span></span>,
-                        qAVE(Rs.): <span></span>
+                        Page No: <span style="color:blue;">{{ $news['page_count'] }}</span>
                     </p>
                     <p> <strong>Summary:</strong> </p>
                     <span>

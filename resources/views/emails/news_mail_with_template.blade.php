@@ -130,7 +130,8 @@
 
             <div class="body-content">
                 <h4 style="background-color: #6D6B6B; color: #ffffff; padding:4px;">{{ $details['client_name'] }}</h4>
-                @foreach ($get_client_details[0]['client_news'] as $news)
+                @foreach ($get_client_details[0]['client_news'] as $news2)
+                @foreach ($news2['news'] as $news)
                     <h5>
                         <a href="{{ $news['website_url'] }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}px; font-family: {{ $get_client_details[0]['content_headline_font'] }};">
                             {{ $news['head_line'] }}
@@ -146,10 +147,11 @@
                         Journalist / Agency: <span style="color:blue;">{{ $news['Journalist'] ?: $news['Agency'] }}</span>,
                         Edition: <span style="color:blue;">{{ $news['Edition'] }}</span>,
                         Supplement: <span style="color:blue;">{{ $news['Supplement'] }}</span>,
-                        No of pages: <span style="color:blue;">{{ $news['page_count'] }}</span>,
-                        Circulation Figure: <span></span>, qAVE(Rs.): <span></span>
+                        Page No: <span style="color:blue;">{{ $news['page_no'] }}</span>
+                        
                     </p>
                     <hr>
+                    @endforeach
                 @endforeach
             </div>
 
@@ -173,8 +175,8 @@
                                 Journalist / Agency: <span style="color:blue;">{{ $news['Journalist'] ?: $news['Agency'] }}</span>,
                                 Edition: <span style="color:blue;">{{ $news['Edition'] }}</span>,
                                 Supplement: <span style="color:blue;">{{ $news['Supplement'] }}</span>,
-                                No of pages: <span style="color:blue;">{{ $news['page_count'] }}</span>,
-                                Circulation Figure: <span></span>, qAVE(Rs.): <span></span>
+                                Page No: <span style="color:blue;">{{ $news['page_no'] }}</span>
+                               
                             </p>
                             <hr>
                         @endforeach
@@ -183,32 +185,36 @@
 
             <div class="body-content">
                 <h4 style="background-color: #6D6B6B; color: #ffffff; padding:4px;">Industry News</h4>
-                @foreach ($get_client_details[0]['industry_data'] as $industry)
-                    <div class="body-content">
-                        <h4 style="background-color: #6D6B6B; color: #ffffff; padding:4px;">{{ $industry['industry_name'] }}</h4>
-                        @foreach ($industry['news'] as $news)
-                            <h5>
-                                <a href="{{ $news['website_url'] }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}px; font-family: {{ $get_client_details[0]['content_headline_font'] }};">
-                                    {{ $news['head_line'] }}
-                                </a>
-                            </h5>
-                            <h6>Summary:</h6>
-                            <p style="color: {{ $get_client_details[0]['content_news_summary_color'] }}; font-size: {{ $get_client_details[0]['content_news_summary_font_size'] }}px;">
-                                {{ $news['summary'] }}
-                            </p>
-                            <p>
-                                Date: {{ date('d-m-Y', strtotime($news['create_at'])) }},
-                                Publication: <span style="color:blue;">{{ $news['MediaOutlet'] }}</span>,
-                                Journalist / Agency: <span style="color:blue;">{{ $news['Journalist'] ?: $news['Agency'] }}</span>,
-                                Edition: <span style="color:blue;">{{ $news['Edition'] }}</span>,
-                                Supplement: <span style="color:blue;">{{ $news['Supplement'] }}</span>,
-                                No of pages: <span style="color:blue;">{{ $news['page_count'] }}</span>,
-                                Circulation Figure: <span></span>, qAVE(Rs.): <span></span>
-                            </p>
-                            <hr>
-                        @endforeach
-                    </div>
-                @endforeach
+				@if(isset($get_client_details[0]['industry_data']) && !empty($get_client_details[0]['industry_data']))
+					@foreach ($get_client_details[0]['industry_data'] as $industry)
+						<div class="body-content">
+							<h4 style="background-color: #6D6B6B; color: #ffffff; padding:4px;">{{ $industry['industry_name'] ?? 'N/A' }}</h4>
+							@foreach ($industry['news'] as $news)
+								<h5>
+									<a href="{{ $news['website_url'] }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}px; font-family: {{ $get_client_details[0]['content_headline_font'] }};">
+										{{ $news['head_line'] }}
+									</a>
+								</h5>
+								<h6>Summary:</h6>
+								<p style="color: {{ $get_client_details[0]['content_news_summary_color'] }}; font-size: {{ $get_client_details[0]['content_news_summary_font_size'] }}px;">
+									{{ $news['summary'] }}
+								</p>
+								<p>
+									Date: {{ date('d-m-Y', strtotime($news['create_at'])) }},
+									Publication: <span style="color:blue;">{{ $news['MediaOutlet'] }}</span>,
+									Journalist / Agency: <span style="color:blue;">{{ $news['Journalist'] ?: $news['Agency'] }}</span>,
+									Edition: <span style="color:blue;">{{ $news['Edition'] }}</span>,
+									Supplement: <span style="color:blue;">{{ $news['Supplement'] }}</span>,
+									Page No: <span style="color:blue;">{{ $news['page_no'] }}</span>
+									
+								</p>
+								<hr>
+							@endforeach
+						</div>
+					@endforeach
+				@else
+					<p>No industry data available.</p>
+				@endif
             </div>
 
             <div class="footer">

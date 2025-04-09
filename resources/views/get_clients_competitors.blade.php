@@ -142,8 +142,8 @@ function addKeywordInput2() {
         <div class="row">
             <div class="col-md-12 text-right p-2">
             <div class="d-sm-flex align-items-center justify-content-between mb-4">
-              <h1 class="h5 mb-0 text-gray-800 ">Manage Client</h1>
-                <button class="btn btn-primary" onclick="addClient()">Add Client</button>
+              <h1 class="h5 mb-0 text-gray-800 ">Manage Clients Competitors</h1>
+                <button class="btn btn-primary" onclick="addClient()">Add Competitors</button>
             </div>
             </div>
         </div>
@@ -154,40 +154,19 @@ function addKeywordInput2() {
             <!-- <table class="table table-bordered table-hover dt-responsive"> -->
                 <thead >
                 <tr>
-                    <th>Client Name</th>
+                    <th>Competitor Name</th>
                     <th>Keywords</th>
-                    <th>Status</th>
-                    <th>View User Email</th>
-                    <th>View Competitors</th>
-                    <!-- <th>Created At</th> -->
-                    <th> Email Template</th>
                     <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
                     <?php 
                     $i = 0; ?>
-                    @foreach($clients as $values)
+                    @foreach($get_competitor as $values)
                     <?php $i++; ?>
                 <tr>
-                    <td>{{ $values -> client_name}}</td>
-                    <td>{{ $values -> client_keywords}}</td>
-                    @if ($values -> cilent_status == '1')
-                        <td> <i class="text-primary font-weight-bold "> Active</i></td>
-                    @elseif ($values -> cilent_status == '0')
-                        <td> <i class="text-danger font-weight-bold "> InActive</i></td>
-                    @else
-                        <td>NA</td>
-                    @endif
-                    <td class="text-center">
-    <a class="btn btn-primary" href="{{ route('view_user', ['id' => $values->client_id]) }}">VIEW USER</a>
-</td>
-                    <td class="text-center">
-    <a class="btn btn-primary" href="{{ route('user.viewClientsCompetitors', ['id' => $values->client_id]) }}">View Competitors</a>
-</td>
-                    <td class="text-center">
-                      <a class="btn btn-primary" href="{{ route('addNewsTemplate', ['client_id' => $values->client_id]) }}"> Manage Template</a>
-                    </td>
+                    <td>{{ $values -> Competitor_name}}</td>
+                    <td>{{ $values -> Keywords}}</td>
 					<td>
                          <i class="fa fa-edit text-primary" onclick="editClient({{ json_encode($values) }})"></i>
                     </td>
@@ -232,9 +211,6 @@ function addKeywordInput2() {
                     <label class="px-1 font-weight-bold" for="Sector">Sector</label>
                     <select name="Sector" class="form-control">
                         <option >Select</option>
-						@foreach($get_sector as $sector)
-                                                    <option value="{{$sector -> id}}">{{$sector -> sector_name }}</option>
-                                                @endforeach
                     </select>
                 </div>
             
@@ -352,7 +328,7 @@ function addKeywordInput2() {
 		// Populate the form fields with the reporter data
 		$('input[name="client_name"]').val(client.client_name);
 		$('select[name="is_active"]').val(client.cilent_status);
-		$('select[name="Sector"]').val(client.sector_id);
+		
 		// Populate existing keywords
 		const additionalKeywordsDiv = $('#additionalKeywords');
 		additionalKeywordsDiv.empty(); // Clear any existing keyword inputs
@@ -373,8 +349,7 @@ function addKeywordInput2() {
 	
 	function addClient() {
 		$('#modal-title').text('Add Client');
-		//$('#clientsForm').attr('action', '{{ route('reporter.store') }}');
-		$('#clientsForm').attr('action', '{{ route('client.store') }}');
+		$('#clientsForm').attr('action', '{{ route('reporter.store') }}');
 		$('#myModal').modal('show');
 	  }
 

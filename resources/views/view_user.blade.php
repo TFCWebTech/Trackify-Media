@@ -142,8 +142,9 @@ function addKeywordInput2() {
         <div class="row">
             <div class="col-md-12 text-right p-2">
             <div class="d-sm-flex align-items-center justify-content-between mb-4">
-              <h1 class="h5 mb-0 text-gray-800 ">Manage Client</h1>
-                <button class="btn btn-primary" onclick="addClient()">Add Client</button>
+            <h1 class="h5 mb-0 text-gray-800 ">Manage User for {{ $client->client_name }}</h1>
+                <!-- <button class="btn btn-primary" onclick="addClient()">Add Client</button> -->
+                <td class="text-center"><a class="btn btn-primary" onclick="addEmail({{ $client->client_id }})">ADD EMAIL</a></td>
             </div>
             </div>
         </div>
@@ -154,43 +155,32 @@ function addKeywordInput2() {
             <!-- <table class="table table-bordered table-hover dt-responsive"> -->
                 <thead >
                 <tr>
-                    <th>Client Name</th>
-                    <th>Keywords</th>
-                    <th>Status</th>
-                    <th>View User Email</th>
-                    <th>View Competitors</th>
-                    <!-- <th>Created At</th> -->
-                    <th> Email Template</th>
+                   
+                    <th>User Email</th>
+                   <th>Report Service</th>     
                     <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
                     <?php 
                     $i = 0; ?>
-                    @foreach($clients as $values)
+                    @foreach($allclients as $values)
                     <?php $i++; ?>
                 <tr>
-                    <td>{{ $values -> client_name}}</td>
-                    <td>{{ $values -> client_keywords}}</td>
-                    @if ($values -> cilent_status == '1')
-                        <td> <i class="text-primary font-weight-bold "> Active</i></td>
-                    @elseif ($values -> cilent_status == '0')
-                        <td> <i class="text-danger font-weight-bold "> InActive</i></td>
-                    @else
-                        <td>NA</td>
-                    @endif
-                    <td class="text-center">
-    <a class="btn btn-primary" href="{{ route('view_user', ['id' => $values->client_id]) }}">VIEW USER</a>
-</td>
-                    <td class="text-center">
-    <a class="btn btn-primary" href="{{ route('user.viewClientsCompetitors', ['id' => $values->client_id]) }}">View Competitors</a>
-</td>
-                    <td class="text-center">
-                      <a class="btn btn-primary" href="{{ route('addNewsTemplate', ['client_id' => $values->client_id]) }}"> Manage Template</a>
-                    </td>
-					<td>
-                         <i class="fa fa-edit text-primary" onclick="editClient({{ json_encode($values) }})"></i>
-                    </td>
+                   
+                    <td>{{ $values -> email}}</td>
+                    <td> {{ $values->report_service == 1 ? 'Yes' : 'No' }}</td>
+                  
+                   
+                 
+                    
+               
+                    <td>
+            <!-- Store the JSON-encoded user data in the 'data-user' attribute -->
+            <i class="fa fa-edit text-primary" 
+       data-user="{{ json_encode($values) }}" 
+       onclick="editUser(this)"></i>
+        </td>
                 </tr>
                 @endforeach
                 </tbody>
@@ -200,102 +190,67 @@ function addKeywordInput2() {
         </div>
 </div>
 
-<!-- The Modal -->
-<div class="modal" id="myModal">
-  <div class="modal-dialog ">
+<div class="modal" id="editEmailModal" tabindex="-1" role="dialog" aria-labelledby="editUserMail" aria-hidden="true">
+  <div class="modal-dialog">
     <div class="modal-content">
+
       <!-- Modal Header -->
       <div class="modal-header">
-        <h4 class="modal-title" id="modal-title">Add Client</h4>
+        <h4 class="modal-title" id="editUserMail">Edit User Email</h4>
+        <!-- Correct close button for Bootstrap 4 -->
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
+
       <!-- Modal Body -->
       <div class="modal-body">
-            <form id="clientsForm" onsubmit="return validateForm()" action="{{route('client.store')}}" method="post">
-            @csrf
-             <div class="row">
-                <div class="col-md-12">
-                    <label class="px-1 font-weight-bold" for="user_type">Client Name </label>
-                    <input type="text" class="form-control" placeholder="Enter Client Name" name="client_name" required>
-                </div>
-                <div class="col-md-12">
-                    <label class="px-1 font-weight-bold" for="is_active">Status</label>
-                    <select name="is_active" class="form-control">
-                        <option >Select</option>
-                        <option value="1">Active</option>
-                        <option value="0">InActive</option>
-                    </select>
-                </div>
-                <div class="col-md-12">
-                    <label class="px-1 font-weight-bold" for="Sector">Sector</label>
-                    <select name="Sector" class="form-control">
-                        <option >Select</option>
-						@foreach($get_sector as $sector)
-                                                    <option value="{{$sector -> id}}">{{$sector -> sector_name }}</option>
-                                                @endforeach
-                    </select>
-                </div>
-            
-                <div class="col-md-12" id="additionalKeywords">
-                    <label class="px-1 font-weight-bold" for="user_type">Add Keywords</label>
-                    <input type="text" class="form-control" placeholder="Enter Keywords" name="Keywords[]" required>
-                <!-- </div> -->
-                </div>
-                <div id="additionalKeywords"></div>
-                <div class="col-md-12 text-right pt-2">
-                    <p onclick="addKeywordInput()"><i class="text-primary cursor"><u> Add More Keywords</u> </i></p>
-                    <button type="submit" class="btn btn-primary">ADD</button>
-                </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-</div>
+        <form id="editEmailForm" method="POST" action="{{ route('editUsersEmail') }}">
+          @csrf
+          @method('PUT')
 
+          <!-- Hidden Input for User ID -->
+          <div class="form-group">
+            <input type="hidden" id="editUserId" name="client_id">
+          </div>
 
-<div class="modal fade" id="addCompitetor" tabindex="-1" role="dialog" aria-labelledby="addCompitetorLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <!-- Modal Header -->
-      <div class="modal-header">
-        <h5 class="modal-title" id="addCompitetorLabel">Add Competitor</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <!-- Modal Body -->
-      <div class="modal-body">
-        <form  action="{{route('client.addCompetitor')}}" method="post">
-         @csrf
+          <!-- Email Input -->
           <div class="form-group">
-            <input type="text" id="client_id" name="client_id" hidden>
-            <label for="Competitor_name">Competitor Name</label>
-            <input type="text" class="form-control" placeholder="Enter Competitor Name" name="Competitor_name" required>
+            <label class="px-1 font-weight-bold" for="editUserEmail">Edit Email</label>
+            <input type="email" class="form-control" id="editUserEmail" name="users_mails" placeholder="Enter Email" required>
           </div>
-          <div class="form-group">
-            <label for="is_active">Status</label>
-            <select name="is_active" class="form-control">
-              <option>Select</option>
-              <option value="1">Active</option>
-              <option value="0">Inactive</option>
-            </select>
+
+          <!-- Report Service Selection -->
+          <div class="form-group mt-2">
+            <label class="px-1 font-weight-bold" for="editReportService">Report Service</label>
+            <div class="d-flex justify-content-start px-2">
+              <div class="form-check">
+                <input type="radio" class="form-check-input" id="editReportService1" name="report_service" value="1">
+                <label class="form-check-label" for="editReportService1">YES</label>
+              </div> 
+              &nbsp;&nbsp;&nbsp;&nbsp;
+              <div class="form-check">
+                <input type="radio" class="form-check-input" id="editReportService2" name="report_service" value="0">
+                <label class="form-check-label" for="editReportService2">NO</label>
+              </div>
+            </div>
           </div>
-          <div class="form-group" id="additionalKeywords2">
-            <label for="CompetetorKeywords">Add Keywords</label>
-            <input type="text" class="form-control" placeholder="Enter Keywords" name="CompetetorKeywords[]" required>
-          </div>
+
+          <!-- Submit Button -->
           <div class="text-right pt-2">
-            <p onclick="addKeywordInput2()"><i class="text-primary cursor"><u> Add More Keywords</u></i></p>
-            <button type="submit" class="btn btn-primary">ADD</button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
           </div>
         </form>
       </div>
     </div>
   </div>
 </div>
+
+
+
+
+
+
 <div class="modal" id="addEmail" tabindex="-1" role="dialog" aria-labelledby="addUserMail" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -344,37 +299,36 @@ function addKeywordInput2() {
 </script>
 
 <script>
-	
-	function editClient(client) {
-		$('#modal-title').text('Update Client');
-		$('#clientsForm').attr('action', `/NRS/client/update/${client.client_id}`);
+   function editUser(element) {
+    const userData = JSON.parse(element.dataset.user);
 
-		// Populate the form fields with the reporter data
-		$('input[name="client_name"]').val(client.client_name);
-		$('select[name="is_active"]').val(client.cilent_status);
-		$('select[name="Sector"]').val(client.sector_id);
-		// Populate existing keywords
-		const additionalKeywordsDiv = $('#additionalKeywords');
-		additionalKeywordsDiv.empty(); // Clear any existing keyword inputs
-		
-		if (client.client_keywords != '') {
-			let separatedArray = client.client_keywords.split(',');
-			separatedArray.forEach(keyword => {
-				addKeywordInput(keyword);
-			});
-		} else {
-			// Add one empty input field if no keywords exist
-			addKeywordInput();
-		}
-		
-		// Show the modal
-		$('#myModal').modal('show');
-	  }
+    // Populate the form fields
+    document.getElementById('editUserId').value = userData.client_id;
+    document.getElementById('editUserEmail').value = userData.email;
+
+    if (userData.report_service === 1) {
+        document.getElementById('editReportService1').checked = true;
+    } else {
+        document.getElementById('editReportService2').checked = true;
+    }
+
+    // Show the modal
+    $('#editEmailModal').modal('show');
+}
+
+  // Function to add more keyword inputs dynamically
+  function addKeywordInputEdit() {
+    let div = document.createElement('div');
+    div.classList.add('form-group');
+    div.innerHTML = '<input type="text" class="form-control" name="competitor_keywords[]" placeholder="Enter Keywords">';
+    document.getElementById('editKeywords').appendChild(div);
+  }
+	
+	
 	
 	function addClient() {
 		$('#modal-title').text('Add Client');
-		//$('#clientsForm').attr('action', '{{ route('reporter.store') }}');
-		$('#clientsForm').attr('action', '{{ route('client.store') }}');
+		$('#clientsForm').attr('action', '{{ route('reporter.store') }}');
 		$('#myModal').modal('show');
 	  }
 

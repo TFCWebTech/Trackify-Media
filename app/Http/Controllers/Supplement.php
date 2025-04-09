@@ -12,7 +12,8 @@ class Supplement extends Controller
     public function index(){
         $supplements = DB::table('supplements as sp')
         ->leftJoin('edition as e', 'sp.gidEdition', '=', 'e.gidEdition')
-        ->select('sp.*', 'e.Edition as edition_name', 'e.gidEdition as edition_id')
+        ->leftJoin('mediaoutlet as mo', 'mo.gidMediaOutlet', '=', 'e.MediaOutletId')  
+        ->select('sp.*', 'e.Edition as edition_name', 'mo.MediaOutlet as publication')  
         ->orderBy('sp.supplement_id', 'DESC')
         ->get();
     

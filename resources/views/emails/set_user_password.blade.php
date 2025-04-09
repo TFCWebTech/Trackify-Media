@@ -56,8 +56,8 @@
                         <div class="form-group">
                             <input type="password" id="password2" name="password2" class="form-control input-shadow" placeholder="Confirm Password" required>
                         </div>
-                        <input type="hidden" id="token" name="token" value="{{ $User->token }}">
-                        <input type="hidden" id="client_id" name="client_id" value="{{ $User->client_id }}">
+                        <input type="text" id="token" name="token" value="{{ $User->token }}">
+                        <input type="text" id="client_id" name="client_id" value="{{ $User->client_id }}">
                         <button type="submit" class="btn btn-primary btn-block" style="background-color:#4e73df;">Submit</button>
                     </form>
                 </div>

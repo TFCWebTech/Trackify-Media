@@ -169,19 +169,20 @@ class NewsLatterController extends Controller
     
         $details = $client->toArray();
         $get_client_details = $this->getClientTemplateDetails($client_id);
-    
+   // print_r($get_client_details);die;
         $get_news_data = [
             'get_client_data' => $client->toArray(),
-            //'get_news_details' => $this->getNewsDetails3($client_id),
+            'get_news_details2' => $this->getNewsDetails($client_id),
+           // 'get_news_details' => $this->getNewsDetails3($client_id),
             'get_news_details' => $this->getClientData($client_id),
             'get_comp_data' => $this->getCompData($client_id),
             'get_industry_data' => $this->getIndustryData($client_id)
         ];
     
         if (empty($get_client_details) || empty($get_client_details[0]['client_id'])) {
+           //print_r($get_news_details);die;
             return view('defult_news_letter', $get_news_data);
         } else {
-           // echo "hh";die;
             return view('newsLatter', compact('details', 'get_client_details'));
         }
     }
@@ -190,13 +191,17 @@ class NewsLatterController extends Controller
     {
         $templates = MailTemplate_Model::where('client_id', $client_id)
             ->get();
+           
         foreach ($templates as &$template) {
+           
             $template->get_quick_links = $this->getQuickLinks($template->mail_template_id);
-			//$template->client_news = $this->getNewsDetails3($client_id);
-            $template->client_news = $this->getClientData($client_id);
+            //$template->client_news = $this->getNewsDetails3($client_id);
+          $template->client_news = $this->getClientData($client_id);
+          
             $template->compititors_data = $this->getCompData($client_id);
             $template->industry_data = $this->getIndustryData($client_id);
         }
+       
         return $templates->toArray();
     }
 
@@ -209,48 +214,7 @@ class NewsLatterController extends Controller
     
         return $quick_links->toArray(); // Added toArray() to convert the collection to an array
     }
-	 private function getClientNewsDetails($keywords,$client_id)
-    {
-        $date = date('Y-m-d');
-        $keywordsArray = explode(',', $keywords);
-        $newsDetails = NewsUpload_Model::select([
-            'news_details.*',
-            'mediaoutlet.*',
-            'edition.gidEdition',
-            'edition.Edition',
-            'supplements.gidSupplement',
-            'supplements.Supplement',
-            'journalist.gidJournalist',
-            'journalist.Journalist',
-            'agency.Agency',
-			DB::raw('(SELECT na.page_no FROM news_artical as na WHERE na.news_details_id = news_details.news_details_id) as page_no'),
-            DB::raw('(SELECT COUNT(na.news_artical_id) FROM news_artical as na WHERE na.news_details_id = news_details.news_details_id) as page_count')
-        ])
-        ->distinct()
-        ->leftJoin('mediaoutlet', 'news_details.publication_id', '=', 'mediaoutlet.gidMediaOutlet')
-        ->leftJoin('edition', 'news_details.edition_id', '=', 'edition.gidEdition')
-        ->leftJoin('supplements', 'news_details.supplement_id', '=', 'supplements.gidSupplement')
-        ->leftJoin('journalist', 'news_details.journalist_id', '=', 'journalist.gidJournalist')
-        ->leftJoin('agency', 'news_details.journalist_id', '=', 'agency.gidAgency')
-        ->whereDate('news_details.create_at', $date)
-        ->where('is_send', 0)
-        ->where(function($query) use ($client_id) {
-            $query->where('news_details.company', 'LIKE', '%,' . $client_id . ',%')
-                  ->orWhere('news_details.company', 'LIKE', $client_id . ',%')
-                  ->orWhere('news_details.company', 'LIKE', '%,' . $client_id)
-                  ->orWhere('news_details.company', '=', $client_id);
-        })
-        ->where(function($query) use ($keywordsArray) {
-            foreach ($keywordsArray as $keyword) {
-                $keyword = trim($keyword);
-                $query->orWhereRaw("FIND_IN_SET(?, keywords) > 0", [$keyword]);
-            }
-        })
-        ->whereRaw('NOT EXISTS (SELECT 1 FROM delete_news WHERE delete_news.news_details_id = news_details.news_details_id AND delete_news.client_id = ?)', [$client_id])
-        ->get();
 
-        return $newsDetails->toArray();
-    }
     private function getNewsDetails($client_id)
     {
         $date = date('Y-m-d');
@@ -287,7 +251,8 @@ class NewsLatterController extends Controller
 
         return $newsDetails->toArray();
     }
-	  private function getNewsDetails3($client_id)
+   
+        private function getNewsDetails3($client_id)
     {
         $date = date('Y-m-d');
 
@@ -315,32 +280,49 @@ $newsDetails = NewsUpload_Model::select([
 ->whereDate('news_details.create_at', $date)
 ->where('is_send', 0)
 ->where(function($query) use ($client_id) {
-    // Ensure we match client_id correctly in the comma-separated list
-    $query->whereRaw('FIND_IN_SET(?, news_details.client_id)', [$client_id]);
+    // Match client_id(s) in the news_details.company comma-separated list
+    $client_ids = explode(',', $client_id);
+    foreach ($client_ids as $id) {
+        $query->orWhereRaw("FIND_IN_SET(?, company)", [trim($id)]);
+    }
 })
-//->whereIn('news_details.client_id', $client_id)
 ->whereRaw('NOT EXISTS (SELECT 1 FROM delete_news WHERE delete_news.news_details_id = news_details.news_details_id AND delete_news.client_id = ?)', [$client_id])
 ->get();
 
 // Now loop over each news detail and process the keywords
 $newsDetails->each(function($newsDetail) use ($client_id) {
-    // Split the keywords in news_details
-    $keywords = explode(',', $newsDetail->keywords);
+    // Split the keywords in news_details (and normalize spaces)
+    $keywords = array_map('trim', explode(',', $newsDetail->keywords));
 
-    // Build the query to match keywords using LIKE or REGEXP
-    $newsDetail->matchingClients = Client_Model::whereRaw('FIND_IN_SET(?, client_keywords)', [implode(',', $keywords)]) // Match using LIKE
-        ->orWhere(function($query) use ($keywords) {
-            foreach ($keywords as $keyword) {
-                $query->orWhereRaw('client.client_keywords LIKE ?', ['%' . trim($keyword) . '%']);
-            }
-        })
-        ->get(); // or use any other query you prefer to get the matching clients
+    // Match the keywords from news_details with client_keywords
+    $matchingClients = Client_Model::where(function($query) use ($keywords) {
+        // Match using client_keywords with LIKE operator
+        foreach ($keywords as $keyword) {
+            $query->orWhereRaw('client.client_keywords LIKE ?', ['%' . trim($keyword) . '%']);
+        }
+    })
+    // Ensure the client_keywords match at least one keyword
+    ->whereRaw('FIND_IN_SET(?, client.client_keywords)', [implode(',', $keywords)])
+    ->get();  // Get matching clients
+
+    // If a matching client exists, add to matchingClients
+    if ($matchingClients->isNotEmpty()) {
+        $newsDetail->matchingClients = $matchingClients;
+    } else {
+        $newsDetail->matchingClients = collect([]);  // No match found, so set empty collection
+    }
 });
 
 // Return the results
 return $newsDetails->toArray();
 
+
+
     }  
+
+
+ 
+
 	  private function getNewsDetails2($client_id)
     {
         $date = date('Y-m-d');
@@ -387,23 +369,169 @@ return $newsDetails->toArray();
 			$competitor->news2 = $this->getNewsDetails2($client_id);
             $outArr[] = $competitor;
         }
-
+//         echo "<pre>";
+// print_r($outArr);die;
         return $outArr;
     }
-	 public function getClientData($client_id)
+    public function getClientData($client_id)
     {
         $clients = Client_Model::where('client_id', $client_id)->get();
         $outArr = [];
-        
+        //print_r($clients);
         foreach ($clients as $client) {
-            $client->news = $this->getCompNewsByKey($client->client_keywords, $client_id);
-			//$client->news = $this->getClientNewsDetails($client->client_keywords, $client_id);
+            //echo "<pre>";
+            //print_r($client->client_keywords);
+           // print_r($client);die;
+            $client->news = $this->getCompNewsByKey33($client->client_keywords, $client_id);
+			// if (!empty($newsData)) {
+            //     foreach ($newsData as $news) {
+            //         $clientData = $client->toArray(); // Convert client to array
+            //         $clientData['news'] = $news; // Add news to the client data
+            //         $outArr[] = $clientData; // Add merged client+news to the output array
+            //     }
+            // } else {
+            //     // If no news data, just add the client without news
+            //     $outArr[] = $client->toArray();
+            // }
+            echo "<pre>";
             $outArr[] = $client;
         }
-        //echo "<pre>";
-        //print_r($outArr);die;
+//print_r($outArr);die;
         return $outArr;
     }
+    public function getCompNewsByKey33($keywords, $client_id)
+    {
+        $clientId = $client_id;  // The client ID for filtering
+$date = date('Y-m-d');
+$keywords = explode(',', $keywords);  // Split client keywords into an array
+
+// Clean up client keywords to remove unnecessary spaces
+$keywords = array_map('trim', $keywords);  // Apply trim to each keyword
+
+$newsDetails = DB::table('news_details')
+    ->distinct()
+    ->select([
+        'news_details.*',
+        'mediaoutlet.*',
+        'edition.gidEdition',
+        'edition.Edition',
+        'supplements.gidSupplement',
+        'supplements.Supplement',
+        'journalist.gidJournalist',
+        'journalist.Journalist',
+        'agency.Agency',
+        DB::raw('(SELECT na.page_no FROM news_artical as na WHERE na.news_details_id = news_details.news_details_id) as page_no'),
+        DB::raw('(SELECT COUNT(na.news_artical_id) FROM news_artical na WHERE na.news_details_id = news_details.news_details_id) as page_count')
+    ])
+    ->leftJoin('mediaoutlet', 'news_details.publication_id', '=', 'mediaoutlet.gidMediaOutlet')
+    ->leftJoin('edition', 'news_details.edition_id', '=', 'edition.gidEdition')
+    ->leftJoin('supplements', 'news_details.supplement_id', '=', 'supplements.gidSupplement')
+    ->leftJoin('journalist', 'news_details.journalist_id', '=', 'journalist.gidJournalist')
+    ->leftJoin('agency', 'news_details.journalist_id', '=', 'agency.gidAgency')
+    ->whereDate('news_details.create_at', '=', $date)  // Date filter
+    ->where('is_send', 0)  // Send filter
+    ->where(function ($query) use ($clientId) {
+        $query->whereRaw("FIND_IN_SET(?, company)", [$clientId]);  // Matching client in `company`
+    })
+    ->where(function ($query) use ($keywords) {
+        // Loop through the keywords and apply each one
+        foreach ($keywords as $keyword) {
+            $query->orWhereRaw("FIND_IN_SET(?, LOWER(news_details.keywords)) > 0", [strtolower(trim($keyword))]);  // Case-insensitive keyword search
+        }
+    })
+    ->get();  // Fetch results
+
+return $newsDetails->toArray();
+       // $date = '2025-01-09';  // The date for filtering
+
+// Check if results are returned
+// if ($newsDetails->isNotEmpty()) {
+//     echo "<pre>";
+//     print_r($newsDetails);  // Output the entire result set
+//     die;
+// } else {
+//     echo "No results found.";
+// }
+
+
+    }    
+    public function getCompNewsByKey331($keywords, $client_id)
+    {
+
+//         $results = DB::select('
+//     select distinct `news_details`.*, `mediaoutlet`.*, `edition`.`gidEdition`, `edition`.`Edition`, `supplements`.`gidSupplement`, `supplements`.`Supplement`, `journalist`.`gidJournalist`, `journalist`.`Journalist`, `agency`.`Agency`, 
+//     (SELECT na.page_no FROM news_artical as na WHERE na.news_details_id = news_details.news_details_id) as page_no, 
+//     (SELECT COUNT(na.news_artical_id) FROM news_artical na WHERE na.news_details_id = news_details.news_details_id) as page_count
+//     from `news_details`
+//     left join `mediaoutlet` on `news_details`.`publication_id` = `mediaoutlet`.`gidMediaOutlet`
+//     left join `edition` on `news_details`.`edition_id` = `edition`.`gidEdition`
+//     left join `supplements` on `news_details`.`supplement_id` = `supplements`.`gidSupplement`
+//     left join `journalist` on `news_details`.`journalist_id` = `journalist`.`gidJournalist`
+//     left join `agency` on `news_details`.`journalist_id` = `agency`.`gidAgency`
+//     where date(`news_details`.`create_at`) = ? and `is_send` = 0 and FIND_IN_SET(?, `company`) and FIND_IN_SET(?, LOWER(`news_details`.`keywords`)) > 0',
+//     ['2025-01-09', 48, 'hdfc bank']
+// );
+
+// // Check if results are returned
+// if (!empty($results)) {
+//     echo "<pre>";
+//     print_r($results);  // Output the entire result set
+//     die;
+// } else {
+//     echo "No results found.";
+// }
+        //print_r($keywords);die;
+        $date = date('Y-m-d');
+        $keywordsArray = explode(',', $keywords);  // Split client keywords and clean them up
+    
+        // Clean up client keywords to remove unnecessary spaces
+        $keywordsArray = array_map('trim', $keywordsArray);
+    
+        // Fetch the news based on the conditions
+        $newsDetails = NewsUpload_Model::select([
+            'news_details.*',
+            'mediaoutlet.*',
+            'edition.gidEdition',
+            'edition.Edition',
+            'supplements.gidSupplement',
+            'supplements.Supplement',
+            'journalist.gidJournalist',
+            'journalist.Journalist',
+            'agency.Agency',
+            DB::raw('(SELECT na.page_no FROM news_artical as na WHERE na.news_details_id = news_details.news_details_id) as page_no'),
+            DB::raw('(SELECT COUNT(na.news_artical_id) FROM news_artical na WHERE na.news_details_id = news_details.news_details_id) as page_count')
+        ])
+        ->distinct()
+        ->leftJoin('mediaoutlet', 'news_details.publication_id', '=', 'mediaoutlet.gidMediaOutlet')
+        ->leftJoin('edition', 'news_details.edition_id', '=', 'edition.gidEdition')
+        ->leftJoin('supplements', 'news_details.supplement_id', '=', 'supplements.gidSupplement')
+        ->leftJoin('journalist', 'news_details.journalist_id', '=', 'journalist.gidJournalist')
+        ->leftJoin('agency', 'news_details.journalist_id', '=', 'agency.gidAgency')
+        ->whereDate('news_details.create_at', $date)
+        ->where('is_send', 0)
+        ->where(function($query) use ($client_id) {
+            // Match client_id with the company field in news_details
+            $query->whereRaw("FIND_IN_SET(?, company)", [$client_id]);
+        })
+        ->where(function($query) use ($keywordsArray) {
+            // Match each cleaned client keyword against news_details.keywords
+            foreach ($keywordsArray as $keyword) {
+                $keyword = strtolower(trim($keyword));  // Convert keywords to lowercase and trim spaces
+                $query->orWhereRaw("FIND_IN_SET(?, LOWER(news_details.keywords)) > 0", [$keyword]);  // Case-insensitive match
+            }
+        })
+        ->whereRaw('NOT EXISTS (SELECT 1 FROM delete_news dn WHERE dn.news_details_id = news_details.news_details_id AND dn.client_id = ?)', [$client_id]);
+       print_r($newsDetails->toSql()) ;
+       echo "<pre>";
+       print_r($newsDetails->getBindings()) ;
+       //echo $newsDetails->getBindings();
+die;
+        //->get();
+    
+       //return $newsDetails->toArray();  // Return the result as an array
+    }
+    
+    
     public function getIndustryData($client_id)
     {
         $industries = Industry_model::whereRaw("FIND_IN_SET(?, client_id) > 0", [$client_id])->get();
@@ -445,7 +573,7 @@ return $newsDetails->toArray();
         ->whereDate('news_details.create_at', $date)
         ->where('is_send', 0)
         ->where(function($query) use ($client_id) {
-            $query->whereRaw("FIND_IN_SET(?, company)", [$client_id]);
+            $query->whereRaw(" FIND_IN_SET(?, company)", [$client_id]);
         })
         ->where(function($query) use ($keywordsArray) {
             foreach ($keywordsArray as $keyword) {
@@ -478,7 +606,7 @@ return $newsDetails->toArray();
             return response()->json(['success' => false, 'message' => 'Client not found'], 404);
         }
     
-        $get_news_details = $this->getClientData($client_id);
+        $get_news_details = $this->getNewsDetails($client_id);
         $news_ids = array_column($get_news_details, 'news_details_id'); // Extract news IDs
     
         $get_news_data = [
@@ -536,7 +664,7 @@ return $newsDetails->toArray();
     // Fetch client and news details
     $details = $client->toArray();
     $get_client_details = json_decode(json_encode($this->getClientTemplateDetails($client_id)), true); // Convert to array
-    $get_news_details = $this->getClientData($client_id);
+    $get_news_details = $this->getNewsDetails($client_id);
     $news_ids = array_column($get_news_details, 'news_details_id'); // Extract news IDs
 
     foreach ($request->all() as $key => $value) {

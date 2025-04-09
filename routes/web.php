@@ -104,8 +104,13 @@ Route::post('/reporter/updatePassword/', [ReporterController::class, 'updatePass
 
 Route::get('/client', [ClientController::class, 'index'])->name('client');
 Route::post('/client/add', [ClientController::class, 'store'])->name('client.store');
-Route::post('/client/addCompetitor', [ClientController::class, 'addCompetitor'])->name('client.addCompetitor');
+Route::post('/client/update/{id}', [ClientController::class, 'update'])->name('client.update');
+Route::get('/view_user/{id}', [ClientController::class, 'viewUser'])->name('view_user');
+Route::post('/client/add-competitor', [ClientController::class, 'addCompetitor'])->name('client.addCompetitor');
+Route::get('/view-clients-competitors/{id}', [ClientController::class, 'viewClientsCompetitors'])->name('user.viewClientsCompetitors');
+Route::post('/client/update-competitor', [ClientController::class, 'updateCompetitor'])->name('client.updateCompetitor');
 Route::post('/add-users-email', [ClientController::class, 'addUsersEmail'])->name('addUsersEmail');
+Route::put('/edit-users-email', [ClientController::class, 'editUsersEmail'])->name('editUsersEmail');
 Route::get('/ganerate-users-password/{id}/{token}', [ClientController::class, 'ganerateUserPassword'])->name('user.ganeratePassword');
 Route::post('setPassword/', [ClientController::class, 'setPassword'])->name('admin.setPassword');
 
