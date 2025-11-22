@@ -51,11 +51,19 @@ class ReporterController extends Controller
 
     public function update(Request $request, $id)
     {
-        $request->validate([
+		$reporter = Reporter_Model::findOrFail($id);
+       	//print_r($reporter);
+
+        
+        /*$request->validate([
             'update_reporter_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:user,user_email|max:255', // Validate unique email
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('user', 'user_email')->ignore($reporter->id),
+            ],
             'status' => 'required|boolean',
-        ]);
+        ]);*/
 
         $reporter = Reporter_Model::findOrFail($id);
         $reporter->update([
@@ -63,8 +71,9 @@ class ReporterController extends Controller
             'user_email' => $request->email,
             'user_status' => $request->status,
         ]);
+		return redirect()->route('repoter')->with('success', 'Reporter updated successfully!');
+        //return redirect()->route('repoter')->with('success', 'Reporter updated successfully!');
 
-        return redirect()->back()->with('success', 'Reporter updated successfully!');
     }
 
     public function resetPassword(Request $request, $id, $token){

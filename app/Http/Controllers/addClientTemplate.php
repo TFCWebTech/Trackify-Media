@@ -26,6 +26,8 @@ class addClientTemplate extends Controller
 
     public function store(Request $request)
     {
+        //print_r($request->input('mail_template_id'));die;
+        
         $request->validate([
             'trackify_media' => 'required',
             'trackify_link' => 'required',
@@ -76,79 +78,197 @@ class addClientTemplate extends Controller
         $quick_links_name = $request->input('quick_links_name');
         $quick_links_url = $request->input('quick_link_url');
         $quick_links_position = $request->input('quick_links_position');
-    
-        $mailTemplate = MailTemplate_Model::create([
-            'client_id' => $request->input('client_id'),
-            'trackify_link_status' => $request->input('trackify_media'),
-            'trackify_link' => $request->input('trackify_link'),
-            'menu_background_color' => $request->input('menu_bg_color'),
-            'menu_font_color' => $request->input('menu_font_color'),
-            'menu_font' => $request->input('header_font'),
-            'menu_font_size' => $request->input('header_font_size'),
-            'menu_row_background' => $request->input('row_background'),
-            'menu_row_font_color' => $request->input('row_font_color'),
-            'menu_row_font' => $request->input('row_font'),
-            'menu_row_font_Size' => $request->input('row_font_size'),
-            'menu_no_news_text' => $request->input('no_news_text'),
-            'quick_links' => 'null',
-            'quick_links_url' => 'null',
-            'quick_links_position' => 'null',
-            'header_background_color' => $request->input('header_bg_color'),
-            'header_logo_url' => $request->input('logo_url'),
-            'logo_position' => $request->input('logo_position'),
-            'header_title_name' => $request->input('title_name'),
-            'header_title_font_color' => $request->input('font_color'),
-            'header_title_font_size' => $request->input('font_size'),
-            'content_category' => 'null',
-            'content_publication' => $content_publication_string,
-            'content_edition' => $content_edition_string,
-            'content_news_summary_color' => $request->input('content_news_summary_color'),
-            'content_news_summary_font_size' => $request->input('content_news_summary_color_size'),
-            'content_headline_font' => $request->input('content_headline_color'),
-            'content_headline_font_size' => $request->input('headline_font_size'),
-            'content_media_details' => $request->input('media_details'),
-            'content_media_color' => $request->input('media_color'),
-            'content_media_font' => $request->input('media_font'),
-            'content_media_font_size' => $request->input('media_font_size'),
-            'content_context' => $request->input('context'),
-            'content_context_font' => $request->input('context_font'),
-            'content_context_font_size' => $request->input('context_font_size'),
-            'footer_background_color' => $request->input('footer_bg_color'),
-            'footer_logo_url' => $request->input('footer_logo_url'),
-            'footer_logo_position' => $request->input('footer_logo_position'),
-            'footer_title_name' => $request->input('footer_title_name'),
-            'footer_title_font_color' => $request->input('footer_font_color'),
-            'footer_title_font_size' => $request->input('footer_font_size'),
-        ]);
-        $templateId = $mailTemplate->mail_template_id;
-        if ($templateId) {
+        $quick_links_name_old = $request->input('quick_links_name_old');
+        $quick_links_id_old = $request->input('quick_links_id_old');
+        $quick_links_url_old = $request->input('quick_link_url_old');
+        $quick_links_position_old = $request->input('quick_links_position_old');
+        if ($request->has('mail_template_id') && $request->mail_template_id) {
+            $mail_template = DB::table('mail_template')
+            ->where('mail_template_id', $request->mail_template_id)
+            ->update([
+                'client_id' => $request->input('client_id'),
+                'trackify_link_status' => $request->input('trackify_media'),
+                'trackify_link' => $request->input('trackify_link'),
+                'menu_background_color' => $request->input('menu_bg_color'),
+                'menu_font_color' => $request->input('menu_font_color'),
+                'menu_font' => $request->input('header_font'),
+                'menu_font_size' => $request->input('header_font_size'),
+                'menu_row_background' => $request->input('row_background'),
+                'menu_row_font_color' => $request->input('row_font_color'),
+                'menu_row_font' => $request->input('row_font'),
+                'menu_row_font_Size' => $request->input('row_font_size'),
+                'menu_no_news_text' => $request->input('no_news_text'),
+                'quick_links' => 'null',
+                'quick_links_url' => 'null',
+                'quick_links_position' => 'null',
+                'header_background_color' => $request->input('header_bg_color'),
+                'header_logo_url' => $request->input('logo_url'),
+                'logo_position' => $request->input('logo_position'),
+                'header_title_name' => $request->input('title_name'),
+                'header_title_font_color' => $request->input('font_color'),
+                'header_title_font_size' => $request->input('font_size'),
+                'content_category' => 'null',
+                'content_publication' => $content_publication_string,
+                'content_edition' => $content_edition_string,
+                'content_news_summary_color' => $request->input('content_news_summary_color'),
+                'content_news_summary_font_size' => $request->input('content_news_summary_color_size'),
+                //'content_headline_font' => $request->input('content_headline_color'),
+                'content_headline_font' => $request->input('headline_font'),
+                'content_headline_color' => $request->input('content_headline_color'),
+                'content_headline_font_size' => $request->input('headline_font_size'),
+                'content_media_details' => $request->input('media_details'),
+                'content_media_color' => $request->input('media_color'),
+                'content_media_font' => $request->input('media_font'),
+                'content_media_font_size' => $request->input('media_font_size'),
+                'content_context' => $request->input('context'),
+                'content_context_font' => $request->input('context_font'),
+                'content_context_font_size' => $request->input('context_font_size'),
+                'footer_background_color' => $request->input('footer_bg_color'),
+                'footer_logo_url' => $request->input('footer_logo_url'),
+                'footer_logo_position' => $request->input('footer_logo_position'),
+                'footer_title_name' => $request->input('footer_title_name'),
+                'footer_title_font_color' => $request->input('footer_font_color'),
+                'footer_title_font_size' => $request->input('footer_font_size'),
+            ]);
+            $templateId = $request->mail_template_id;
+        if ($request->has('quick_links_id_old') && $request->quick_links_id_old) {
             $quick_links_data = [];
-    
-            for ($i = 0; $i < count($quick_links_name); $i++) {
-                $quick_links_data[] = [
-                    'mail_template_id' => $templateId,
-                    'quick_links_name' => $quick_links_name[$i],
-                    'quick_links_url' => $quick_links_url[$i],
-                    'quick_links_position' => $quick_links_position[$i]
+        
+            for ($i = 0; $i < count($quick_links_name_old); $i++) {
+                $quick_links_data_old[] = [
+                    'quick_links_id_old' => $quick_links_id_old[$i],
+                    'quick_links_name_old' => $quick_links_name_old[$i],
+                    'quick_links_url_old' => $quick_links_url_old[$i],
+                    'quick_links_position_old' => $quick_links_position_old[$i]
                 ];
             }
-    
+            
             $all_inserted = true;
-            foreach ($quick_links_data as $link_data) {
-                $inserted = DB::table('quick_links')->insert($link_data);
-                if (!$inserted) {
-                    $all_inserted = false;
-                    break;
+            foreach ($quick_links_data_old as $link_data_old) {
+                //print_r($link_data_old);die;
+                $updated = DB::table('quick_links')
+                ->where('quick_links_id', $link_data_old['quick_links_id_old']) // Match the ID to the record to update
+                ->update([
+                    'quick_links_name' => $link_data_old['quick_links_name_old'],
+                    'quick_links_url' => $link_data_old['quick_links_url_old'],
+                    'quick_links_position' => $link_data_old['quick_links_position_old']
+                ]);
+
+    // Optional: Check if the update was successful
+    //if (!$updated) {
+        // Handle error (optional)
+       // $all_updated = false;
+      //  break;
+   // }
+               
+            }
+       }
+            if ($templateId) {
+                $quick_links_data = [];
+        
+                for ($i = 0; $i < count($quick_links_name); $i++) {
+                    $quick_links_data[] = [
+                        'mail_template_id' => $templateId,
+                        'quick_links_name' => $quick_links_name[$i],
+                        'quick_links_url' => $quick_links_url[$i],
+                        'quick_links_position' => $quick_links_position[$i]
+                    ];
                 }
-            }
-    
-            if ($all_inserted) {
-                return redirect()->route('addNewsTemplate', $request->input('client_id'))->with('success', 'Template Added Successfully');
+        
+                $all_inserted = true;
+                foreach ($quick_links_data as $link_data) {
+                    $inserted = DB::table('quick_links')->insert($link_data);
+                    if (!$inserted) {
+                        $all_inserted = false;
+                        break;
+                    }
+                }
+        
+                if ($all_inserted) {
+                    return redirect()->route('addNewsTemplate', $request->input('client_id'))->with('success', 'Template Updated Successfully');
+                } else {
+                    return redirect()->route('addNewsTemplate', $request->input('client_id'))->with('error', 'Error adding template');
+                }
             } else {
-                return redirect()->route('addNewsTemplate', $request->input('client_id'))->with('error', 'Error adding template');
+                return redirect()->route('addNewsTemplate', $request->input('client_id'))->with('error', 'Something Went Wrong');
             }
-        } else {
-            return redirect()->route('addNewsTemplate', $request->input('client_id'))->with('error', 'Something Went Wrong');
         }
+        else{
+            $mailTemplate = MailTemplate_Model::create([
+                'client_id' => $request->input('client_id'),
+                'trackify_link_status' => $request->input('trackify_media'),
+                'trackify_link' => $request->input('trackify_link'),
+                'menu_background_color' => $request->input('menu_bg_color'),
+                'menu_font_color' => $request->input('menu_font_color'),
+                'menu_font' => $request->input('header_font'),
+                'menu_font_size' => $request->input('header_font_size'),
+                'menu_row_background' => $request->input('row_background'),
+                'menu_row_font_color' => $request->input('row_font_color'),
+                'menu_row_font' => $request->input('row_font'),
+                'menu_row_font_Size' => $request->input('row_font_size'),
+                'menu_no_news_text' => $request->input('no_news_text'),
+                'quick_links' => 'null',
+                'quick_links_url' => 'null',
+                'quick_links_position' => 'null',
+                'header_background_color' => $request->input('header_bg_color'),
+                'header_logo_url' => $request->input('logo_url'),
+                'logo_position' => $request->input('logo_position'),
+                'header_title_name' => $request->input('title_name'),
+                'header_title_font_color' => $request->input('font_color'),
+                'header_title_font_size' => $request->input('font_size'),
+                'content_category' => 'null',
+                'content_publication' => $content_publication_string,
+                'content_edition' => $content_edition_string,
+                'content_news_summary_color' => $request->input('content_news_summary_color'),
+                'content_news_summary_font_size' => $request->input('content_news_summary_color_size'),
+                'content_headline_font' => $request->input('headline_font'),
+                'content_headline_color' => $request->input('content_headline_color'),
+                'content_headline_font_size' => $request->input('headline_font_size'),
+                'content_media_details' => $request->input('media_details'),
+                'content_media_color' => $request->input('media_color'),
+                'content_media_font' => $request->input('media_font'),
+                'content_media_font_size' => $request->input('media_font_size'),
+                'content_context' => $request->input('context'),
+                'content_context_font' => $request->input('context_font'),
+                'content_context_font_size' => $request->input('context_font_size'),
+                'footer_background_color' => $request->input('footer_bg_color'),
+                'footer_logo_url' => $request->input('footer_logo_url'),
+                'footer_logo_position' => $request->input('footer_logo_position'),
+                'footer_title_name' => $request->input('footer_title_name'),
+                'footer_title_font_color' => $request->input('footer_font_color'),
+                'footer_title_font_size' => $request->input('footer_font_size'),
+            ]);
+            $templateId = $mailTemplate->mail_template_id;
+            if ($templateId) {
+                $quick_links_data = [];
+        
+                for ($i = 0; $i < count($quick_links_name); $i++) {
+                    $quick_links_data[] = [
+                        'mail_template_id' => $templateId,
+                        'quick_links_name' => $quick_links_name[$i],
+                        'quick_links_url' => $quick_links_url[$i],
+                        'quick_links_position' => $quick_links_position[$i]
+                    ];
+                }
+        
+                $all_inserted = true;
+                foreach ($quick_links_data as $link_data) {
+                    $inserted = DB::table('quick_links')->insert($link_data);
+                    if (!$inserted) {
+                        $all_inserted = false;
+                        break;
+                    }
+                }
+        
+                if ($all_inserted) {
+                    return redirect()->route('addNewsTemplate', $request->input('client_id'))->with('success', 'Template Added Successfully');
+                } else {
+                    return redirect()->route('addNewsTemplate', $request->input('client_id'))->with('error', 'Error adding template');
+                }
+            } else {
+                return redirect()->route('addNewsTemplate', $request->input('client_id'))->with('error', 'Something Went Wrong');
+            }
+        }
+      
     }
 }
