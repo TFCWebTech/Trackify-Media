@@ -80,7 +80,7 @@ select.form-control[multiple], select.form-control[size] {
                 <tr>
                     <th>Sr.No</th>
                     <th>Industry Name</th>
-                    <th>Company Name</th>
+                    <th>Competitors Name</th>
                     <th>Keywords</th>
                     <th>Status</th>
                     <th>Action</th>
@@ -184,6 +184,8 @@ select.form-control[multiple], select.form-control[size] {
     </div>
   </div>
 </div>
+
+
 <script>
   function editIndustry(industrys) {
     console.log(industrys);
@@ -207,14 +209,49 @@ select.form-control[multiple], select.form-control[size] {
         let competitorIds = industrys.competitor_id.split(',').map(Number);
         $('select[name="compitertors_name[]"]').val(competitorIds).trigger('change');
     }
-
-    // Hide keyword fields for edit functionality
-    $('#keyFiled').hide();
-    $('#moreFiled').hide();
-    $('#additionalKeywords').hide();
     
+    // Populate Keywords
+    $('#keyFiled').empty();  // Clear previous keyword inputs
+
+    if (industrys.Keywords) {
+        let keywords = industrys.Keywords.split(','); // Assuming Keywords are comma separated
+        
+        // Loop through keywords and populate them
+        keywords.forEach(function(keyword, index) {
+            let keywordInput = `
+                <div class="form-group keyword-group" id="keyword-group-${index}">
+                    <label class="px-1 font-weight-bold" for="user_type">Add Keywords</label>
+                    <div class="d-flex justify-content-between">
+                        <input type="text" class="form-control" placeholder="Enter Keyword" name="Keywords[]" value="${keyword}">
+                        <i class="fa fa-trash text-danger cursor-pointer" onclick="removeKeyword(${index})" style="cursor: pointer;"></i>
+                    </div>
+                </div>
+            `;
+            $('#keyFiled').append(keywordInput); // Append each keyword input field
+        });
+    } else {
+        // If no existing keywords, show empty field
+        let emptyKeywordInput = `
+            <div class="form-group keyword-group">
+                <label class="px-1 font-weight-bold" for="user_type">Add Keywords</label>
+                <input type="text" class="form-control" placeholder="Enter Keyword" name="Keywords[]">
+            </div>
+        `;
+        $('#keyFiled').append(emptyKeywordInput);
+    }
+
+    // Show more fields and other actions
+    $('#moreFiled').show();
+    $('#additionalKeywords').show();
+
+    // Show the modal
     $('#IndustryInfo').modal('show');
-  }
+}
+
+function removeKeyword(index) {
+    // Remove the keyword input group when the trash icon is clicked
+    $('#keyword-group-' + index).remove();
+}
 
   function addIndustry() {
     $('#modal-title').text('Add Industry');

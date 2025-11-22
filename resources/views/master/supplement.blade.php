@@ -56,7 +56,7 @@ margin-bottom: 5px !important;
         <div class="row">
             <div class="col-md-12 text-right p-2">
              <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                <h1 class="h5 mb-0 text-gray-800 ">Manage Supplement</h1>
+                <h1 class="h5 mb-0 text-gray-800 ">Manage Supplements</h1>
                     <button class="btn btn-primary" onclick="addSupplement()">Add Supplement</button>
             </div>
             </div>
@@ -69,6 +69,7 @@ margin-bottom: 5px !important;
                 <tr>
                     <th>Sr. no</th>
                     <th>Supplement Name</th>
+                    <th>Publication</th>
                     <th>Edition </th>
                     <th>Status</th>
                     <th>Created At</th>
@@ -76,12 +77,13 @@ margin-bottom: 5px !important;
                 </tr>
                 </thead>
                 <tbody>
-                <?php $i = 0; ?>
+                <?php $i = 0; //print_r($supplements); ?>
                   @foreach($supplements as $supplement)
                   <?php $i++; ?>
                 <tr>
                     <td>{{ $i }}</td>
                     <td>{{$supplement->Supplement}}</td>
+                    <td>{{$supplement->publication}}</td>
                     <td>{{$supplement->edition_name}}</td>
                     <td>
                            @if($supplement->Status == 0)

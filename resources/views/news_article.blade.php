@@ -87,11 +87,13 @@ body {
                 Publication: <span style="color:blue;">{{ $newsDetail['media_outlet']['MediaOutlet'] }}</span>, 
                 Journalist / Agency: <span style="color:blue;">{{ $newsDetail['journalist']['Journalist'] ?? $newsDetail['agency']['Agency'] }}</span>, 
                 Edition: <span style="color:blue;">{{ $newsDetail['edition']['Edition'] }}</span>, 
+                @if (!empty($newsDetail['supplement']) && isset($newsDetail['supplement']['Supplement']))
                 Supplement: <span style="color:blue;">{{ $newsDetail['supplement']['Supplement'] }}</span>
+                @endif
                 @if (!empty($newsDetail['news_articles']) && isset($newsDetail['news_articles'][0]['page_no']))
                     , Page No: <span style="color:blue;">{{ $newsDetail['news_articles'][0]['page_no'] }}</span>
                 @endif
-                , Circulation Figure:<span> </span>, qAVE(Rs.):<span> </span> Date: <span style="color:blue;">{{ $newsDetail['create_at'] }}</span>
+                ,Date: <span style="color:blue;">{{ $newsDetail['create_at'] }}</span>
             </p>
             <hr>
         </div>
@@ -138,11 +140,13 @@ body {
                             Publication: <span style="color:blue;">{{ $newsDetail['media_outlet']['MediaOutlet'] }}</span>, 
                             Journalist / Agency: <span style="color:blue;">{{ $newsDetail['journalist']['Journalist'] ?? $newsDetail['agency']['Agency'] }}</span>, 
                             Edition: <span style="color:blue;">{{ $newsDetail['edition']['Edition'] }}</span>, 
+                            @if (!empty($newsDetail['supplement']) && isset($newsDetail['supplement']['Supplement']))
                             Supplement: <span style="color:blue;">{{ $newsDetail['supplement']['Supplement'] }}</span>
+                            @endif
                             @if (!empty($newsDetail['news_articles']))
                                 , Page No: <span style="color:blue;">{{ $newsDetail['news_articles'][0]['page_no'] }}</span>
                             @endif
-                            , Circulation Figure:<span> </span>, qAVE(Rs.):<span> </span> Date: <span style="color:blue;">{{ $newsDetail['create_at'] }}</span>
+                            ,Date: <span style="color:blue;">{{ $newsDetail['create_at'] }}</span>
                         </p>
                         <hr>
                     </div>

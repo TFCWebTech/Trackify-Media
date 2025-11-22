@@ -49,6 +49,18 @@
 </style>
 <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
 <div class="container" >
+	@if($errors->any())
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <ul>
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 @if (session('success'))
     <div class="alert alert-success">
         {{ session('success') }}
@@ -77,7 +89,7 @@
                                     <div class="row">
                                         <div class="col-md-3">
                                             <label class="px-1 font-weight-bold" for="media_type">Media Type </label>
-                                            <select class="form-control" name="media_type" id="media_type" onchange="checkSelection(this.value)">
+                                            <select class="form-control" name="media_type" id="media_type" onchange="checkSelection(this.value)" required>
                                             <option value="">Select</option>
                                                 @foreach($media_type as $media)
                                                     <option value="{{ $media->gidMediaType }}">{{ $media->MediaType }}</option>
@@ -86,13 +98,13 @@
                                         </div>  
                                         <div class="col-md-3">
                                             <label class="px-1 font-weight-bold" for="publication">Publication</label>
-                                            <select class="form-control" name="publication" id="publication" onchange="changePublication(this.value)">
+                                            <select class="form-control" name="publication" id="publication" onchange="changePublication(this.value)" required>
                                             <option value="">Select</option>
                                             </select>
                                         </div>
                                         <div class="col-md-3">
                                             <label class="px-1 font-weight-bold" for="edition">Edition</label>
-                                            <select class="form-control" name="edition" id="edition" onchange="changeEdition(this.value)">
+                                            <select class="form-control" name="edition" id="edition" onchange="changeEdition(this.value)" required>
                                             <option value="">Select</option>
                                             </select>
                                         </div>
@@ -115,8 +127,8 @@
                                     <div class="row">
                                     <div class="col-md-3">
                                         <label class="px-1 font-weight-bold" name="journalist_name" for="journalist_name">Journalist / News Agencies</label>
-                                        <select class="form-control" name="journalist_name" id="journalist_name">
-                                            <option >Select</option>
+                                        <select class="form-control" name="journalist_name" id="journalist_name" required>
+                                            <option value="">Select</option>
                                             <optgroup label="News Agencies">
                                                 @foreach ($get_agency as $values)
                                                 <option value="{{$values -> gidAgency}}">{{$values -> Agency}}</option>
@@ -133,9 +145,9 @@
                                         </div>
                                         <div class="col-md-3">
                                             <label class="px-1 font-weight-bold" for="news_position"> News Position</label>
-                                            <select class="form-control" name="NewsPosition" id="NewsPosition" >
+                                           <select class="form-control" name="NewsPosition" id="NewsPosition" required>
                                                 <option value="">Select</option>
-                                                <option value="Bottom">Bottom<option>
+                                                <option value="Bottom">Bottom</option>
                                                 <option value="Bottom Center">Bottom Center</option>
                                                 <option value="Bottom Left">Bottom Left</option>
                                                 <option value="Bottom Right">Bottom Right</option>
@@ -153,12 +165,12 @@
                                                 <option value="Top Left">Top Left</option>
                                                 <option value="Top Right">Top Right</option>
                                                 <option value="TV">TV</option>
-                                                </select>
+                                            </select>
                                         </div>
                                         <div class="col-md-3"> 
                                             <label class="px-1 font-weight-bold" for="NewsCity"> News City</label>
                                             <select  class="form-control"  name="NewsCity" id="NewsCity">
-                                            <option disbled>Select</option>
+                                            <option  value="">Select</option>
                                             @foreach ($news_city as $city)
                                             <option value="{{ $city -> gidNewscity}}">{{ $city -> CityName}}</option>
                                             @endforeach   
@@ -166,17 +178,18 @@
                                         </div>                                        
                                         <div class="col-md-6">
                                             <label class="px-1 font-weight-bold" for="HeadLine">HeadLine</label>
-                                            <textarea class="form-control" name="headline" rows="4" cols="50">
-                                            </textarea>
+                                            <textarea class="form-control" name="headline" rows="4" cols="50" required></textarea>
                                         </div>  
                                         <div class="col-md-6">
                                             <label class="px-1 font-weight-bold" for="Summary">Summary</label>
-                                            <textarea  class="form-control" name="Summary" rows="4" cols="50">
-                                            </textarea>
+                                            <textarea  class="form-control" name="Summary" rows="4" cols="50" required></textarea>
                                         </div>
                                         <div class="col-md-12" id="show_url" style="display: none;">
                                             <label class="px-1 font-weight-bold" for="Summary">Website URL</label>
                                             <input type="text" class="form-control" placeholder="Enter Website URL" name="website_url" id="website_url">
+                                        </div>
+                                        <div class="col-md-6" id="page_no" style="display: none;">
+                                            
                                         </div>
                                     </div>
                         </div>
@@ -187,7 +200,7 @@
                                 <div class="col-md-6 my-2">
                                     <div class="form-group files">
                                         <label>Upload Your Image </label>
-                                        <input type="file" class="form-control" multiple="" name="image_upload[]" id="image_upload">
+                                        <input type="file" class="form-control" multiple="" name="image_upload[]" id="image_upload" accept="image/*">
                                     </div>
                                 </div>
                                 <div class="col-md-6 my-2">
@@ -406,7 +419,7 @@ $(document).ready(function()
 
                 $.ajax({
                     type: 'POST',
-                    url: 'https://vision.googleapis.com/v1/images:annotate?key=AIzaSyBjnr10MeuuR2VECFkJvZB6jDZIkSzljCA',
+                    url: 'https://vision.googleapis.com/v1/images:annotate?key=AIzaSyAb7VREX7wQY-aTFKBpe0si-IPW1vR3iKw',
                     contentType: 'application/json',
                     data: JSON.stringify({
                         "requests": [
@@ -427,7 +440,8 @@ $(document).ready(function()
                             if (response.responses[0].textAnnotations && response.responses[0].textAnnotations.length > 0) {
                                 var description = response.responses[0].textAnnotations[0].description;
                                 console.log(description);
-
+                                var page_no = document.getElementById('page_no');
+                                page_no.style.display = 'block';
                                 var textareaId = 'editor_' + index; // Unique ID for textarea
                                 var editorId = 'editor_instance_' + index; // Unique ID for CKEditor instance
                                 let data = '<div class="col-md-6"><div class="row mt-2">';
@@ -440,17 +454,20 @@ $(document).ready(function()
                                 data += '<div class="col-md-12" id="keyword_container_' + index + '"></div>'; // Placeholder for keywords
                                 data += '<div class="col-md-12" id="client_container_' + index + '"></div>';
                                 data += '<div class="col-md-12" id="getCompData' + index + '"></div>';
-                                data += '<div class="col-md-6">';
-                                data += '<label>Page Number </label>';
-                                data += '<input type="number" name="page_no' + index + '" class="form-control" placeholder="page no">';
-                                data += '</div></div>';
+                                //data += '<div class="col-md-6">';
+                                //data += '<label>Page Number </label>';
+                                //data += '<input type="number" name="page_no' + index + '" class="form-control" placeholder="page no">';
+                                data += '</div>';
 
+                                let data2 ='<label class="px-1 font-weight-bold" for="Summary">Page Number </label>';
+                                data2 +='<input type="number" name="page_no' + index + '" class="form-control" value="0" placeholder="page no">';
                                 // Increment the counter
                                 counter++;
                                 // Append the hidden input field with the updated counter value
                                 data += '<input type="text" value="' + counter + '" name="index" id="index_value" hidden>';
                                 // Append the textarea to the container
                                 $('#news_arr').append(data);
+                                $('#page_no').append(data2);
                                 // Initialize CKEditor for the new textarea
                                 var img = CKEDITOR.replace('editor' + index);
                                 img.setData(description);
@@ -544,9 +561,12 @@ $(document).ready(function()
 
 var index = 0;
 function addMoreFields() {
+	if(index !=1){
     index++;
     var show_url = document.getElementById('show_url');
     show_url.style.display = 'block';
+    var page_no = document.getElementById('page_no');
+    page_no.style.display = 'block';
     var textareaId = 'editor_' + index; 
     // Create a new textarea element
     let data = '<div class="col-md-6"><div class="row mt-2">';
@@ -561,18 +581,20 @@ function addMoreFields() {
     data += '<div class="col-md-12" id="client_container_' + index + '"></div>';
     data += '<div class="col-md-12" id="getCompData' + index + '"></div>';
     
-    data += '<div class="col-md-6">';
-    data += '<label>Page Number </label>';
-    data += '<input type="number" name="page_no' + index + '" class="form-control" placeholder="page no">';
-    data += '</div></div>';
+   
+    data += '</div>';
 
+    let data2 ='<label class="px-1 font-weight-bold" for="Summary">Page Number </label>';
+    data2 +='<input type="number" value="0" name="page_no' + index + '" class="form-control" placeholder="page no">';
     // Append the textarea to the container
     $('#news_arr').append(data);
+    $('#page_no').append(data2);
     CKEDITOR.replace(textareaId);
     // Listen for changes in CKEditor
     CKEDITOR.instances[textareaId].on('change', function() {
         getKeywords(textareaId);
     });
+}
 }
 function getKeywords(textareaId) {
     console.log(textareaId);
@@ -688,13 +710,14 @@ function sendKeywordData(index, selectedKeywords) {
         clients.forEach(client => {
             let clientId = client.client_id;
             let clientName = client.client_name;
-
+			 if (clientName !== null && clientName !== '') {
             // Check if the clientId is in the clientIDs array
             if (clientIDs.includes(clientId)) {
                 selectOptions += `<option value="${clientId}" selected>${clientName}</option>`;
             } else {
                 selectOptions += `<option value="${clientId}">${clientName}</option>`;
             }
+		}
         });
 
         // Construct the HTML for the select element
