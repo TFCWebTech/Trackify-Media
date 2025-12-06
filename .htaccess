@@ -4,6 +4,9 @@
     </IfModule>
 
     RewriteEngine On
+    
+    # Set the base path for the subdirectory
+    RewriteBase /trackify-media/
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
