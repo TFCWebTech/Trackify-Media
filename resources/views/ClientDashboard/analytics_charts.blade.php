@@ -140,7 +140,7 @@ body {
                     <table id="quantityTable" style="width:100%; border: 1px solid gray;">
                         <thead>
                             <tr>
-                                <th style="border: 1px solid gray;">Day</th>
+                                <th style="border: 1px solid gray;">Date</th>
                                 <th style="border: 1px solid gray;">News Count</th>
                                 <th style="border: 1px solid gray;">AVE</th>
                             </tr>
@@ -690,11 +690,12 @@ body {
     document.getElementById(chartId).classList.add('active');
     
     if (chartId === 'quantityShowTable') {
-        populateQuantityTable(quantityData.daily); 
+        // Default to daily, but this will be updated when timeframe buttons are clicked
+        populateQuantityTable(quantityData.daily || [], 'daily');
     }
 }
 
-function populateQuantityTable(data) {
+function populateQuantityTable(data, timeFrame = 'daily') {
     const tableBody = document.querySelector("#quantityTable tbody");
     tableBody.innerHTML = ""; 
 
@@ -706,7 +707,7 @@ function populateQuantityTable(data) {
         let row = document.createElement("tr");
 
         let labelCell = document.createElement("td");
-        labelCell.textContent = item.label || "N/A";
+        labelCell.textContent = formatDateLabel(item.label, timeFrame) || "N/A";
         labelCell.style.border = "1px solid gray"; 
         row.appendChild(labelCell);
 
@@ -755,6 +756,21 @@ function populateQuantityTable(data) {
 
     tableBody.appendChild(totalRow);
 }
+    // Function to format date labels for better readability
+    function formatDateLabel(label, timeFrame) {
+        if (timeFrame === 'daily') {
+            // Check if label is a date string (YYYY-MM-DD format)
+            if (/^\d{4}-\d{2}-\d{2}$/.test(label)) {
+                const date = new Date(label + 'T00:00:00');
+                const day = date.getDate();
+                const month = date.toLocaleString('en-US', { month: 'short' });
+                const year = date.getFullYear();
+                return `${day} ${month} ${year}`;
+            }
+        }
+        return label;
+    }
+
     // Function to update all charts based on selected time frame
     function updateChart(timeFrame) {
         let data = [];
@@ -762,7 +778,7 @@ function populateQuantityTable(data) {
         let selectedData = quantityData[timeFrame]; 
 
         selectedData.forEach(item => {
-            labels.push(item.label);
+            labels.push(formatDateLabel(item.label, timeFrame));
             data.push(item.count);
         });
 
@@ -772,7 +788,7 @@ function populateQuantityTable(data) {
         updateChartData(lineChart, labels, data);
         updateChartData(verticalBarChart, labels, data);
 
-        populateQuantityTable(selectedData);
+        populateQuantityTable(selectedData, timeFrame);
     }
 
     // Function to update data for a given chart
@@ -1053,7 +1069,7 @@ function populateQuantityTable(data) {
 
     function updateChart2(timeFrame) {
             let selectedData = sizeData[timeFrame];
-            let labels = selectedData.map(item => `${item.label} - ${item.category}`);
+            let labels = selectedData.map(item => `${formatDateLabel(item.label, timeFrame)} - ${item.category}`);
             let data = selectedData.map(item => item.count);
 
             updateChartData3(sizeAreaChart, labels, data);
@@ -1336,7 +1352,7 @@ function populateQuantityTable(data) {
         // Function to update all charts based on selected time frame
         function updateChart3(timeFrame) {
         let selectedData = mediaData[timeFrame];
-        let labels = selectedData.map(item => `${item.label} - ${item.MediaType}`);
+        let labels = selectedData.map(item => `${formatDateLabel(item.label, timeFrame)} - ${item.MediaType}`);
         let data = selectedData.map(item => item.count);
 
         updateChartData3(MediaAreaChart, labels, data);
@@ -1634,7 +1650,7 @@ function populateQuantityTable(data) {
     // Update charts and table based on the selected timeframe
     function updateChart4(timeFrame) {
         let selectedData = publicationData[timeFrame];
-        let labels = selectedData.map(item => `${item.label} - ${item.MediaOutlet}`);
+        let labels = selectedData.map(item => `${formatDateLabel(item.label, timeFrame)} - ${item.MediaOutlet}`);
         let data = selectedData.map(item => item.count);
 
         updateChartData4(publicationAreaChart, labels, data);
@@ -1936,7 +1952,7 @@ function populateQuantityTable(data) {
         // Update charts and table based on the selected timeframe
         function updateChart5(timeFrame) {
             let selectedData = geographyData[timeFrame];
-            let labels = selectedData.map(item => `${item.label} - ${item.Edition}`);
+            let labels = selectedData.map(item => `${formatDateLabel(item.label, timeFrame)} - ${item.Edition}`);
             let data = selectedData.map(item => item.count);
 
             updateChartData5(geographyAreaChart, labels, data);
@@ -2240,7 +2256,7 @@ function populateJournalistTable(data) {
 // Function to update the chart based on the selected timeframe
 function updateChart6(timeframe) {
     let selectedData = journalistData[timeframe];
-    let labels = selectedData.map(item => `${item.label} - ${item.Journalist}`);
+    let labels = selectedData.map(item => `${formatDateLabel(item.label, timeframe)} - ${item.Journalist}`);
     let data = selectedData.map(item => item.count);
 
     updateChartData6(journalistAreaChart, labels, data);

@@ -89,33 +89,93 @@
                     @if (!empty($get_client_details[0]['get_quick_links']))
                         @foreach ($get_client_details[0]['get_quick_links'] as $detail)
                             @if ($detail['quick_links_position'] == '1')
+                                @php
+                                    $totalNewsCount = 0;
+                                    if (!empty($get_client_details[0]['client_news'])) {
+                                        foreach ($get_client_details[0]['client_news'] as $clientNews) {
+                                            if (!empty($clientNews['news']) && is_array($clientNews['news'])) {
+                                                $totalNewsCount += count($clientNews['news']);
+                                            }
+                                        }
+                                    }
+                                @endphp
                                 <tr style="background-color: #DCD5D5; color: #ffffff;">
-                                    <td><p>{{ $detail['quick_links_name'] }} ({{ count($get_client_details[0]['client_news']) }})</p></td>
+                                    <td><p>{{ $detail['quick_links_name'] }} ({{ $totalNewsCount }})</p></td>
                                     <td><a href="#">Login</a></td>
                                 </tr>
                             @elseif ($detail['quick_links_position'] == '2')
+                                @php
+                                    $totalCompetitorNewsCount = 0;
+                                    if (!empty($get_client_details[0]['compititors_data'])) {
+                                        foreach ($get_client_details[0]['compititors_data'] as $competitor) {
+                                            if (!empty($competitor['news']) && is_array($competitor['news'])) {
+                                                $totalCompetitorNewsCount += count($competitor['news']);
+                                            }
+                                        }
+                                    }
+                                @endphp
                                 <tr style="background-color: #DCD5D5; color: #ffffff;">
-                                    <td>{{ $detail['quick_links_name'] }} ({{ count($get_client_details[0]['compititors_data']) }})</td>
+                                    <td>{{ $detail['quick_links_name'] }} ({{ $totalCompetitorNewsCount }})</td>
                                     <td></td>
                                 </tr>
                             @elseif ($detail['quick_links_position'] == '3')
+                                @php
+                                    $totalIndustryNewsCount = 0;
+                                    if (!empty($get_client_details[0]['industry_data'])) {
+                                        foreach ($get_client_details[0]['industry_data'] as $industry) {
+                                            if (!empty($industry['news']) && is_array($industry['news'])) {
+                                                $totalIndustryNewsCount += count($industry['news']);
+                                            }
+                                        }
+                                    }
+                                @endphp
                                 <tr style="background-color: #DCD5D5; color: #ffffff;">
-                                    <td>{{ $detail['quick_links_name'] }} ({{ count($get_client_details[0]['industry_data']) }})</td>
+                                    <td>{{ $detail['quick_links_name'] }} ({{ $totalIndustryNewsCount }})</td>
                                     <td></td>
                                 </tr>
                             @elseif ($detail['quick_links_position'] == '4')
+                                @php
+                                    $totalCompetitorNewsCount = 0;
+                                    if (!empty($get_client_details[0]['compititors_data'])) {
+                                        foreach ($get_client_details[0]['compititors_data'] as $competitor) {
+                                            if (!empty($competitor['news']) && is_array($competitor['news'])) {
+                                                $totalCompetitorNewsCount += count($competitor['news']);
+                                            }
+                                        }
+                                    }
+                                @endphp
                                 <tr style="background-color: #DCD5D5; color: #ffffff;">
-                                    <td>{{ $detail['quick_links_name'] }} ({{ count($get_client_details[0]['compititors_data']) }})</td>
+                                    <td>{{ $detail['quick_links_name'] }} ({{ $totalCompetitorNewsCount }})</td>
                                     <td></td>
                                 </tr>
                             @elseif ($detail['quick_links_position'] == '5')
+                                @php
+                                    $totalIndustryNewsCount = 0;
+                                    if (!empty($get_client_details[0]['industry_data'])) {
+                                        foreach ($get_client_details[0]['industry_data'] as $industry) {
+                                            if (!empty($industry['news']) && is_array($industry['news'])) {
+                                                $totalIndustryNewsCount += count($industry['news']);
+                                            }
+                                        }
+                                    }
+                                @endphp
                                 <tr style="background-color: #DCD5D5; color: #ffffff;">
-                                    <td>{{ $detail['quick_links_name'] }} ({{ count($get_client_details[0]['industry_data']) }})</td>
+                                    <td>{{ $detail['quick_links_name'] }} ({{ $totalIndustryNewsCount }})</td>
                                     <td></td>
                                 </tr>
                             @elseif ($detail['quick_links_position'] == '6')
+                                @php
+                                    $totalCompetitorNewsCount = 0;
+                                    if (!empty($get_client_details[0]['compititors_data'])) {
+                                        foreach ($get_client_details[0]['compititors_data'] as $competitor) {
+                                            if (!empty($competitor['news']) && is_array($competitor['news'])) {
+                                                $totalCompetitorNewsCount += count($competitor['news']);
+                                            }
+                                        }
+                                    }
+                                @endphp
                                 <tr style="background-color: #DCD5D5; color: #ffffff;">
-                                    <td>{{ $detail['quick_links_name'] }} ({{ count($get_client_details[0]['compititors_data']) }})</td>
+                                    <td>{{ $detail['quick_links_name'] }} ({{ $totalCompetitorNewsCount }})</td>
                                     <td></td>
                                 </tr>
                             @endif
@@ -130,33 +190,53 @@
 
             <div class="body-content">
                 <h4 style="background-color: #6D6B6B; color: #ffffff; padding:4px;">{{ $details['client_name'] }}</h4>
-                @foreach ($get_client_details[0]['client_news'] as $news)
-                    <h5>
-                        <a href="{{ $news['website_url'] }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}px; font-family: {{ $get_client_details[0]['content_headline_font'] }};">
-                            {{ $news['head_line'] }}
-                        </a>
-                    </h5>
-                    <h6>Summary:</h6>
-                    <p style="color: {{ $get_client_details[0]['content_news_summary_color'] }}; font-size: {{ $get_client_details[0]['content_news_summary_font_size'] }}px;">
-                        {{ $news['summary'] }}
-                    </p>
-                    <p>
-                        Date: {{ date('d-m-Y', strtotime($news['create_at'])) }},
-                        Publication: <span style="color:blue;">{{ $news['MediaOutlet'] }}</span>,
-                        Journalist / Agency: <span style="color:blue;">{{ $news['Journalist'] ?: $news['Agency'] }}</span>,
-                        Edition: <span style="color:blue;">{{ $news['Edition'] }}</span>,
-                        Supplement: <span style="color:blue;">{{ $news['Supplement'] }}</span>,
-                        No of pages: <span style="color:blue;">{{ $news['page_count'] }}</span>,
-                        Circulation Figure: <span></span>, qAVE(Rs.): <span></span>
-                    </p>
-                    <hr>
-                @endforeach
+                @php
+                    $hasNews = false;
+                    if (!empty($get_client_details[0]['client_news'])) {
+                        foreach ($get_client_details[0]['client_news'] as $news2) {
+                            if (!empty($news2['news']) && is_array($news2['news']) && count($news2['news']) > 0) {
+                                $hasNews = true;
+                                break;
+                            }
+                        }
+                    }
+                @endphp
+                @if ($hasNews)
+                    @foreach ($get_client_details[0]['client_news'] as $news2)
+                        @if (!empty($news2['news']) && is_array($news2['news']))
+                            @foreach ($news2['news'] as $news)
+                                <h5>
+                                    <a href="{{ $news['website_url'] }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}px; font-family: {{ $get_client_details[0]['content_headline_font'] }};">
+                                        {{ $news['head_line'] }}
+                                    </a>
+                                </h5>
+                                <h6>Summary:</h6>
+                                <p style="color: {{ $get_client_details[0]['content_news_summary_color'] }}; font-size: {{ $get_client_details[0]['content_news_summary_font_size'] }}px;">
+                                    {{ $news['summary'] }}
+                                </p>
+                                <p>
+                                    Date: {{ date('d-m-Y', strtotime($news['create_at'])) }},
+                                    Publication: <span style="color:blue;">{{ $news['MediaOutlet'] }}</span>,
+                                    Journalist / Agency: <span style="color:blue;">{{ $news['Journalist'] ?: $news['Agency'] }}</span>,
+                                    Edition: <span style="color:blue;">{{ $news['Edition'] }}</span>,
+                                    Supplement: <span style="color:blue;">{{ $news['Supplement'] }}</span>,
+                                    Page No: <span style="color:blue;">{{ $news['page_no'] }}</span>
+                                    
+                                </p>
+                                <hr>
+                            @endforeach
+                        @endif
+                    @endforeach
+                @else
+                    <p style="text-align: center; padding: 20px; color: #666;">No news available for this company.</p>
+                @endif
             </div>
 
             <div class="body-content">
                 <h4 style="background-color: #6D6B6B; color: #ffffff; padding:4px;">Competition</h4>
                 @foreach ($get_client_details[0]['compititors_data'] as $compititor)
-                        <h4 style="background-color: #6D6B6B; color: #ffffff; padding:4px;">{{ $compititor['Competitor_name'] }}</h4>
+                    <h4 style="background-color: #6D6B6B; color: #ffffff; padding:4px;">{{ $compititor['Competitor_name'] }}</h4>
+                    @if (!empty($compititor['news']) && is_array($compititor['news']) && count($compititor['news']) > 0)
                         @foreach ($compititor['news'] as $news)
                             <h5>
                                 <a href="{{ $news['website_url'] }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}px; font-family: {{ $get_client_details[0]['content_headline_font'] }};">
@@ -173,42 +253,53 @@
                                 Journalist / Agency: <span style="color:blue;">{{ $news['Journalist'] ?: $news['Agency'] }}</span>,
                                 Edition: <span style="color:blue;">{{ $news['Edition'] }}</span>,
                                 Supplement: <span style="color:blue;">{{ $news['Supplement'] }}</span>,
-                                No of pages: <span style="color:blue;">{{ $news['page_count'] }}</span>,
-                                Circulation Figure: <span></span>, qAVE(Rs.): <span></span>
+                                Page No: <span style="color:blue;">{{ $news['page_no'] }}</span>
+                               
                             </p>
                             <hr>
                         @endforeach
+                    @else
+                        <p style="text-align: center; padding: 20px; color: #666;">No news available for this competitor.</p>
+                    @endif
                 @endforeach
             </div>
 
             <div class="body-content">
                 <h4 style="background-color: #6D6B6B; color: #ffffff; padding:4px;">Industry News</h4>
-                @foreach ($get_client_details[0]['industry_data'] as $industry)
-                    <div class="body-content">
-                        <h4 style="background-color: #6D6B6B; color: #ffffff; padding:4px;">{{ $industry['industry_name'] }}</h4>
-                        @foreach ($industry['news'] as $news)
-                            <h5>
-                                <a href="{{ $news['website_url'] }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}px; font-family: {{ $get_client_details[0]['content_headline_font'] }};">
-                                    {{ $news['head_line'] }}
-                                </a>
-                            </h5>
-                            <h6>Summary:</h6>
-                            <p style="color: {{ $get_client_details[0]['content_news_summary_color'] }}; font-size: {{ $get_client_details[0]['content_news_summary_font_size'] }}px;">
-                                {{ $news['summary'] }}
-                            </p>
-                            <p>
-                                Date: {{ date('d-m-Y', strtotime($news['create_at'])) }},
-                                Publication: <span style="color:blue;">{{ $news['MediaOutlet'] }}</span>,
-                                Journalist / Agency: <span style="color:blue;">{{ $news['Journalist'] ?: $news['Agency'] }}</span>,
-                                Edition: <span style="color:blue;">{{ $news['Edition'] }}</span>,
-                                Supplement: <span style="color:blue;">{{ $news['Supplement'] }}</span>,
-                                No of pages: <span style="color:blue;">{{ $news['page_count'] }}</span>,
-                                Circulation Figure: <span></span>, qAVE(Rs.): <span></span>
-                            </p>
-                            <hr>
-                        @endforeach
-                    </div>
-                @endforeach
+				@if(isset($get_client_details[0]['industry_data']) && !empty($get_client_details[0]['industry_data']))
+					@foreach ($get_client_details[0]['industry_data'] as $industry)
+						<div class="body-content">
+							<h4 style="background-color: #6D6B6B; color: #ffffff; padding:4px;">{{ $industry['Industry_name'] ?? $industry['industry_name'] ?? 'N/A' }}</h4>
+							@if (!empty($industry['news']) && is_array($industry['news']) && count($industry['news']) > 0)
+								@foreach ($industry['news'] as $news)
+									<h5>
+										<a href="{{ $news['website_url'] }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}px; font-family: {{ $get_client_details[0]['content_headline_font'] }};">
+											{{ $news['head_line'] }}
+										</a>
+									</h5>
+									<h6>Summary:</h6>
+									<p style="color: {{ $get_client_details[0]['content_news_summary_color'] }}; font-size: {{ $get_client_details[0]['content_news_summary_font_size'] }}px;">
+										{{ $news['summary'] }}
+									</p>
+									<p>
+										Date: {{ date('d-m-Y', strtotime($news['create_at'])) }},
+										Publication: <span style="color:blue;">{{ $news['MediaOutlet'] }}</span>,
+										Journalist / Agency: <span style="color:blue;">{{ $news['Journalist'] ?: $news['Agency'] }}</span>,
+										Edition: <span style="color:blue;">{{ $news['Edition'] }}</span>,
+										Supplement: <span style="color:blue;">{{ $news['Supplement'] }}</span>,
+										Page No: <span style="color:blue;">{{ $news['page_no'] }}</span>
+										
+									</p>
+									<hr>
+								@endforeach
+							@else
+								<p style="text-align: center; padding: 20px; color: #666;">No news available for this industry.</p>
+							@endif
+						</div>
+					@endforeach
+				@else
+					<p>No industry data available.</p>
+				@endif
             </div>
 
             <div class="footer">

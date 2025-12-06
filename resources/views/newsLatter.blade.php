@@ -1,4 +1,264 @@
-@include('common/header')
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>News Report System</title>
+
+    <!-- Custom fonts for this template-->
+    <!-- <link href="{{ asset('assets/vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css"> -->
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+   
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <!-- Custom styles for this template-->
+    <link href="{{ asset('assets/css/sb-admin-2.min.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        label {
+            font-size: 0.9rem !important;
+        }
+        .form-control {
+            font-size: .8rem !important;
+        }
+        /* Custom border with text */
+        .border-with-text {
+            position: relative;
+            padding: 20px;
+            border: 2px solid #5a5c6926; /* Blue border */
+            border-radius: 10px;
+        }
+
+        .border-with-text::before {
+            content: attr(data-heading);
+            position: absolute;
+            top: -12px; /* Adjusts the position of the text */
+            left: 20px; /* Adjusts the left position */
+            background: white;
+            padding: 0 10px; /* Padding for the background */
+            font-weight: bold;
+            color: #224abecc; /* Matches the border color */
+        }
+        .text-color {
+            color: #224abecc;
+        }
+        label {
+            margin-bottom: 0rem !important;
+            margin-top: 0.7rem !important;
+        }
+        .btn {
+            padding: .175rem .55rem !important;
+            font-weight: 600 !important;
+            text-transform: uppercase;
+        }
+
+        table.dataTable thead th, table.dataTable thead td {
+            border-bottom: 1px solid #5a5c6926 !important;
+        }
+        table.dataTable.no-footer {
+            border-bottom: 1px solid #5a5c6926 !important;
+        }
+        .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate .paginate_button {
+            font-size: 0.8rem !important;
+        }
+        .modal-title {
+            font-size: 1.2rem !important;
+            text-transform: uppercase !important;
+        }
+        #toast-container .toast-error {
+    background-color: red !important;
+    color: #fff !important;
+}
+#toast-container .toast-success {
+    background-color: blue !important;
+    color: #fff !important;
+}
+.btn {
+    font-size: .8rem !important;
+}
+
+    </style>
+</head>
+
+<body id="page-top" onload="setDefaultDate()">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+            <!-- Sidebar - Brand -->
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" >
+                <div class="sidebar-brand-icon rotate-n-15">
+                   <!-- <i class="fas fa-laugh-wink"></i>-->
+                </div>
+                <div class="sidebar-brand-text mx-3">Admin</div>
+            </a>
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0">
+            @if(session()->has('user_id'))
+@if(session()->get('user_type') == 'Reporter')
+    <li class="nav-item {{ request()->routeIs('news_upload') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('news_upload') }}">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>News Upload</span>
+        </a>
+    </li>
+    <li class="nav-item {{ request()->routeIs('reporte.account') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('reporte.account') }}">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Manage Account</span>
+        </a>
+    </li>
+@endif
+
+@if(session()->get('user_type') == 'Admin')
+    <li class="nav-item {{ request()->routeIs('news_latter') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('news_latter') }}">
+            <i class="fa fa-newspaper-o"></i>
+            <span>Manage Newsletter</span>
+        </a>
+    </li>
+    <li class="nav-item {{ request()->routeIs('repoter') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('repoter') }}">
+            <i class="fa fa-user-circle-o"></i>
+            <span>Manage Reporter</span>
+        </a>
+    </li>
+    <li class="nav-item {{ request()->routeIs('client') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('client') }}">
+            <i class="fa fa-building-o"></i>
+            <span>Manage Client</span>
+        </a>
+    </li>
+    <li class="nav-item {{ request()->routeIs('industry') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('industry') }}">
+            <i class="fa fa-industry"></i>
+            <span>Manage Industry</span>
+        </a>
+    </li>
+    <li class="nav-item {{ request()->routeIs('edition') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('edition') }}">
+            <i class="fas fa-city"></i>
+            <span>Manage Edition</span>
+        </a>
+    </li>
+    <li class="nav-item {{ request()->routeIs('supplement') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('supplement') }}">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Manage Supplements</span>
+        </a>
+    </li>
+    <li class="nav-item {{ request()->routeIs('publication') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('publication') }}">
+            <i class="fa fa-book"></i>
+            <span>Manage Publication</span>
+        </a>
+    </li>
+    <li class="nav-item {{ request()->routeIs('journalist') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('journalist') }}">
+            <i class="fa fa-newspaper-o"></i>
+            <span>Manage Journalist</span>
+        </a>
+    </li>
+    <li class="nav-item {{ request()->routeIs('addRate') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('addRate') }}">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Manage AddRate</span>
+        </a>
+    </li>
+@endif
+
+@if(session()->get('user_type') == 'Client')
+    <li class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('dashboard') }}">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="nav-item {{ request()->routeIs('compare_charts') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('compare_charts') }}">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Pro Compare</span>
+        </a>
+    </li>
+    <li class="nav-item {{ request()->routeIs('report') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('report') }}">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Pro Report</span>
+        </a>
+    </li>
+@endif
+@endif
+ 
+
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+
+           <!-- Sidebar Toggler (Sidebar) -->
+           <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
+        </ul>
+        <!-- End of Sidebar -->
+  <!-- Content Wrapper -->
+  <div id="content-wrapper" class="d-flex flex-column">
+
+<!-- Main Content -->
+<div id="content">
+
+    <!-- Topbar -->
+    <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+        <!-- Sidebar Toggle (Topbar) -->
+        <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+            <i class="fa fa-bars"></i>
+        </button>
+
+        <!-- Topbar Navbar -->
+        <ul class="navbar-nav ml-auto">
+            <div class="topbar-divider d-none d-sm-block"></div>
+            <!-- Nav Item - User Information -->
+            <li class="nav-item dropdown no-arrow">
+    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <span class="mr-2 d-none d-lg-inline text-gray-600 small" style="cursor: pointer;" onclick="toggleDropdown()">
+            @if(session('user_id'))
+                <div>
+                    Welcome, {{ session('user_name') }}
+                </div>
+            @else
+                <div>
+                    Please log in.
+                </div>
+            @endif
+        </span>
+        <img class="img-profile rounded-circle" src="{{ asset('assets/img/undraw_profile.svg') }}">
+    </a>
+    <!-- Dropdown - User Information -->
+    <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown" id="userDropdownMenu">
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+            <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i> Logout
+        </a>
+    </div>
+</li>
+
+<script>
+    function toggleDropdown() {
+        var dropdownMenu = document.getElementById('userDropdownMenu');
+        dropdownMenu.classList.toggle('show');
+    }
+</script>
+        </ul>
+    </nav>
+    <!-- End of Topbar -->
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -145,44 +405,104 @@ th {
                     @if (!empty($get_client_details[0]['get_quick_links']))
                         @foreach ($get_client_details[0]['get_quick_links'] as $detail)
                             @if ($detail->quick_links_position == '1')
-                                <tr style="background-color: #DCD5D5; color: #ffffff;">
+                                @php
+                                    $totalNewsCount = 0;
+                                    if (!empty($get_client_details[0]['client_news'])) {
+                                        foreach ($get_client_details[0]['client_news'] as $clientNews) {
+                                            if (!empty($clientNews['news']) && is_array($clientNews['news'])) {
+                                                $totalNewsCount += count($clientNews['news']);
+                                            }
+                                        }
+                                    }
+                                @endphp
+                                <tr style="background-color: #DCD5D5; color: #ffffff;" onclick="scrollToTarget('clientdiv')">
                                     <td>
-                                        <p>{{ $detail->quick_links_name }} ({{ sizeof($get_client_details[0]['client_news']) }})</p>
+                                        <p>{{ $detail->quick_links_name }} ({{ $totalNewsCount }})</p>
                                     </td>
                                     <td><a href="#">Login</a></td>
                                 </tr>
                             @elseif ($detail->quick_links_position == '2')
-                                <tr style="background-color: #DCD5D5; color: #ffffff;">
+                                @php
+                                    $totalCompetitorNewsCount = 0;
+                                    if (!empty($get_client_details[0]['compititors_data'])) {
+                                        foreach ($get_client_details[0]['compititors_data'] as $competitor) {
+                                            if (!empty($competitor['news']) && is_array($competitor['news'])) {
+                                                $totalCompetitorNewsCount += count($competitor['news']);
+                                            }
+                                        }
+                                    }
+                                @endphp
+                                <tr style="background-color: #DCD5D5; color: #ffffff;" onclick="scrollToTarget2('competitordiv')">
                                     <td>
-                                        {{ $detail->quick_links_name }} ({{ sizeof($get_client_details[0]['compititors_data']) }})
+                                        {{ $detail->quick_links_name }} ({{ $totalCompetitorNewsCount }})
                                     </td>
                                     <td></td>
                                 </tr>
                             @elseif ($detail->quick_links_position == '3')
-                                <tr style="background-color: #DCD5D5; color: #ffffff;">
+                                @php
+                                    $totalIndustryNewsCount = 0;
+                                    if (!empty($get_client_details[0]['industry_data'])) {
+                                        foreach ($get_client_details[0]['industry_data'] as $industry) {
+                                            if (!empty($industry['news']) && is_array($industry['news'])) {
+                                                $totalIndustryNewsCount += count($industry['news']);
+                                            }
+                                        }
+                                    }
+                                @endphp
+                                <tr style="background-color: #DCD5D5; color: #ffffff;" onclick="scrollToTarget3('industrydiv')">
                                     <td>
-                                        {{ $detail->quick_links_name }} ({{ sizeof($get_client_details[0]['industry_data']) }})
+                                        {{ $detail->quick_links_name }} ({{ $totalIndustryNewsCount }})
                                     </td>
                                     <td></td>
                                 </tr>
                             @elseif ($detail->quick_links_position == '4')
-                                <tr style="background-color: #DCD5D5; color: #ffffff;">
+                                @php
+                                    $totalCompetitorNewsCount = 0;
+                                    if (!empty($get_client_details[0]['compititors_data'])) {
+                                        foreach ($get_client_details[0]['compititors_data'] as $competitor) {
+                                            if (!empty($competitor['news']) && is_array($competitor['news'])) {
+                                                $totalCompetitorNewsCount += count($competitor['news']);
+                                            }
+                                        }
+                                    }
+                                @endphp
+                                <tr style="background-color: #DCD5D5; color: #ffffff;" onclick="scrollToTarget2('competitordiv')">
                                     <td>
-                                        {{ $detail->quick_links_name }} ({{ sizeof($get_client_details[0]['compititors_data']) }})
+                                        {{ $detail->quick_links_name }} ({{ $totalCompetitorNewsCount }})
                                     </td>
                                     <td></td>
                                 </tr>
                             @elseif ($detail->quick_links_position == '5')
-                                <tr style="background-color: #DCD5D5; color: #ffffff;">
+                                @php
+                                    $totalIndustryNewsCount = 0;
+                                    if (!empty($get_client_details[0]['industry_data'])) {
+                                        foreach ($get_client_details[0]['industry_data'] as $industry) {
+                                            if (!empty($industry['news']) && is_array($industry['news'])) {
+                                                $totalIndustryNewsCount += count($industry['news']);
+                                            }
+                                        }
+                                    }
+                                @endphp
+                                <tr style="background-color: #DCD5D5; color: #ffffff;" onclick="scrollToTarget3('industrydiv')">
                                     <td>
-                                        {{ $detail->quick_links_name }} ({{ sizeof($get_client_details[0]['industry_data']) }})
+                                        {{ $detail->quick_links_name }} ({{ $totalIndustryNewsCount }})
                                     </td>
                                     <td></td>
                                 </tr>
                             @elseif ($detail->quick_links_position == '6')
-                                <tr style="background-color: #DCD5D5; color: #ffffff;">
+                                @php
+                                    $totalCompetitorNewsCount = 0;
+                                    if (!empty($get_client_details[0]['compititors_data'])) {
+                                        foreach ($get_client_details[0]['compititors_data'] as $competitor) {
+                                            if (!empty($competitor['news']) && is_array($competitor['news'])) {
+                                                $totalCompetitorNewsCount += count($competitor['news']);
+                                            }
+                                        }
+                                    }
+                                @endphp
+                                <tr style="background-color: #DCD5D5; color: #ffffff;" onclick="scrollToTarget2('competitordiv')">
                                     <td>
-                                        {{ $detail->quick_links_name }} ({{ sizeof($detail['compititors_data']) }})
+                                        {{ $detail->quick_links_name }} ({{ $totalCompetitorNewsCount }})
                                     </td>
                                     <td></td>
                                 </tr>
@@ -199,56 +519,75 @@ th {
                     </tr>
                 </table>    
                 </div>
-                <div class="body-content" style="padding:10px 15px 0px 15px;">
+                <div class="body-content" style="padding:10px 15px 0px 15px;"  id="clientdiv">
                     <h4 style="background-color: #cfbbbb; color: #ffffff; padding:4px;"> {{ $details['client_name'] }} </h4>
-                    @foreach ($get_client_details[0]['client_news'] as $key => $news)
-                    <div id="clientnewsContent-{{ $news['news_details_id'] }}" style="display: block;">
-                        <div style="display:flex; justify-content: space-between; padding:0px 10px 0px 0px;">
-                            <h5>
-                                <a href="{{ url('news-article/'.$news['news_details_id']) }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}; font-family: {{ $get_client_details[0]['content_headline_font'] }}">  {{ $news['head_line'] }} </a>
-                            </h5>
-                            <h6 class="showEdit">
-                                <div style="d-flex">
-                                    <a onclick="toggleNewsContent('{{ $news['news_details_id'] }}')"> Edit News</a>|
-                                    <a onclick="hideNews('{{ $news['news_details_id'] }}', '{{ $details['client_id'] }}')"> Hide</a> | 
-                                    <a style="color:red;" onclick="deleteNews('{{ $news['news_details_id'] }}', '{{ $details['client_id'] }}')">Delete</a> 
+                    @php
+                        $hasNews = false;
+                        if (!empty($get_client_details[0]['client_news'])) {
+                            foreach ($get_client_details[0]['client_news'] as $news2) {
+                                if (!empty($news2['news']) && is_array($news2['news']) && count($news2['news']) > 0) {
+                                    $hasNews = true;
+                                    break;
+                                }
+                            }
+                        }
+                    @endphp
+                    @if ($hasNews)
+                        @foreach ($get_client_details[0]['client_news'] as $key => $news2)
+                            @if (!empty($news2['news']) && is_array($news2['news']))
+                                @foreach ($news2['news'] as $news)
+                                <div id="clientnewsContent-{{ $news['news_details_id'] }}" style="display: block;">
+                                    <div style="display:flex; justify-content: space-between; padding:0px 10px 0px 0px;">
+                                        <h5>
+                                            <a href="{{ url('news-article/'.$news['news_details_id']) }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}; font-family: {{ $get_client_details[0]['content_headline_font'] }}">  {{ $news['head_line'] }} </a>
+                                        </h5>
+                                        <h6 class="showEdit">
+                                            <div style="d-flex">
+                                                <a onclick="toggleNewsContent('{{ $news['news_details_id'] }}')"> Edit News</a>|
+                                                <a onclick="hideNews('{{ $news['news_details_id'] }}', '{{ $details['client_id'] }}')"> Hide</a> | 
+                                                <a style="color:red;" onclick="deleteNews('{{ $news['news_details_id'] }}', '{{ $details['client_id'] }}')">Delete</a> 
+                                            </div>
+                                        </h6>
+                                    </div>
+                                    <h6>Summary:</h6>
+                                    <p style="color: {{ $get_client_details[0]['content_news_summary_color'] }}; font-size: {{ $get_client_details[0]['content_news_summary_font_size'] }};">
+                                        {{ $news['summary'] }}
+                                    </p>
+                                    <p>Date: {{ date('d-m-Y', strtotime($news['create_at'])) }} ,
+                                        Publication :<span style="color:blue;"> {{ $news['MediaOutlet'] }}</span>, Journalist / Agency :<span style="color:blue;"> {{ $news['Journalist'] != '' ? $news['Journalist'] : $news['Agency'] }} </span>  , 
+                                        Edition : <span style="color:blue;"> {{ $news['Edition'] }} </span>,  Supplement : <span style="color:blue;"> {{ $news['Supplement'] }} </span>, Page No:<span style="color:blue;"> {{ $news['page_no'] }}</span>  
+                                    </p>
+                                    <hr>
                                 </div>
-                            </h6>
-                        </div>
-                        <h6>Summary:</h6>
-                        <p style="color: {{ $get_client_details[0]['content_news_summary_color'] }}; font-size: {{ $get_client_details[0]['content_news_summary_font_size'] }};">
-                            {{ $news['summary'] }}
-                        </p>
-                        <p>Date: {{ date('d-m-Y', strtotime($news['create_at'])) }} ,
-                            Publication :<span style="color:blue;"> {{ $news['MediaOutlet'] }}</span>, Journalist / Agency :<span style="color:blue;"> {{ $news['Journalist'] != '' ? $news['Journalist'] : $news['Agency'] }} </span>  , 
-                            Edition : <span style="color:blue;"> {{ $news['Edition'] }} </span>,  Supplement : <span style="color:blue;"> {{ $news['Supplement'] }} </span>, No of pages:<span style="color:blue;"> {{ $news['page_count'] }}</span> , Circulation Figure:<span> </span>, qAVE(Rs.) :<span> </span> 
-                        </p>
-                        <hr>
-                    </div>
 
-                    <div id="clientnewsContentEdit-{{ $news['news_details_id'] }}" style="display: none;">
-                        <div style="display:flex; justify-content: space-between; padding:0px 10px 0px 0px;">
-                            <div class="headline" style="width: 500px;">
-                                <h6>Headline:</h6>
-                                <textarea name="" id="update_headline_{{ $news['news_details_id'] }}" class="form-control">{{ $news['head_line'] }}</textarea>
-                            </div>
-                            
-                            <h6 class="showEdit2">
-                                <div style="d-flex">
-                                    <a class="btn border" onclick="updateNewsContent('{{ $news['news_details_id'] }}', '{{ $details['client_id'] }}')"> Update News</a> 
+                                <div id="clientnewsContentEdit-{{ $news['news_details_id'] }}" style="display: none;">
+                                    <div style="display:flex; justify-content: space-between; padding:0px 10px 0px 0px;">
+                                        <div class="headline" style="width: 500px;">
+                                            <h6>Headline:</h6>
+                                            <textarea name="" id="update_headline_{{ $news['news_details_id'] }}" class="form-control">{{ $news['head_line'] }}</textarea>
+                                        </div>
+                                        
+                                        <h6 class="showEdit2">
+                                            <div style="d-flex">
+                                                <a class="btn border" onclick="updateNewsContent('{{ $news['news_details_id'] }}', '{{ $details['client_id'] }}')"> Update News</a> 
+                                            </div>
+                                        </h6>
+                                    </div>
+                                
+                                    <h6>Summary:</h6>
+                                    <textarea name="" id="update_summary_{{ $news['news_details_id'] }}" class="form-control">{{ $news['summary'] }}</textarea>
+                                    <p>Date: {{ date('d-m-Y', strtotime($news['create_at'])) }} ,
+                                        Publication :<span style="color:blue;"> {{ $news['MediaOutlet'] }}</span>, Journalist / Agency :<span style="color:blue;"> {{ $news['Journalist'] != '' ? $news['Journalist'] : $news['Agency'] }} </span> , 
+                                        Edition : <span style="color:blue;"> {{ $news['Edition'] }} </span>,  Supplement : <span style="color:blue;"> {{ $news['Supplement'] }} </span>, Page No:<span style="color:blue;"> {{ $news['page_no'] }}</span>  
+                                    </p>
+                                    <hr>
                                 </div>
-                            </h6>
-                        </div>
-                    
-                        <h6>Summary:</h6>
-                        <textarea name="" id="update_summary_{{ $news['news_details_id'] }}" class="form-control">{{ $news['summary'] }}</textarea>
-                        <p>Date: {{ date('d-m-Y', strtotime($news['create_at'])) }} ,
-                            Publication :<span style="color:blue;"> {{ $news['MediaOutlet'] }}</span>, Journalist / Agency :<span style="color:blue;"> {{ $news['Journalist'] != '' ? $news['Journalist'] : $news['Agency'] }} </span> , 
-                            Edition : <span style="color:blue;"> {{ $news['Edition'] }} </span>,  Supplement : <span style="color:blue;"> {{ $news['Supplement'] }} </span>, No of pages:<span style="color:blue;"> {{ $news['page_count'] }}</span> , Circulation Figure:<span> </span>, qAVE(Rs.) :<span> </span> 
-                        </p>
-                        <hr>
-                    </div>
-                @endforeach
+                                @endforeach
+                            @endif
+                        @endforeach
+                    @else
+                        <p style="text-align: center; padding: 20px; color: #666;">No news available for this company.</p>
+                    @endif
                 </div>
                 <!-- This is for competitors -->
                 <div class="body-content" style="padding:10px 15px 0px 15px;">
@@ -256,10 +595,11 @@ th {
                 </div>
 
                 @foreach ($get_client_details[0]['compititors_data'] as $compititor)
-                    <div class="body-content" style="padding:10px 15px 0px 15px;">
+                    <div class="body-content" id="competitordiv" style="padding:10px 15px 0px 15px;">
                         <h4 style="background-color: #cfbbbb; color: #ffffff; padding:4px;">{{ $compititor['Competitor_name'] }}</h4>
 
-                        @foreach ($compititor['news'] as $news)
+                        @if (!empty($compititor['news']) && is_array($compititor['news']) && count($compititor['news']) > 0)
+                            @foreach ($compititor['news'] as $news)
                             <div id="competitornewsContent-{{ $news['news_details_id'] }}-{{ $compititor['competitor_id'] }}" style="display: block;">
                                 <div style="display:flex; justify-content: space-between; padding:0px 10px 0px 0px;">
                                     <h5>
@@ -281,7 +621,7 @@ th {
                                 </p>
                                 <p>Date: {{ \Carbon\Carbon::parse($news['create_at'])->format('d-m-Y') }} ,
                                     Publication :<span style="color:blue;"> {{ $news['MediaOutlet'] }}</span>, Journalist / Agency :<span style="color:blue;"> {{ $news['Journalist'] ? $news['Journalist'] : $news['Agency'] }}</span> , 
-                                    Edition : <span style="color:blue;"> {{ $news['Edition'] }} </span>,  Supplement : <span style="color:blue;"> {{ $news['Supplement'] }} </span>, No of pages:<span style="color:blue;"> {{ $news['page_count'] }}</span> , Circulation Figure:<span> </span>, qAVE(Rs.) :<span> </span> 
+                                    Edition : <span style="color:blue;"> {{ $news['Edition'] }} </span>,  Supplement : <span style="color:blue;"> {{ $news['Supplement'] }} </span>, Page No:<span style="color:blue;"> {{ $news['page_no'] }}</span> 
                                 </p>                 
                                 <hr>
                             </div>  
@@ -304,11 +644,14 @@ th {
                                 <textarea name="" id="com_update_summary_{{ $news['news_details_id'] }}" class="form-control">{{ $news['summary'] }}</textarea>
                                 <p>Date: {{ \Carbon\Carbon::parse($news['create_at'])->format('d-m-Y') }} ,
                                     Publication :<span style="color:blue;"> {{ $news['MediaOutlet'] }}</span>, Journalist / Agency :<span style="color:blue;"> {{ $news['Journalist'] ? $news['Journalist'] : $news['Agency'] }}</span>  , 
-                                    Edition : <span style="color:blue;"> {{ $news['Edition'] }} </span>,  Supplement : <span style="color:blue;"> {{ $news['Supplement'] }} </span>, No of pages:<span style="color:blue;"> {{ $news['page_count'] }}</span> , Circulation Figure:<span> </span>, qAVE(Rs.) :<span> </span> 
+                                    Edition : <span style="color:blue;"> {{ $news['Edition'] }} </span>,  Supplement : <span style="color:blue;"> {{ $news['Supplement'] }} </span>, Page No:<span style="color:blue;"> {{ $news['page_no'] }}</span> 
                                 </p>
                                 <hr>
                             </div>
-                        @endforeach
+                            @endforeach
+                        @else
+                            <p style="text-align: center; padding: 20px; color: #666;">No news available for this competitor.</p>
+                        @endif
                     </div>
                 @endforeach
 
@@ -316,10 +659,11 @@ th {
                     <h4 style="background-color: #cfbbbb; color: #ffffff; padding:4px;"> Industry</h4>
                 </div>
                 @foreach ($get_client_details[0]['industry_data'] as $Industry)
-                    <div class="body-content" style="padding:10px 15px 0px 15px;">
+                    <div class="body-content" id="industrydiv" style="padding:10px 15px 0px 15px;">
                         <h4 style="background-color: #cfbbbb; color: #ffffff; padding:4px;"> {{ $Industry['Industry_name'] }}</h4>
 
-                        @foreach ($Industry['news'] as $news)
+                        @if (!empty($Industry['news']) && is_array($Industry['news']) && count($Industry['news']) > 0)
+                            @foreach ($Industry['news'] as $news)
                             <div id="IndustrynewsContent-{{ $news['news_details_id'] }}-{{ $Industry['Industry_id'] }}" style="display: block;">
                                 <div style="display:flex; justify-content: space-between; padding:0px 10px 0px 0px;">
                                     <h5>
@@ -341,7 +685,7 @@ th {
                                 </p>
                                 <p>Date: {{ \Carbon\Carbon::parse($news['create_at'])->format('d-m-Y') }} ,
                                     Publication :<span style="color:blue;"> {{ $news['MediaOutlet'] }}</span>, Journalist / Agency :<span style="color:blue;"> {{ $news['Journalist'] }}</span>  , 
-                                    Edition : <span style="color:blue;"> {{ $news['Edition'] }} </span>,  Supplement : <span style="color:blue;"> {{ $news['Supplement'] }} </span>, No of pages:<span style="color:blue;"> {{ $news['page_count'] }}</span> , Circulation Figure:<span> </span>, qAVE(Rs.) :<span> </span> 
+                                    Edition : <span style="color:blue;"> {{ $news['Edition'] }} </span>,  Supplement : <span style="color:blue;"> {{ $news['Supplement'] }} </span>, Page No:<span style="color:blue;"> {{ $news['page_no'] }}</span> 
                                 </p>                 
                                 <hr>
                             </div>  
@@ -361,11 +705,14 @@ th {
                                 <textarea name="" id="industry_update_summary_{{ $news['news_details_id'] }}" class="form-control">{{ $news['summary'] }}</textarea>
                                 <p>Date: {{ \Carbon\Carbon::parse($news['create_at'])->format('d-m-Y') }} ,
                                     Publication :<span style="color:blue;"> {{ $news['MediaOutlet'] }}</span>, Journalist / Agency :<span style="color:blue;"> {{ $news['Journalist'] }}</span>  , 
-                                    Edition : <span style="color:blue;"> {{ $news['Edition'] }} </span>,  Supplement : <span style="color:blue;"> {{ $news['Supplement'] }} </span>, No of pages:<span style="color:blue;"> {{ $news['page_count'] }}</span> , Circulation Figure:<span> </span>, qAVE(Rs.) :<span> </span> 
+                                    Edition : <span style="color:blue;"> {{ $news['Edition'] }} </span>,  Supplement : <span style="color:blue;"> {{ $news['Supplement'] }} </span>, Page No:<span style="color:blue;"> {{ $news['page_no'] }}</span> 
                                 </p>
                                 <hr>
                             </div>
-                        @endforeach
+                            @endforeach
+                        @else
+                            <p style="text-align: center; padding: 20px; color: #666;">No news available for this industry.</p>
+                        @endif
                     </div>
                 @endforeach
                 <div class="col-md-12 news-footer" style="background-color: {{ $get_client_details[0]['footer_background_color'] }};">
@@ -413,7 +760,35 @@ th {
         </div>
     </div>
 </div>
-
+<script>
+    function scrollToTarget(targetId) {
+        // Get the target element by ID
+        const targetElement = document.getElementById(targetId);
+        
+        // Scroll to the target element with smooth behavior
+        if (targetElement) {
+            targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+    function scrollToTarget2(targetId) {
+        // Get the target element by ID
+        const targetElement = document.getElementById(targetId);
+        
+        // Scroll to the target element with smooth behavior
+        if (targetElement) {
+            targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+    function scrollToTarget3(targetId) {
+        // Get the target element by ID
+        const targetElement = document.getElementById(targetId);
+        
+        // Scroll to the target element with smooth behavior
+        if (targetElement) {
+            targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+</script>
 <script>
 function getEmail(client_id) 
 {

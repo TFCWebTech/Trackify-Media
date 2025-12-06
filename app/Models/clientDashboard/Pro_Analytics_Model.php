@@ -11,19 +11,31 @@ class Pro_Analytics_Model extends Model
     use HasFactory;
     public function getDataByTimeframe($timeframe, $client_id, $from = null, $to = null)
     {
-        $query = DB::table('news_details')
-            ->select(
-                DB::raw("CASE
-                            WHEN '$timeframe' = 'daily' THEN DATE_FORMAT(create_at, '%W')
-                            WHEN '$timeframe' = 'weekly' THEN CONCAT('Week ', WEEK(create_at))
-                            WHEN '$timeframe' = 'monthly' THEN DATE_FORMAT(create_at, '%M')
-                        END as label"),
-                DB::raw('COUNT(*) as count'),
-                'media_type_id',
-                'publication_id',
-                'sizeofArticle'
-            )
-            ->whereRaw("FIND_IN_SET(?, company) > 0", [$client_id]);
+        // For daily timeframe, use actual date; for others, use the original format
+        if ($timeframe === 'daily') {
+            $query = DB::table('news_details')
+                ->select(
+                    DB::raw("DATE_FORMAT(create_at, '%Y-%m-%d') as label"),
+                    DB::raw('COUNT(*) as count'),
+                    'media_type_id',
+                    'publication_id',
+                    'sizeofArticle'
+                )
+                ->whereRaw("FIND_IN_SET(?, company) > 0", [$client_id]);
+        } else {
+            $query = DB::table('news_details')
+                ->select(
+                    DB::raw("CASE
+                                WHEN '$timeframe' = 'weekly' THEN CONCAT('Week-', WEEK(create_at), ' ', YEAR(create_at))
+                                WHEN '$timeframe' = 'monthly' THEN CONCAT(DATE_FORMAT(create_at, '%M'), ' ', YEAR(create_at))
+                            END as label"),
+                    DB::raw('COUNT(*) as count'),
+                    'media_type_id',
+                    'publication_id',
+                    'sizeofArticle'
+                )
+                ->whereRaw("FIND_IN_SET(?, company) > 0", [$client_id]);
+        }
 
         if ($from && $to) {
             $query->whereBetween(DB::raw('DATE(create_at)'), [$from, $to]);
@@ -41,8 +53,13 @@ class Pro_Analytics_Model extends Model
             }
         }
 
-        $query->groupBy('label', 'media_type_id', 'publication_id', 'sizeofArticle')
-            ->orderBy('create_at');
+        if ($timeframe === 'daily') {
+            $query->groupBy(DB::raw("DATE_FORMAT(create_at, '%Y-%m-%d')"), 'media_type_id', 'publication_id', 'sizeofArticle')
+                ->orderBy(DB::raw("DATE_FORMAT(create_at, '%Y-%m-%d')"));
+        } else {
+            $query->groupBy('label', 'media_type_id', 'publication_id', 'sizeofArticle')
+                ->orderBy('create_at');
+        }
         $result = $query->get()->toArray();
 
         // Create an associative array to store summed results
@@ -92,21 +109,34 @@ class Pro_Analytics_Model extends Model
     public function getPublicationDataByTimeframeById($timeframe, $clientId, $from = null, $to = null)
     {
         // Initialize query builder
-        $query = DB::table('news_details as nd')
-            ->join('mediaoutlet as m', 'm.gidMediaOutlet', '=', 'nd.publication_id')
-            ->selectRaw('
-                CASE 
-                    WHEN ? = "daily" THEN DATE_FORMAT(nd.create_at, "%W")
-                    WHEN ? = "weekly" THEN CONCAT("Week ", WEEK(nd.create_at))
-                    WHEN ? = "monthly" THEN DATE_FORMAT(nd.create_at, "%M")
-                END as label,
-                COUNT(*) as count,
-                m.MediaOutlet,
-                nd.media_type_id,
-                nd.publication_id,
-                nd.sizeofArticle
-            ', [$timeframe, $timeframe, $timeframe])
-            ->whereRaw('FIND_IN_SET(?, nd.company) > 0', [$clientId]);
+        if ($timeframe === 'daily') {
+            $query = DB::table('news_details as nd')
+                ->join('mediaoutlet as m', 'm.gidMediaOutlet', '=', 'nd.publication_id')
+                ->selectRaw('
+                    DATE_FORMAT(nd.create_at, "%Y-%m-%d") as label,
+                    COUNT(*) as count,
+                    m.MediaOutlet,
+                    nd.media_type_id,
+                    nd.publication_id,
+                    nd.sizeofArticle
+                ')
+                ->whereRaw('FIND_IN_SET(?, nd.company) > 0', [$clientId]);
+        } else {
+            $query = DB::table('news_details as nd')
+                ->join('mediaoutlet as m', 'm.gidMediaOutlet', '=', 'nd.publication_id')
+                ->selectRaw('
+                    CASE 
+                        WHEN ? = "weekly" THEN CONCAT("Week-", WEEK(nd.create_at), " ", YEAR(nd.create_at))
+                        WHEN ? = "monthly" THEN CONCAT(DATE_FORMAT(nd.create_at, "%M"), " ", YEAR(nd.create_at))
+                    END as label,
+                    COUNT(*) as count,
+                    m.MediaOutlet,
+                    nd.media_type_id,
+                    nd.publication_id,
+                    nd.sizeofArticle
+                ', [$timeframe, $timeframe])
+                ->whereRaw('FIND_IN_SET(?, nd.company) > 0', [$clientId]);
+        }
 
         // Apply date range filter if specified
         if ($from && $to) {
@@ -126,8 +156,13 @@ class Pro_Analytics_Model extends Model
         }
 
         // Include all non-aggregated columns in the GROUP BY clause
-        $query->groupBy('label', 'm.MediaOutlet', 'nd.media_type_id', 'nd.publication_id', 'nd.sizeofArticle')
-            ->orderBy('label'); // Changed to 'label' since 'nd.create_at' isn't aggregated
+        if ($timeframe === 'daily') {
+            $query->groupBy(DB::raw("DATE_FORMAT(nd.create_at, '%Y-%m-%d')"), 'm.MediaOutlet', 'nd.media_type_id', 'nd.publication_id', 'nd.sizeofArticle')
+                ->orderBy(DB::raw("DATE_FORMAT(nd.create_at, '%Y-%m-%d')"));
+        } else {
+            $query->groupBy('label', 'm.MediaOutlet', 'nd.media_type_id', 'nd.publication_id', 'nd.sizeofArticle')
+                ->orderBy('label');
+        }
 
         // Get the results
         $results = $query->get();
@@ -158,23 +193,38 @@ class Pro_Analytics_Model extends Model
     public function getMediaDataByTimeframeById($timeframe, $clientId, $from = null, $to = null)
     {
         // Initialize query builder
-        $query = DB::table('news_details as nd')
-            ->join('mediatype as md', 'md.gidMediaType', '=', 'nd.media_type_id')
-            ->selectRaw('
-                CASE 
-                    WHEN ? = "daily" THEN DATE_FORMAT(nd.create_at, "%W")
-                    WHEN ? = "weekly" THEN CONCAT("Week ", WEEK(nd.create_at))
-                    WHEN ? = "monthly" THEN DATE_FORMAT(nd.create_at, "%M")
-                END as label,
-                md.MediaType,
-                COUNT(*) as count,
-                SUM(nd.sizeofArticle * 3 * COALESCE(r.Rate, 0) * COALESCE(r.Circulation_Fig, 0)) as total_ave
-            ', [$timeframe, $timeframe, $timeframe])
-            ->leftJoin(DB::raw('(SELECT gidMediaType, gidMediaOutlet, Rate, Circulation_Fig FROM addrate) r'), function($join) {
-                $join->on('r.gidMediaType', '=', 'nd.media_type_id')
-                     ->on('r.gidMediaOutlet', '=', 'nd.publication_id');
-            })
-            ->whereRaw('FIND_IN_SET(?, nd.company) > 0', [$clientId]);
+        if ($timeframe === 'daily') {
+            $query = DB::table('news_details as nd')
+                ->join('mediatype as md', 'md.gidMediaType', '=', 'nd.media_type_id')
+                ->selectRaw('
+                    DATE_FORMAT(nd.create_at, "%Y-%m-%d") as label,
+                    md.MediaType,
+                    COUNT(*) as count,
+                    SUM(nd.sizeofArticle * 3 * COALESCE(r.Rate, 0) * COALESCE(r.Circulation_Fig, 0)) as total_ave
+                ')
+                ->leftJoin(DB::raw('(SELECT gidMediaType, gidMediaOutlet, Rate, Circulation_Fig FROM addrate) r'), function($join) {
+                    $join->on('r.gidMediaType', '=', 'nd.media_type_id')
+                         ->on('r.gidMediaOutlet', '=', 'nd.publication_id');
+                })
+                ->whereRaw('FIND_IN_SET(?, nd.company) > 0', [$clientId]);
+        } else {
+            $query = DB::table('news_details as nd')
+                ->join('mediatype as md', 'md.gidMediaType', '=', 'nd.media_type_id')
+                ->selectRaw('
+                    CASE 
+                        WHEN ? = "weekly" THEN CONCAT("Week-", WEEK(nd.create_at), " ", YEAR(nd.create_at))
+                        WHEN ? = "monthly" THEN CONCAT(DATE_FORMAT(nd.create_at, "%M"), " ", YEAR(nd.create_at))
+                    END as label,
+                    md.MediaType,
+                    COUNT(*) as count,
+                    SUM(nd.sizeofArticle * 3 * COALESCE(r.Rate, 0) * COALESCE(r.Circulation_Fig, 0)) as total_ave
+                ', [$timeframe, $timeframe])
+                ->leftJoin(DB::raw('(SELECT gidMediaType, gidMediaOutlet, Rate, Circulation_Fig FROM addrate) r'), function($join) {
+                    $join->on('r.gidMediaType', '=', 'nd.media_type_id')
+                         ->on('r.gidMediaOutlet', '=', 'nd.publication_id');
+                })
+                ->whereRaw('FIND_IN_SET(?, nd.company) > 0', [$clientId]);
+        }
     
         // Apply date range filter if specified
         if ($from && $to) {
@@ -194,8 +244,13 @@ class Pro_Analytics_Model extends Model
         }
     
         // Group by label and MediaType, and order by label
-        $query->groupBy('label', 'md.MediaType')
-              ->orderBy('label');
+        if ($timeframe === 'daily') {
+            $query->groupBy(DB::raw("DATE_FORMAT(nd.create_at, '%Y-%m-%d')"), 'md.MediaType')
+                  ->orderBy(DB::raw("DATE_FORMAT(nd.create_at, '%Y-%m-%d')"));
+        } else {
+            $query->groupBy('label', 'md.MediaType')
+                  ->orderBy('label');
+        }
     
         // Get the results
         $results = $query->get();
@@ -212,9 +267,9 @@ class Pro_Analytics_Model extends Model
         
             switch ($timeframe) {
                 case 'daily':
-                    $query->selectRaw("DATE_FORMAT(nd.create_at, '%W') as label")
-                        ->groupByRaw("e.Edition, label")
-                        ->orderBy('nd.create_at');
+                    $query->selectRaw("DATE_FORMAT(nd.create_at, '%Y-%m-%d') as label")
+                        ->groupByRaw("e.Edition, DATE_FORMAT(nd.create_at, '%Y-%m-%d')")
+                        ->orderBy(DB::raw("DATE_FORMAT(nd.create_at, '%Y-%m-%d')"));
                     if ($from && $to) {
                         $query->whereBetween(DB::raw('DATE(nd.create_at)'), [$from, $to]);
                     } else {
@@ -223,7 +278,7 @@ class Pro_Analytics_Model extends Model
                     break;
         
                 case 'weekly':
-                    $query->selectRaw("CONCAT('Week ', WEEK(nd.create_at)) as label")
+                    $query->selectRaw("CONCAT('Week-', WEEK(nd.create_at), ' ', YEAR(nd.create_at)) as label")
                         ->groupByRaw("e.Edition, label")
                         ->orderBy('nd.create_at');
                     if ($from && $to) {
@@ -234,7 +289,7 @@ class Pro_Analytics_Model extends Model
                     break;
         
                 case 'monthly':
-                    $query->selectRaw("DATE_FORMAT(nd.create_at, '%M') as label")
+                    $query->selectRaw("CONCAT(DATE_FORMAT(nd.create_at, '%M'), ' ', YEAR(nd.create_at)) as label")
                         ->groupByRaw("e.Edition, label")
                         ->orderBy('nd.create_at');
                     if ($from && $to) {
@@ -275,17 +330,23 @@ class Pro_Analytics_Model extends Model
         }
 
         public function getJournalistDataByTimeframeById($timeframe, $clientId, $from = null, $to = null) {
-            // Base query
-            $query = DB::table('news_details as nd')
-                ->selectRaw("COUNT(*) as count, DATE_FORMAT(nd.create_at, '%W') as label, nd.journalist_id, j.Journalist")
-                ->join('journalist as j', 'j.gidJournalist', '=', 'nd.journalist_id')
-                ->whereRaw('FIND_IN_SET(?, nd.company) > 0', [$clientId]);
+            // Base query - build conditionally based on timeframe
+            if ($timeframe === 'daily') {
+                $query = DB::table('news_details as nd')
+                    ->selectRaw("COUNT(*) as count, DATE_FORMAT(nd.create_at, '%Y-%m-%d') as label, nd.journalist_id, j.Journalist")
+                    ->join('journalist as j', 'j.gidJournalist', '=', 'nd.journalist_id')
+                    ->whereRaw('FIND_IN_SET(?, nd.company) > 0', [$clientId])
+                    ->groupBy(DB::raw("DATE_FORMAT(nd.create_at, '%Y-%m-%d')"), 'nd.journalist_id', 'j.Journalist')
+                    ->orderByRaw("DATE_FORMAT(nd.create_at, '%Y-%m-%d') ASC");
+            } else {
+                $query = DB::table('news_details as nd')
+                    ->selectRaw("COUNT(*) as count, nd.journalist_id, j.Journalist")
+                    ->join('journalist as j', 'j.gidJournalist', '=', 'nd.journalist_id')
+                    ->whereRaw('FIND_IN_SET(?, nd.company) > 0', [$clientId]);
+            }
         
             switch ($timeframe) {
                 case 'daily':
-                    $query->selectRaw("DATE_FORMAT(nd.create_at, '%W') as label")
-                        ->groupBy('label', 'nd.journalist_id', 'j.Journalist','nd.create_at')
-                        ->orderByRaw("DATE(nd.create_at) ASC"); // Use DATE(nd.create_at) for ordering
                     if ($from && $to) {
                         $query->whereBetween(DB::raw('DATE(nd.create_at)'), [$from, $to]);
                     } else {
@@ -294,9 +355,9 @@ class Pro_Analytics_Model extends Model
                     break;
         
                 case 'weekly':
-                    $query->selectRaw("CONCAT('Week ', WEEK(nd.create_at)) as label")
-                        ->groupBy('label', 'nd.journalist_id', 'j.Journalist', 'nd.create_at')
-                        ->orderByRaw("WEEK(nd.create_at) ASC"); // Use WEEK(nd.create_at) for ordering
+                    $query->selectRaw("CONCAT('Week-', WEEK(nd.create_at), ' ', YEAR(nd.create_at)) as label")
+                        ->groupBy('label', 'nd.journalist_id', 'j.Journalist')
+                        ->orderByRaw("WEEK(nd.create_at) ASC");
                     if ($from && $to) {
                         $query->whereBetween(DB::raw('DATE(nd.create_at)'), [$from, $to]);
                     } else {
@@ -305,9 +366,9 @@ class Pro_Analytics_Model extends Model
                     break;
         
                 case 'monthly':
-                    $query->selectRaw("DATE_FORMAT(nd.create_at, '%M') as label")
-                        ->groupBy('label', 'nd.journalist_id', 'j.Journalist', 'nd.create_at')
-                        ->orderByRaw("MONTH(nd.create_at) ASC"); // Use MONTH(nd.create_at) for ordering
+                    $query->selectRaw("CONCAT(DATE_FORMAT(nd.create_at, '%M'), ' ', YEAR(nd.create_at)) as label")
+                        ->groupBy('label', 'nd.journalist_id', 'j.Journalist')
+                        ->orderByRaw("MONTH(nd.create_at) ASC");
                     if ($from && $to) {
                         $query->whereBetween(DB::raw('DATE(nd.create_at)'), [$from, $to]);
                     } else {
@@ -349,22 +410,36 @@ class Pro_Analytics_Model extends Model
         public function getSizeDataById($timeframe, $clientId, $from = null, $to = null)
 {
     // Initialize query builder
-    $query = DB::table('news_details as nd')
-        ->selectRaw('
-            CASE 
-                WHEN ? = "daily" THEN DATE_FORMAT(nd.create_at, "%W")
-                WHEN ? = "weekly" THEN CONCAT("Week ", WEEK(nd.create_at))
-                WHEN ? = "monthly" THEN DATE_FORMAT(nd.create_at, "%M")
-            END as label,
-            category,
-            COUNT(*) as count,
-            SUM(nd.sizeofArticle * 3 * COALESCE(r.Rate, 0) * COALESCE(r.Circulation_Fig, 0)) as total_ave
-        ', [$timeframe, $timeframe, $timeframe])
-        ->leftJoin(DB::raw('(SELECT gidMediaType, gidMediaOutlet, Rate, Circulation_Fig FROM addrate) r'), function($join) {
-            $join->on('r.gidMediaType', '=', 'nd.media_type_id')
-                 ->on('r.gidMediaOutlet', '=', 'nd.publication_id');
-        })
-        ->whereRaw('FIND_IN_SET(?, nd.company) > 0', [$clientId]);
+    if ($timeframe === 'daily') {
+        $query = DB::table('news_details as nd')
+            ->selectRaw('
+                DATE_FORMAT(nd.create_at, "%Y-%m-%d") as label,
+                category,
+                COUNT(*) as count,
+                SUM(nd.sizeofArticle * 3 * COALESCE(r.Rate, 0) * COALESCE(r.Circulation_Fig, 0)) as total_ave
+            ')
+            ->leftJoin(DB::raw('(SELECT gidMediaType, gidMediaOutlet, Rate, Circulation_Fig FROM addrate) r'), function($join) {
+                $join->on('r.gidMediaType', '=', 'nd.media_type_id')
+                     ->on('r.gidMediaOutlet', '=', 'nd.publication_id');
+            })
+            ->whereRaw('FIND_IN_SET(?, nd.company) > 0', [$clientId]);
+    } else {
+        $query = DB::table('news_details as nd')
+            ->selectRaw('
+                CASE 
+                    WHEN ? = "weekly" THEN CONCAT("Week-", WEEK(nd.create_at), " ", YEAR(nd.create_at))
+                    WHEN ? = "monthly" THEN CONCAT(DATE_FORMAT(nd.create_at, "%M"), " ", YEAR(nd.create_at))
+                END as label,
+                category,
+                COUNT(*) as count,
+                SUM(nd.sizeofArticle * 3 * COALESCE(r.Rate, 0) * COALESCE(r.Circulation_Fig, 0)) as total_ave
+            ', [$timeframe, $timeframe])
+            ->leftJoin(DB::raw('(SELECT gidMediaType, gidMediaOutlet, Rate, Circulation_Fig FROM addrate) r'), function($join) {
+                $join->on('r.gidMediaType', '=', 'nd.media_type_id')
+                     ->on('r.gidMediaOutlet', '=', 'nd.publication_id');
+            })
+            ->whereRaw('FIND_IN_SET(?, nd.company) > 0', [$clientId]);
+    }
 
     // Apply date range filter if specified
     if ($from && $to) {
@@ -384,8 +459,13 @@ class Pro_Analytics_Model extends Model
     }
 
     // Group by label and category, and order by label
-    $query->groupBy('label', 'nd.category')
-          ->orderBy('label');
+    if ($timeframe === 'daily') {
+        $query->groupBy(DB::raw("DATE_FORMAT(nd.create_at, '%Y-%m-%d')"), 'nd.category')
+              ->orderBy(DB::raw("DATE_FORMAT(nd.create_at, '%Y-%m-%d')"));
+    } else {
+        $query->groupBy('label', 'nd.category')
+              ->orderBy('label');
+    }
 
     // Get the results
     $results = $query->get();

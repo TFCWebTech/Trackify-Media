@@ -26,8 +26,16 @@ class AddUserMail extends Mailable
 
     public function build()
     {
-        return $this->subject('Welcome to Trackify Media')
-                    ->view('emails.user_password_mail');
+        //return $this->subject('Welcome to Trackify Media')
+                    //->view('emails.user_password_mail');
+		//echo $this->clientId;die;
+		   return $this->subject('Welcome to Trackify Media')
+			   ->view('emails.user_password_mail')
+                    ->with([
+                        'clientId' => $this->clientId,
+                        'token' =>  $this->token,
+                     ]);
+		  
     }
     /**
      * Get the message envelope.

@@ -161,11 +161,12 @@
             </div>
             <div class="body-content">
                 <h4>{{ $get_client_data['client_name'] }}</h4>
-                @foreach ($get_news_details as $news)
+                @foreach ($get_news_details as $news2)
+                @foreach ($news2['news'] as $news)
                     <div id="clientnewsContent-{{ $news['news_details_id'] }}">
                         <div style="display:flex; justify-content: space-between; padding: 0 10px;">
                             <h3>
-                                <a href="{{ url('NewsLetter/DisplayNews/'.$news['news_details_id']) }}">{{ $news['head_line'] }}</a>
+                                <a href="{{ url('news-article/'.$news['news_details_id']) }}">{{ $news['head_line'] }}</a>
                             </h3>
                         </div>
                         <h5>Summary:</h5>
@@ -175,11 +176,11 @@
                             Journalist / Agency: <span style="color:blue;">{{ $news['Journalist'] ?: $news['Agency'] }}</span>,
                             Edition: <span style="color:blue;">{{ $news['Edition'] }}</span>,
                             Supplement: <span style="color:blue;">{{ $news['Supplement'] }}</span>,
-                            No of pages: <span style="color:blue;">{{ $news['page_count'] }}</span>,
-                            Circulation Figure:<span> </span>, qAVE(Rs.) :<span> </span>
+                            Page No: <span style="color:blue;">{{ $news['page_no'] }}</span>
                         </p>
                         <hr>
                     </div>
+                @endforeach
                 @endforeach
             </div>
             <div class="body-content">
@@ -192,7 +193,7 @@
                             <div id="competitornewsContent-{{ $news['news_details_id'] }}-{{ $compititor['competitor_id'] }}">
                                 <div style="display:flex; justify-content: space-between; padding: 0 10px;">
                                     <h5>
-                                        <a href="{{ url('NewsLetter/DisplayNews/'.$news['news_details_id']) }}">{{ $news['head_line'] }}</a>
+                                        <a href="{{ url('news-article/'.$news['news_details_id']) }}">{{ $news['head_line'] }}</a>
                                     </h5>
                                    
                                 </div>
@@ -203,8 +204,8 @@
                                     Journalist / Agency: <span style="color:blue;">{{ $news['Journalist'] ?: $news['Agency'] }}</span>,
                                     Edition: <span style="color:blue;">{{ $news['Edition'] }}</span>,
                                     Supplement: <span style="color:blue;">{{ $news['Supplement'] }}</span>,
-                                    No of pages: <span style="color:blue;">{{ $news['page_count'] }}</span>
-                                    , Circulation Figure:<span> </span>, qAVE(Rs.) :<span> </span>
+                                    Page No: <span style="color:blue;">{{ $news['page_no'] }}</span>
+                                   
                                 </p>
                                 <hr>
                             </div>
@@ -223,7 +224,7 @@
                             <div id="IndustrynewsContent-{{ $news['news_details_id'] }}-{{ $industry['Industry_id'] }}">
                                 <div style="display:flex; justify-content: space-between; padding: 0 10px;">
                                     <h5>
-                                        <a href="{{ url('NewsLetter/DisplayNews/' . $news['news_details_id']) }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}; font-family: {{ $get_client_details[0]['content_headline_font'] }}">{{ $news['head_line'] }}</a>
+                                        <a href="{{ url('news-article/' . $news['news_details_id']) }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}; font-family: {{ $get_client_details[0]['content_headline_font'] }}">{{ $news['head_line'] }}</a>
                                     </h5>
                                     
                                 </div>
@@ -236,8 +237,8 @@
                                     Journalist / Agency: <span style="color:blue;">{{ $news['Journalist'] }}</span>,
                                     Edition: <span style="color:blue;">{{ $news['Edition'] }}</span>,
                                     Supplement: <span style="color:blue;">{{ $news['Supplement'] }}</span>,
-                                    No of pages: <span style="color:blue;">{{ $news['page_count'] }}</span>
-                                    , Circulation Figure:<span> </span>, qAVE(Rs.) :<span> </span>
+                                    Page No: <span style="color:blue;">{{ $news['page_no'] }}</span>
+                                    
                                 </p>
                                 <hr>
                             </div>

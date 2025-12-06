@@ -41,7 +41,7 @@ label {
 </style>
 
 <script>
- function addKeywordInput() {
+ function addKeywordInput(existingKeyword = '') {
     var formGroup = document.createElement('div');
     formGroup.classList.add('form-group', 'keyword-group');
 
@@ -69,6 +69,7 @@ label {
     input.setAttribute('placeholder', 'Enter Keywords');
     input.setAttribute('name', 'Keywords[]');
     input.setAttribute('required', 'required');
+    input.value = existingKeyword; // Set the value if provided
 
     formGroup.appendChild(labelRow);
     formGroup.appendChild(input);
@@ -142,7 +143,7 @@ function addKeywordInput2() {
             <div class="col-md-12 text-right p-2">
             <div class="d-sm-flex align-items-center justify-content-between mb-4">
               <h1 class="h5 mb-0 text-gray-800 ">Manage Client</h1>
-                <button class="btn btn-primary" data-toggle="modal" data-target="#myModal">Add Client</button>
+                <button class="btn btn-primary" onclick="addClient()">Add Client</button>
             </div>
             </div>
         </div>
@@ -156,11 +157,11 @@ function addKeywordInput2() {
                     <th>Client Name</th>
                     <th>Keywords</th>
                     <th>Status</th>
-                    <th>Add User Email</th>
-                    <th>Add Competitor</th>
+                    <th>View User Email</th>
+                    <th>View Competitors</th>
                     <!-- <th>Created At</th> -->
                     <th> Email Template</th>
-                    <!-- <th>Action</th> -->
+                    <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -178,10 +179,17 @@ function addKeywordInput2() {
                     @else
                         <td>NA</td>
                     @endif
-                    <td class="text-center"><a class="btn btn-primary" onclick="addEmail('{{$values ->client_id }}')" > ADD</a></td>
-                    <td class="text-center"><a class="btn btn-primary" onclick="addCompetotor('{{$values ->client_id }}')" > ADD</a></td>
                     <td class="text-center">
-                      <a class="btn btn-primary" href="{{ route('addNewsTemplate', ['client_id' => $values->client_id]) }}"> ADD</a>
+    <a class="btn btn-primary" href="{{ route('view_user', ['id' => $values->client_id]) }}">VIEW USER</a>
+</td>
+                    <td class="text-center">
+    <a class="btn btn-primary" href="{{ route('user.viewClientsCompetitors', ['id' => $values->client_id]) }}">View Competitors</a>
+</td>
+                    <td class="text-center">
+                      <a class="btn btn-primary" href="{{ route('addNewsTemplate', ['client_id' => $values->client_id]) }}"> Manage Template</a>
+                    </td>
+					<td>
+                         <i class="fa fa-edit text-primary" onclick="editClient({{ json_encode($values) }})"></i>
                     </td>
                 </tr>
                 @endforeach
@@ -198,14 +206,14 @@ function addKeywordInput2() {
     <div class="modal-content">
       <!-- Modal Header -->
       <div class="modal-header">
-        <h4 class="modal-title">Add Client</h4>
+        <h4 class="modal-title" id="modal-title">Add Client</h4>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <!-- Modal Body -->
       <div class="modal-body">
-            <form onsubmit="return validateForm()" action="{{route('client.store')}}" method="post">
+            <form id="clientsForm" onsubmit="return validateForm()" action="{{route('client.store')}}" method="post">
             @csrf
              <div class="row">
                 <div class="col-md-12">
@@ -224,6 +232,9 @@ function addKeywordInput2() {
                     <label class="px-1 font-weight-bold" for="Sector">Sector</label>
                     <select name="Sector" class="form-control">
                         <option >Select</option>
+						@foreach($get_sector as $sector)
+                                                    <option value="{{$sector -> id}}">{{$sector -> sector_name }}</option>
+                                                @endforeach
                     </select>
                 </div>
             
@@ -333,8 +344,43 @@ function addKeywordInput2() {
 </script>
 
 <script>
+	
+	function editClient(client) {
+		$('#modal-title').text('Update Client');
+		$('#clientsForm').attr('action', `/NRS/client/update/${client.client_id}`);
+
+		// Populate the form fields with the reporter data
+		$('input[name="client_name"]').val(client.client_name);
+		$('select[name="is_active"]').val(client.cilent_status);
+		$('select[name="Sector"]').val(client.sector_id);
+		// Populate existing keywords
+		const additionalKeywordsDiv = $('#additionalKeywords');
+		additionalKeywordsDiv.empty(); // Clear any existing keyword inputs
+		
+		if (client.client_keywords != '') {
+			let separatedArray = client.client_keywords.split(',');
+			separatedArray.forEach(keyword => {
+				addKeywordInput(keyword);
+			});
+		} else {
+			// Add one empty input field if no keywords exist
+			addKeywordInput();
+		}
+		
+		// Show the modal
+		$('#myModal').modal('show');
+	  }
+	
+	function addClient() {
+		$('#modal-title').text('Add Client');
+		//$('#clientsForm').attr('action', '{{ route('reporter.store') }}');
+		$('#clientsForm').attr('action', '{{ route('client.store') }}');
+		$('#myModal').modal('show');
+	  }
+
     function addCompetotor(client) {
     $('#client_id').val(client);
+
     $('#addCompitetor').modal('show'); // Use Bootstrap's modal method
 }
 

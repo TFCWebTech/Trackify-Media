@@ -111,6 +111,7 @@ label {
                 <thead>
                 <tr>
                     <th>Sr. No</th>
+                    <th>Media Type</th>
                     <th>Publication Name</th>
                     <th>Edition</th>
                     <th>Supplement</th>
@@ -130,6 +131,7 @@ label {
                            ?>
                 <tr>
                     <td>{{$i}}</td>
+                    <td>{{$add_rate_data -> media_name}}</td>
                     <td>{{$add_rate_data -> publication}}</td>
                     <td>{{$add_rate_data -> edition}}</td>
                     <td>{{$add_rate_data -> supplement}}</td>

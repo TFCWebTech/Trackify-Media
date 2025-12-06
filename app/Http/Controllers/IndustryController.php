@@ -80,30 +80,36 @@ class IndustryController extends Controller
 
     public function update(Request $request, $id)
 {
-    // Validate the form data
+    
     $request->validate([
         'Industry_name' => 'required|string|max:255',
         'status' => 'required|boolean',
+        'Keywords' => 'nullable|array', 
+        'Keywords.*' => 'string|max:255', 
     ]);
 
     $client_names = $request->input('client_name');
     $competitor_names = $request->input('compitertors_name');
+    $keywords = $request->input('Keywords');
 
-    // Convert client and competitor names arrays to comma-separated strings
+ 
     $client_id_string = $client_names ? implode(',', $client_names) : null;
     $competitor_id_string = $competitor_names ? implode(',', $competitor_names) : null;
 
     try {
-        // Find the industry by ID
+    
         $industry = Industry_model::findOrFail($id);
 
-        // Update industry properties
+    
         $industry->Industry_name = $request->Industry_name;
         $industry->client_id = $client_id_string;
         $industry->competitor_id = $competitor_id_string;
         $industry->is_active = $request->status;
 
-        // Save the updated industry
+     
+        $industry->Keywords = $keywords ? implode(',', $keywords) : null;
+
+      
         $industry->save();
 
         return redirect()->back()->with('success', 'Industry updated successfully!');

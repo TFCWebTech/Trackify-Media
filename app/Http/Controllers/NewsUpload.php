@@ -100,8 +100,12 @@ class NewsUpload extends Controller
         $matched_keywords = [];
         foreach ($keywords as $keyword) {
             $keyword = trim($keyword); // Trim each individual keyword
-            if (stripos($description, $keyword) !== false) { // Case-insensitive comparison
-                // If the keyword is found in the description, add it to the matched keywords array
+            
+            // Create a regex pattern to match whole words only
+            $pattern = '/\b' . preg_quote($keyword, '/') . '\b/i'; // \b ensures word boundaries
+
+            if (preg_match($pattern, $description)) { // Case-insensitive comparison
+                // If the keyword is found as a whole word in the description, add it to the matched keywords array
                 $matched_keywords[] = $keyword;
             }
         }
@@ -146,7 +150,33 @@ class NewsUpload extends Controller
                 }
             }
         }
-    
+    	 $competitors = DB::table('competitor')->get(); // You could optimize with pluck() or other methods for large sets
+
+        foreach ($competitors as $competitor) {
+            // Check if competitor_keywords exists and is not null
+            if (!empty($competitor->Keywords)) {
+            
+                $keywords = array_map('strtolower', array_map('trim', explode(',', $competitor->Keywords)));
+                $matches = array_intersect($keywords, $keywordsToMatch);
+                //print_r($competitor->client_id);die;
+                if (!empty($matches)) {
+                    $matchingClients[] = $competitor->client_id;
+                }
+            }
+        }
+        $industrys = DB::table('industry')->get(); // You could optimize with pluck() or other methods for large sets
+
+        foreach ($industrys as $industry) {
+            // Check if competitor_keywords exists and is not null
+            if (!empty($industry->Keywords)) {
+                $keywords = array_map('strtolower', array_map('trim', explode(',', $competitor->Keywords)));
+                $matches = array_intersect($keywords, $keywordsToMatch);
+                //print_r($matches);die;
+                if (!empty($matches)) {
+                    $matchingClients[] =$industry->client_id;
+                }
+            }
+        }
         // Return matching client IDs as a comma-separated string
         return response()->json($matchingClients);
     }
@@ -257,15 +287,14 @@ class NewsUpload extends Controller
 
         return $response->json();
     }
-
-    public function store(Request $request)
+	
+public function store(Request $request)
 {
     // Validate the form data
     $request->validate([
         'media_type' => 'required|string|max:255',
         'publication' => 'required|string|max:45',
         'edition' => 'required|string|max:45',
-        'SupplementId' => 'required|string|max:45',
         'journalist_name' => 'nullable|string|max:500',
         'author' => [
             'nullable',
@@ -278,7 +307,188 @@ class NewsUpload extends Controller
             },
         ],
         'NewsPosition' => 'required|string|max:45',
-        'NewsCity' => 'required|string|max:45',
+        //'NewsCity' => 'required|string|max:45',
+        'headline' => 'required|string|max:255',
+        'Summary' => 'required|string|max:500',
+    ]);
+
+    // Gather inputs
+    $index_no = $request->input('index');
+    $media_type = $request->input('media_type');
+    $publication = $request->input('publication');
+    $edition = $request->input('edition');
+    $SupplementId = $request->input('SupplementId');
+    $journalist_name = $request->input('journalist_name');
+    $author = $request->input('author');
+    $NewsPosition = $request->input('NewsPosition');
+    $NewsCity = $request->input('NewsCity') ?: '';  // Default to empty string if not provided
+    $headline = $request->input('headline');
+    $Summary = $request->input('Summary');
+    $website_url = $request->input('website_url');
+    
+    $allKeys = [];
+    $allClients = [];
+    $totalSize = 0;
+    $category = "";
+
+    // Process inputs related to size and categories
+    for ($i = 1; $i <= $index_no; $i++) {
+        $getKeys = $request->input('getKeys' . $i);
+        $getClient = $request->input('getclient' . $i);
+
+        $pageNo = $request->input('page_no' . $i);
+        $height = $request->input('height' . $i);
+        $width = $request->input('width' . $i);
+
+        $size = $height * $width;
+
+        if ($pageNo == 1) {
+            $totalSize = $size;
+        } else {
+            $totalSize += $size;
+        }
+
+        // Set category based on total size
+        if ($totalSize > 1000) {
+            $category = 'Large';
+        } elseif ($totalSize >= 500 && $totalSize <= 1000) {
+            $category = 'Medium';
+        } else {
+            $category = 'Small';
+        }
+
+        // Merge keys and clients
+        if (is_array($getKeys)) {
+            $allKeys = array_merge($allKeys, $getKeys);
+        }
+
+        if (is_array($getClient)) {
+            $allClients = array_merge($allClients, $getClient);
+        }
+    }
+
+    // Ensure keys and clients are unique
+    $allKeys = array_unique($allKeys);
+    $allClients = array_unique($allClients);
+
+    $getKeysString = implode(',', $allKeys);
+    $getClientsString = implode(',', $allClients);    
+    
+    // Start database transaction
+    DB::beginTransaction();
+
+    try {
+        // Insert into news_upload table
+        $newsUpload = NewsUpload_Model::create([
+            'media_type_id' => $media_type,
+            'publication_id' => $publication,
+            'edition_id' => $edition,
+            'supplement_id' => $SupplementId,
+            'journalist_id' => $journalist_name,
+            'author' => $author,
+            'news_position' => $NewsPosition,
+            'news_city_id' => $NewsCity,
+            'head_line' => $headline,
+            'summary' => $Summary,
+            'is_send' => 0,
+            'keywords' => $getKeysString,
+            'company' => $getClientsString,
+            'sizeofArticle' => $totalSize,
+            'category' => $category,
+            'website_url' => $website_url
+        ]);
+
+        // Get news details id
+        $newsDetailsId = $newsUpload->news_details_id;
+
+        if ($newsDetailsId) {
+            // Insert into client_competetor_industry table
+            for ($i = 1; $i <= $index_no; $i++) {
+                $get_company_data_id = array_filter(explode(',', $request->input('company' . $i)));
+                $get_competitor_data_id = array_filter(explode(',', $request->input('competitor' . $i)));
+                $get_industry_data_id = array_filter(explode(',', $request->input('industry' . $i)));
+        
+                $max_length = max(count($get_company_data_id), count($get_competitor_data_id), count($get_industry_data_id));
+        
+                for ($j = 0; $j < $max_length; $j++) {
+                    // Log insertion data for debugging
+                    Log::info('Inserting data into client_competetor_industry', [
+                        'news_details_id' => $newsDetailsId,
+                        'company_id' => $get_company_data_id[$j] ?? null,
+                        'competitor_id' => $get_competitor_data_id[$j] ?? null,
+                        'Industry_id' => $get_industry_data_id[$j] ?? null,
+                    ]);
+        
+                    client_competetor_industry::create([
+                        'news_details_id' => $newsDetailsId,
+                        'company_id' => $get_company_data_id[$j] ?? null,
+                        'competitor_id' => $get_competitor_data_id[$j] ?? null,
+                        'Industry_id' => $get_industry_data_id[$j] ?? null,
+                    ]);
+                }
+            }
+
+            // Insert into news_artical_model table
+            for ($i = 1; $i <= $index_no; $i++) {
+                $editor = $request->input('editor' . $i);
+                $pageNo = $request->input('page_no' . $i);
+                $image_id = $request->input('image_id' . $i);
+                $height = $request->input('height' . $i);
+                $width = $request->input('width' . $i);
+
+                news_artical_model::create([
+                    'news_details_id' => $newsDetailsId,
+                    'news_artical' => $editor,
+                    'page_no' => $pageNo,
+                    'artical_images_id' => $image_id,
+                    'image_height' => $height,
+                    'image_width' => $width,
+                    'create_at' => now()
+                ]);
+            }
+
+            // Commit the transaction
+            DB::commit();
+
+            // Success message
+            return redirect()->back()->with('success', 'News uploaded successfully.');
+        } else {
+            // Rollback if no newsDetailsId
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Failed to upload news.');
+        }
+    } catch (\Exception $e) {
+        // Rollback in case of any exception
+        DB::rollBack();
+
+        // Log the exception
+        Log::error('Error uploading news: ' . $e->getMessage());
+
+        // Set error message with exception details
+        return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
+    }
+}
+
+    public function store10012025(Request $request)
+{
+    // Validate the form data
+    $request->validate([
+        'media_type' => 'required|string|max:255',
+        'publication' => 'required|string|max:45',
+        'edition' => 'required|string|max:45',
+        'journalist_name' => 'nullable|string|max:500',
+        'author' => [
+            'nullable',
+            'string',
+            'max:500',
+            function ($attribute, $value, $fail) use ($request) {
+                if (empty($request->input('journalist_name')) && empty($value)) {
+                    $fail('The author field is required when journalist name is not provided.');
+                }
+            },
+        ],
+        'NewsPosition' => 'required|string|max:45',
+        //'NewsCity' => 'required|string|max:45',
         'headline' => 'required|string|max:255',
         'Summary' => 'required|string|max:500',
     ]);
@@ -292,7 +502,11 @@ class NewsUpload extends Controller
     $journalist_name = $request->input('journalist_name');
     $author = $request->input('author');
     $NewsPosition = $request->input('NewsPosition');
-    $NewsCity = $request->input('NewsCity');
+    if (!empty($request->input('NewsCity'))) {
+        $NewsCity = $request->input('NewsCity');  // If 'NewsCity' input is present, assign its value
+    } else {
+        $NewsCity = "";  // If 'NewsCity' input is not present, assign an empty string
+    }
     $headline = $request->input('headline');
     $Summary = $request->input('Summary');
     $website_url = $request->input('website_url');
@@ -300,7 +514,7 @@ class NewsUpload extends Controller
     $allKeys = [];
     $allClients = [];
     $totalSize = 0;
-
+	$category="";
     for ($i = 1; $i <= $index_no; $i++) {
         $getKeys = $request->input('getKeys' . $i);
         $getClient = $request->input('getclient' . $i);

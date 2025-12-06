@@ -28,13 +28,15 @@ return [
     |
     */
 
-  'disks' => [
-    'public' => [
-        'driver' => 'local',
-        'root' => storage_path('app/public'),
-        'url' => env('APP_URL') . '/storage',
-        'visibility' => 'public',
-    ],
+    'disks' => [
+
+       'public' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public'),
+            'url' => env('APP_URL') . '/storage',
+            'visibility' => 'public',
+        ],
+
 
         'public' => [
             'driver' => 'local',
@@ -55,14 +57,12 @@ return [
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
             'throw' => false,
         ],
-
-        'uploads' => [
+'uploads' => [
             'driver' => 'local',
             'root' => storage_path('app/public/uploads'), // Correct path for the root
-            'url' => env('APP_URL') . '/storage/uploads', // Correct URL path
+            'url' => env('APP_URL') . '/storage/app/public/uploads', // Correct URL path
             'visibility' => 'public',
         ],
-
     ],
 
     /*
