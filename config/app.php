@@ -52,7 +52,7 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://localhost/trackify-media'),
+    'url' => env('APP_URL', 'http://localhost/Trackify-Media'),
 
     /*
     |--------------------------------------------------------------------------

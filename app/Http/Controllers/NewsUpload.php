@@ -181,43 +181,92 @@ class NewsUpload extends Controller
         return response()->json($matchingClients);
     }
 
+    // public function getCompitetorsFromClients(Request $request)
+    // {
+    //     // Get client IDs from POST request
+    //      $clientsToMatch = $request->input('clientsData');
+
+    //     // Ensure clientsToMatch is an array
+    //     if (!is_array($clientsToMatch)) {
+    //         $clientsToMatch = explode(',', $clientsToMatch);
+    //     }
+
+    //     $allData = []; // Modified to hold both competitor and industry data
+
+    //     foreach ($clientsToMatch as $clientID) {
+    //         $clientID = trim($clientID); // Ensure there are no surrounding spaces
+
+    //         $competitorsData = DB::table('competitor')
+    //         ->join('client', 'competitor.client_id', '=', 'client.client_id')
+    //         ->select('competitor.*', 'client.client_name')
+    //         ->whereIn('competitor.client_id', $clientsToMatch)
+    //         ->get();
+    //         $allIndustriesData = Industry_model::whereRaw('FIND_IN_SET(?, client_id)', [$clientID])->get();
+
+    //         foreach ($competitorsData as $competitor) {
+    //             foreach ($allIndustriesData as $industry) {
+    //                 $allData[] = [
+    //                     'competitor_name' => $competitor->Competitor_name,
+    //                     'competitor_id' => $competitor->competitor_id,
+    //                     'client_name' => $competitor->client_name,
+    //                     'client_id' => $competitor->client_id,
+    //                     'industry_id' => $industry->Industry_id,
+    //                     'industry_name' => $industry->Industry_name,
+    //                 ];
+    //             }
+    //         }
+    //     }
+
+    //     // Return JSON response
+    //     return response()->json($allData);
+    // }
+
     public function getCompitetorsFromClients(Request $request)
     {
-        // Get client IDs from POST request
-         $clientsToMatch = $request->input('clientsData');
+        // Get client IDs from POST
+        $clientsToMatch = $request->input('clientsData');
 
-        // Ensure clientsToMatch is an array
         if (!is_array($clientsToMatch)) {
             $clientsToMatch = explode(',', $clientsToMatch);
         }
 
-        $allData = []; // Modified to hold both competitor and industry data
+        $clientsToMatch = array_map('trim', $clientsToMatch);
+
+        $allData = [];
 
         foreach ($clientsToMatch as $clientID) {
-            $clientID = trim($clientID); // Ensure there are no surrounding spaces
 
-            $competitorsData = DB::table('competitor')
-            ->join('client', 'competitor.client_id', '=', 'client.client_id')
-            ->select('competitor.*', 'client.client_name')
-            ->whereIn('competitor.client_id', $clientsToMatch)
-            ->get();
-            $allIndustriesData = Industry_model::whereRaw('FIND_IN_SET(?, client_id)', [$clientID])->get();
+            // Get competitors for this client only
+            $competitors = DB::table('competitor')
+                ->join('client', 'competitor.client_id', '=', 'client.client_id')
+                ->select('competitor.*', 'client.client_name')
+                ->where('competitor.client_id', $clientID)
+                ->get();
 
-            foreach ($competitorsData as $competitor) {
-                foreach ($allIndustriesData as $industry) {
+            // ❌ If no competitors → completely skip this client
+            if ($competitors->isEmpty()) {
+                continue;
+            }
+
+            // Get industries for this client only
+            $industries = Industry_model::whereRaw('FIND_IN_SET(?, client_id)', [$clientID])
+                ->get();
+
+            // Combine competitors × industries
+            foreach ($competitors as $c) {
+                foreach ($industries as $i) {
                     $allData[] = [
-                        'competitor_name' => $competitor->Competitor_name,
-                        'competitor_id' => $competitor->competitor_id,
-                        'client_name' => $competitor->client_name,
-                        'client_id' => $competitor->client_id,
-                        'industry_id' => $industry->Industry_id,
-                        'industry_name' => $industry->Industry_name,
+                        'competitor_name' => $c->Competitor_name,
+                        'competitor_id'   => $c->competitor_id,
+                        'client_name'     => $c->client_name,
+                        'client_id'       => $c->client_id,
+                        'industry_id'     => $i->Industry_id,
+                        'industry_name'   => $i->Industry_name,
                     ];
                 }
             }
         }
 
-        // Return JSON response
         return response()->json($allData);
     }
 
