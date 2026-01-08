@@ -198,7 +198,7 @@ margin-bottom: 5px !important;
                                     <td>
                                         <p><?php// echo $detail['quick_links_name']; ?></p>
                                     </td>
-                                    <td><a href="">Login</a></td>
+                                    <td><a href="{{ rtrim(config('app.url'), '/') }}/admin-login">Login</a></td>
                                 </tr>
                             <?php //elseif ($detail['quick_links_position'] == '2'): ?>
                                 <tr style="background-color: #DCD5D5; color: #ffffff;">

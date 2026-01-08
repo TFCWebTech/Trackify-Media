@@ -397,7 +397,7 @@ th {
                 </tr>
                 <tr style="background-color: #DCD5D5; color: #ffffff;">
                     <td></td>
-                    <td><a href="">Login</a></td>
+                    <td><a href="{{ rtrim(config('app.url'), '/') }}/admin-login">Login</a></td>
                 </tr>
                 <tr style="background-color: #DCD5D5; color: #ffffff;"></tr>
                 <tr style="background-color: #DCD5D5; color: #ffffff;">

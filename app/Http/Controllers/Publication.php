@@ -36,7 +36,8 @@ class Publication extends Controller
             'publicationType' => 'required|string|max:45',
             'publication_language' => 'required|string|max:45',
             'master_head' => 'required|string|max:500',
-            'Priority' => 'required|in:10,3', // Ensure Priority is either 10 or 3
+            // 'Priority' => 'required|in:10,3',
+            'Priority' => 'required',
             'Short_name' => 'required|string|max:45',
             'status' => 'required|boolean',
         ]);
@@ -77,7 +78,8 @@ class Publication extends Controller
             'publicationType' => 'required|string|max:45',
             'publication_language' => 'required|string|max:45',
             'master_head' => 'required|string|max:500',
-            'Priority' => 'required|in:10,3', // Ensure Priority is either 10 or 3
+            // 'Priority' => 'required|in:10,3',
+            'Priority' => 'required',
             'Short_name' => 'required|string|max:45',
             'status' => 'required|boolean',
         ]);

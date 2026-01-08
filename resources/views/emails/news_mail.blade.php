@@ -151,7 +151,7 @@
                     </tr>
                     <tr>
                         <td> </td>
-                        <td><a href="">Login</a></td>
+                        <td><a href="{{ rtrim(config('app.url'), '/') }}/admin-login">Login</a></td>
                     </tr>
                     <tr>
                         <td></td>

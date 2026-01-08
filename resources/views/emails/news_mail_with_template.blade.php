@@ -101,7 +101,7 @@
                                 @endphp
                                 <tr style="background-color: #DCD5D5; color: #ffffff;">
                                     <td><p>{{ $detail['quick_links_name'] }} ({{ $totalNewsCount }})</p></td>
-                                    <td><a href="#">Login</a></td>
+                                    <td><a href="{{ rtrim(config('app.url'), '/') }}/admin-login">Login</a></td>
                                 </tr>
                             @elseif ($detail['quick_links_position'] == '2')
                                 @php
