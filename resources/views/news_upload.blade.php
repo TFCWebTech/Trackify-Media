@@ -439,7 +439,7 @@ $(document).ready(function()
                         if (response && response.responses && response.responses.length > 0) {
                             if (response.responses[0].textAnnotations && response.responses[0].textAnnotations.length > 0) {
                                 var description = response.responses[0].textAnnotations[0].description;
-                                console.log(description);
+                                // console.log(description);
                                 var page_no = document.getElementById('page_no');
                                 page_no.style.display = 'block';
                                 var textareaId = 'editor_' + index; // Unique ID for textarea
@@ -449,6 +449,9 @@ $(document).ready(function()
                                 data += '<input type="text" name="height' + index + '" class="form-control" value="' + height + '" hidden>';
                                 data += '<input type="text" name="width' + index + '" class="form-control" value="' + width + '" hidden>';
                                 data += '<input type="text" name="image_id' + index + '" class="form-control" value="' + imageId + '" hidden>';
+                                data += '<input type="text" id="company' + index + '" name="company' + index + '" value="" hidden>';
+                                data += '<input type="text" id="competitor' + index + '" name="competitor' + index + '" value="" hidden>';
+                                data += '<input type="text" id="industry' + index + '" name="industry' + index + '" value="" hidden>';
                                 data += '<textarea class="form-control" name="editor' + index + '" id="getNews' + editorId + '"></textarea>';
                                 data += '</div></div>';
                                 data += '<div class="col-md-12" id="keyword_container_' + index + '"></div>'; // Placeholder for keywords
@@ -617,7 +620,7 @@ function getKeywords(textareaId) {
             console.log("Response:", response); // Log the response object to the console
             try {
                 var keywords = response; // Assuming response is already an array
-                console.log("Parsed Keywords:", keywords);
+                // console.log("Parsed Keywords:", keywords);
 
                 if (!Array.isArray(getKeywords)) {
                     console.error("getKeywords is not an array:", getKeywords);
@@ -626,7 +629,7 @@ function getKeywords(textareaId) {
 
                 if (keywords.length > 0) {
                     var f_keys = keywords.map(keyword => keyword.trim());
-                    console.log("Formatted Keywords:", f_keys);
+                    // console.log("Formatted Keywords:", f_keys);
 
                     let selectOptions = '';
 
@@ -652,13 +655,13 @@ function getKeywords(textareaId) {
                     keywordData += '</div>';
 
                     // Log HTML to check if it is correctly formed
-                    console.log("Generated HTML:", keywordData);
+                    // console.log("Generated HTML:", keywordData);
 
                     // Append the keyword data to the placeholder container
                     $('#keyword_container_' + index).html(keywordData);
 
                     // Verify if the container is correctly updated
-                    console.log("Container HTML:", $('#keyword_container_' + index).html());
+                    // console.log("Container HTML:", $('#keyword_container_' + index).html());
 
                     // Reinitialize Select2 on the newly added select element
                     $('#getKeys' + index).select2();
@@ -684,149 +687,242 @@ function getKeywords(textareaId) {
 
 
 function sendKeywordData(index, selectedKeywords) {
-    console.log('Selected Keywords:', selectedKeywords);
+    // console.log('Selected Keywords:', selectedKeywords);
 
     // Create a comma-separated string of selected keywords
     var keywordData = selectedKeywords.join(',');
-    console.log('Keyword Data:', keywordData);
-    const clients = @json($get_clients);
-    // AJAX request
+    // console.log('Keyword Data:', keywordData);
+    
+    // AJAX request to get matching records
     $.ajax({
         type: 'POST',
-        url: "{{ route('newsUpload.getClientsFromKeywords') }}", // Use Laravel route helper
+        url: "{{ route('newsUpload.getMatchingRecordsFromKeywords') }}", // Use new route
         data: {
             keywordData: keywordData,
             _token: '{{ csrf_token() }}' // Include CSRF token for security
         },
         success: function(response) {
-        console.log('Data sent successfully:', response);
+            // console.log('Matching Records:', response);
 
-        // Convert the response into an array of client IDs
-        let clientIDs = response;
-
-        let selectOptions = '';
-
-        // Iterate through the list of all clients using the JavaScript object
-        clients.forEach(client => {
-            let clientId = client.client_id;
-            let clientName = client.client_name;
-			 if (clientName !== null && clientName !== '') {
-            // Check if the clientId is in the clientIDs array
-            if (clientIDs.includes(clientId)) {
-                selectOptions += `<option value="${clientId}" selected>${clientName}</option>`;
-            } else {
-                selectOptions += `<option value="${clientId}">${clientName}</option>`;
+            // Process Clients
+            let clientSelectOptions = '';
+            let clientIDs = [];
+            if (response.clients && response.clients.length > 0) {
+                response.clients.forEach(client => {
+                    clientIDs.push(client.client_id);
+                    if (client.client_name !== null && client.client_name !== '') {
+                        clientSelectOptions += `<option value="${client.client_id}" selected>${client.client_name}</option>`;
+                    }
+                });
             }
-		}
-        });
 
-        // Construct the HTML for the select element
-        let selectHTML = '<div class="row">';
-        selectHTML += '<div class="col-md-12">';
-        selectHTML += '<label> Clients </label>';
-        selectHTML += '<select class="js-example-basic-multiple form-control" name="getclient' + index + '[]" id="getclient' + index + '" multiple="multiple">';
-        selectHTML += '<option disabled>Select</option>';
-        selectHTML += selectOptions; // Add select options here
-        selectHTML += '</select>';
-        selectHTML += '</div>';
-        selectHTML += '</div>';
-
-        // Append the select element to the placeholder container
-        $('#client_container_' + index).html(selectHTML);
-
-        // Reinitialize Select2 on the newly added select element
-        $('#getclient' + index).select2();
-        $('#getclient' + index).on('change', function() {
-            let selectedClients = $(this).val(); // Get all selected clients
-            sendClientData(index, selectedClients);
-        });
-
-        // Trigger change event programmatically to call sendClientData immediately
-        $('#getclient' + index).trigger('change');
-    },
-        error: function(xhr, status, error) {
-            console.error('Error sending data:', status, error);
-        }
-    });
-}
-
-function sendClientData(index, selectedClients) {
-    console.log('client name ', selectedClients);
-    
-    var clientsData = selectedClients.join(',');
-    console.log('client new data= ', clientsData);
-
-    $.ajax({
-        type: 'POST',
-        url: "{{ route('newsUpload.getCompitetorsFromClients') }}", // Laravel route
-        data: {
-            clientsData: clientsData,
-            _token: '{{ csrf_token() }}' // Include CSRF token for security
-        },
-        success: function(response) {
-            // Assuming the response is JSON
-            let data = response;
-            console.log('Data competitor successfully:', data);
-            
-            // Initialize the HTML string
-            let getComp = '<div class="row">';
-            let displayedClients = new Set(); // Set to keep track of displayed client names
-            $('#company' + index).val('');
-            $('#competitor' + index).val('');
-            $('#industry' + index).val('');
-
-            data.forEach(function(item, i) { // Using a different variable for the inner index
-                if (!displayedClients.has(item.client_name)) {
-                    displayedClients.add(item.client_name); // Add client name to the set
-
-                    getComp += '<div class="col-md-12">';
-                    getComp += '<label> Client </label> <br>';
-                    getComp += '<input name="get_company_data_id' + i + '" id="get_company_id' + i + '" value="' + item.client_id + '" disabled hidden> ';
-                    getComp += '<input name="get_company_data' + i + '" id="get_company' + i + '" value="' + item.client_name + '" disabled>';
-                    getComp += '</div>';
+            // Get all clients for comparison (to show non-matching ones as unselected)
+            const clients = @json($get_clients);
+            clients.forEach(client => {
+                if (client.client_name !== null && client.client_name !== '') {
+                    if (!clientIDs.includes(client.client_id)) {
+                        clientSelectOptions += `<option value="${client.client_id}">${client.client_name}</option>`;
+                    }
                 }
-
-                getComp += '<div class="col-md-6">';
-                getComp += '<label> Competitors </label>';
-                getComp += '<input name="getcompetitor_data_id' + i + '" id="getcompetitor_id' + i + '" value="' + item.competitor_id + '" disabled hidden> ';
-                getComp += '<input name="getcompetitor_data' + i + '" id="getcompetitor' + i + '" value="' + item.competitor_name + '" disabled>';
-                getComp += '</div>';
-                getComp += '<div class="col-md-6">';
-                getComp += '<label> Industry </label>';
-                getComp += '<input name="getIndustry_data_id' + i + '" id="getIndustry_id' + i + '" value="' + item.industry_id + '" disabled hidden> ';
-                getComp += '<input name="getIndustry_data' + i + '" id="getIndustry' + i + '" value="' + item.industry_name + '" disabled>';
-                getComp += '</div>';
-
-                // Update input fields
-                var inputField = $('#competitor' + index);
-                var currentValue = inputField.val();
-                var newValue = item.competitor_id;
-
-                inputField.val(currentValue ? currentValue + ', ' + newValue : newValue);
-
-                var inputIndField = $('#industry' + index);
-                var currentIndValue = inputIndField.val();
-                var newIndValue = item.industry_id;
-
-                inputIndField.val(currentIndValue ? currentIndValue + ', ' + newIndValue : newIndValue);
-
-                var inputCompField = $('#company' + index);
-                var currentComValue = inputCompField.val();
-                var newComValue = item.client_id;
-
-                inputCompField.val(currentComValue ? currentComValue + ', ' + newComValue : newComValue);
             });
 
-            getComp += '</div>';
+            // Construct the HTML for Clients select element
+            let clientSelectHTML = '<div class="row">';
+            clientSelectHTML += '<div class="col-md-12">';
+            clientSelectHTML += '<label> Clients (Matching Keywords) </label>';
+            clientSelectHTML += '<select class="js-example-basic-multiple form-control" name="getclient' + index + '[]" id="getclient' + index + '" multiple="multiple">';
+            clientSelectHTML += '<option disabled>Select</option>';
+            clientSelectHTML += clientSelectOptions;
+            clientSelectHTML += '</select>';
+            clientSelectHTML += '</div>';
+            clientSelectHTML += '</div>';
 
-            // Append the generated HTML to the placeholder container
-            $('#getCompData' + index).html(getComp);
+            // Process Competitors - Create select dropdown
+            let competitorSelectOptions = '';
+            let competitorIds = [];
+            let competitorClientIds = [];
+            if (response.competitors && response.competitors.length > 0) {
+                response.competitors.forEach(competitor => {
+                    competitorIds.push(competitor.competitor_id);
+                    if (competitor.client_id && !competitorClientIds.includes(competitor.client_id)) {
+                        competitorClientIds.push(competitor.client_id);
+                    }
+                    // Create option with competitor name only
+                    let displayName = competitor.competitor_name || '';
+                    competitorSelectOptions += `<option value="${competitor.competitor_id}" selected>${displayName}</option>`;
+                });
+            }
+
+            // Get all competitors for comparison (to show non-matching ones as unselected)
+            const competitors = @json($get_competitors);
+            if (competitors && competitors.length > 0) {
+                competitors.forEach(competitor => {
+                    if (!competitorIds.includes(competitor.competitor_id)) {
+                        let displayName = competitor.Competitor_name || '';
+                        competitorSelectOptions += `<option value="${competitor.competitor_id}">${displayName}</option>`;
+                    }
+                });
+            }
+
+            // Construct the HTML for Competitors select element
+            let competitorSelectHTML = '<div class="row mt-3">';
+            competitorSelectHTML += '<div class="col-md-12">';
+            competitorSelectHTML += '<label> Competitors (Matching Keywords) </label>';
+            competitorSelectHTML += '<select class="js-example-basic-multiple form-control" name="getcompetitor' + index + '[]" id="getcompetitor' + index + '" multiple="multiple">';
+            competitorSelectHTML += '<option disabled>Select</option>';
+            competitorSelectHTML += competitorSelectOptions;
+            competitorSelectHTML += '</select>';
+            competitorSelectHTML += '</div>';
+            competitorSelectHTML += '</div>';
+
+            // Process Industries - Create select dropdown
+            let industrySelectOptions = '';
+            let industryIds = [];
+            let industryClientIds = [];
+            if (response.industries && response.industries.length > 0) {
+                response.industries.forEach(industry => {
+                    industryIds.push(industry.industry_id);
+                    // Handle comma-separated client_ids from industry
+                    if (industry.client_id) {
+                        let clientIdArray = industry.client_id.split(',');
+                        clientIdArray.forEach(function(cid) {
+                            cid = cid.trim();
+                            if (cid && !industryClientIds.includes(cid)) {
+                                industryClientIds.push(cid);
+                            }
+                        });
+                    }
+                    // Create option with industry name only
+                    let displayName = industry.industry_name || '';
+                    industrySelectOptions += `<option value="${industry.industry_id}" selected>${displayName}</option>`;
+                });
+            }
+
+            // Get all industries for comparison (to show non-matching ones as unselected)
+            const industries = @json($get_industries);
+            if (industries && industries.length > 0) {
+                industries.forEach(industry => {
+                    if (!industryIds.includes(industry.Industry_id)) {
+                        let displayName = industry.Industry_name || '';
+                        industrySelectOptions += `<option value="${industry.Industry_id}">${displayName}</option>`;
+                    }
+                });
+            }
+
+            // Construct the HTML for Industries select element
+            let industrySelectHTML = '<div class="row mt-3">';
+            industrySelectHTML += '<div class="col-md-12">';
+            industrySelectHTML += '<label> Industries (Matching Keywords) </label>';
+            industrySelectHTML += '<select class="js-example-basic-multiple form-control" name="getindustry' + index + '[]" id="getindustry' + index + '" multiple="multiple">';
+            industrySelectHTML += '<option disabled>Select</option>';
+            industrySelectHTML += industrySelectOptions;
+            industrySelectHTML += '</select>';
+            industrySelectHTML += '</div>';
+            industrySelectHTML += '</div>';
+
+            // Update the existing hidden fields with matching record IDs
+            // The backend expects: company{index}, competitor{index}, industry{index}
+            
+            // Update company field with client IDs (only from matching clients, not from competitors/industries)
+            let companyField = $('#company' + index);
+            if (companyField.length > 0) {
+                companyField.val(clientIDs.join(','));
+            } else {
+                $('#news_arr').append('<input type="hidden" id="company' + index + '" name="company' + index + '" value="' + clientIDs.join(',') + '">');
+            }
+            
+            // Update competitor field with matching competitor IDs
+            let competitorField = $('#competitor' + index);
+            if (competitorField.length > 0) {
+                competitorField.val(competitorIds.join(','));
+            } else if (competitorIds.length > 0) {
+                $('#news_arr').append('<input type="hidden" id="competitor' + index + '" name="competitor' + index + '" value="' + competitorIds.join(',') + '">');
+            }
+            
+            // Update industry field with matching industry IDs
+            let industryField = $('#industry' + index);
+            if (industryField.length > 0) {
+                industryField.val(industryIds.join(','));
+            } else if (industryIds.length > 0) {
+                $('#news_arr').append('<input type="hidden" id="industry' + index + '" name="industry' + index + '" value="' + industryIds.join(',') + '">');
+            }
+
+            // Append all elements to the containers
+            $('#client_container_' + index).html(clientSelectHTML);
+            $('#getCompData' + index).html(competitorSelectHTML + industrySelectHTML);
+
+            // Initialize Select2 on all newly added select elements
+            // Select2 will automatically pick up options with 'selected' attribute
+            $('#getclient' + index).select2();
+            $('#getcompetitor' + index).select2();
+            $('#getindustry' + index).select2();
+            
+            // Set values programmatically to ensure they're selected (for Select2)
+            if (clientIDs.length > 0) {
+                $('#getclient' + index).val(clientIDs).trigger('change');
+            }
+            if (competitorIds.length > 0) {
+                $('#getcompetitor' + index).val(competitorIds).trigger('change');
+            }
+            if (industryIds.length > 0) {
+                $('#getindustry' + index).val(industryIds).trigger('change');
+            }
+            
+            // Update hidden fields when client selection changes
+            $('#getclient' + index).on('change', function() {
+                let selectedClients = $(this).val() || [];
+                let companyField = $('#company' + index);
+                if (companyField.length > 0) {
+                    companyField.val(selectedClients.join(','));
+                } else if (selectedClients.length > 0) {
+                    $('#news_arr').append('<input type="hidden" id="company' + index + '" name="company' + index + '" value="' + selectedClients.join(',') + '">');
+                } else {
+                    // Create empty hidden field if no selection
+                    if (companyField.length === 0) {
+                        $('#news_arr').append('<input type="hidden" id="company' + index + '" name="company' + index + '" value="">');
+                    }
+                }
+            });
+            
+            // Update hidden fields when competitor selection changes
+            $('#getcompetitor' + index).on('change', function() {
+                let selectedCompetitors = $(this).val() || [];
+                let competitorField = $('#competitor' + index);
+                if (competitorField.length > 0) {
+                    competitorField.val(selectedCompetitors.join(','));
+                } else if (selectedCompetitors.length > 0) {
+                    $('#news_arr').append('<input type="hidden" id="competitor' + index + '" name="competitor' + index + '" value="' + selectedCompetitors.join(',') + '">');
+                } else {
+                    // Create empty hidden field if no selection
+                    if (competitorField.length === 0) {
+                        $('#news_arr').append('<input type="hidden" id="competitor' + index + '" name="competitor' + index + '" value="">');
+                    }
+                }
+            });
+            
+            // Update hidden fields when industry selection changes
+            $('#getindustry' + index).on('change', function() {
+                let selectedIndustries = $(this).val() || [];
+                let industryField = $('#industry' + index);
+                if (industryField.length > 0) {
+                    industryField.val(selectedIndustries.join(','));
+                } else if (selectedIndustries.length > 0) {
+                    $('#news_arr').append('<input type="hidden" id="industry' + index + '" name="industry' + index + '" value="' + selectedIndustries.join(',') + '">');
+                } else {
+                    // Create empty hidden field if no selection
+                    if (industryField.length === 0) {
+                        $('#news_arr').append('<input type="hidden" id="industry' + index + '" name="industry' + index + '" value="">');
+                    }
+                }
+            });
         },
-        error: function(jqXHR, textStatus, errorThrown) {
-            console.log('Error: ' + textStatus + ', ' + errorThrown);
+        error: function(xhr, status, error) {
+            console.error('Error sending data:', status, error);
+            alert('Error loading matching records. Please try again.');
         }
     });
 }
+
 </script>
 @include('common/footer')   
    

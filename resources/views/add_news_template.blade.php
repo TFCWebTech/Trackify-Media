@@ -35,7 +35,7 @@
             <div class="row">
                     <div class="col-md-12 py-2">
                         <div class="text-center">
-                            <h5 class="font-weight-bold text-uppercase text-color">Add Email Tempate</h5>
+                            <h5 class="font-weight-bold text-uppercase text-color">Add Email Template</h5>
                         </div>
                         <hr>
                     </div>

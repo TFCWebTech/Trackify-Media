@@ -74,6 +74,7 @@ Route::get('/NewsUpload', [NewsUpload::class, 'index'])->name('news_upload');
 Route::post('/NewsUpload/saveArticalImage', [NewsUpload::class, 'saveArticalImage'])->name('newsUpload.saveArticalImage');
 Route::post('/NewsUpload/search-Keywords', [NewsUpload::class, 'searchKeywords'])->name('newsUpload.searchKeywords');
 Route::post('/NewsUpload/get-Clients-From-Keywords', [NewsUpload::class, 'getClientsFromKeywords'])->name('newsUpload.getClientsFromKeywords');
+Route::post('/NewsUpload/get-Matching-Records-From-Keywords', [NewsUpload::class, 'getMatchingRecordsFromKeywords'])->name('newsUpload.getMatchingRecordsFromKeywords');
 Route::post('/NewsUpload/get-Compitetors-From-Clients', [NewsUpload::class, 'getCompitetorsFromClients'])->name('newsUpload.getCompitetorsFromClients');
 Route::post('/NewsUpload/add', [NewsUpload::class, 'store'])->name('newsUpload.store');
 

@@ -33,7 +33,46 @@ class NewsUpload extends Controller
        
         $newsModel = new Client_Model();
         $get_clients  = $newsModel->getClients();
-        return view('news_upload', compact('media_type', 'get_agency', 'news_city','getKeywords','get_clients'));
+        
+        // Get all competitors with client information
+        $get_competitors = DB::table('competitor')
+            ->join('client', 'competitor.client_id', '=', 'client.client_id')
+            ->select('competitor.competitor_id', 'competitor.Competitor_name', 'competitor.client_id', 'client.client_name', 'competitor.Keywords')
+            ->get()
+            ->toArray();
+        
+        // Get all industries with client information
+        // Handle comma-separated client_ids in industry table
+        $industries = DB::table('industry')->get();
+        $clients = DB::table('client')->select('client_id', 'client_name')->get();
+        $clientMap = [];
+        foreach ($clients as $client) {
+            $clientMap[$client->client_id] = $client->client_name ?? '';
+        }
+        
+        $get_industries = [];
+        foreach ($industries as $industry) {
+            $clientNames = [];
+            if (!empty($industry->client_id)) {
+                $clientIds = explode(',', $industry->client_id);
+                foreach ($clientIds as $clientId) {
+                    $clientId = trim($clientId);
+                    if (!empty($clientId) && isset($clientMap[$clientId])) {
+                        $clientNames[] = $clientMap[$clientId];
+                    }
+                }
+            }
+            
+            $get_industries[] = [
+                'Industry_id' => $industry->Industry_id,
+                'Industry_name' => $industry->Industry_name ?? '',
+                'client_id' => $industry->client_id ?? '',
+                'client_names' => implode(', ', $clientNames),
+                'Keywords' => $industry->Keywords ?? ''
+            ];
+        }
+        
+        return view('news_upload', compact('media_type', 'get_agency', 'news_city','getKeywords','get_clients', 'get_competitors', 'get_industries'));
 
     }
 
@@ -167,9 +206,9 @@ class NewsUpload extends Controller
         $industrys = DB::table('industry')->get(); // You could optimize with pluck() or other methods for large sets
 
         foreach ($industrys as $industry) {
-            // Check if competitor_keywords exists and is not null
+            // Check if industry Keywords exists and is not null
             if (!empty($industry->Keywords)) {
-                $keywords = array_map('strtolower', array_map('trim', explode(',', $competitor->Keywords)));
+                $keywords = array_map('strtolower', array_map('trim', explode(',', $industry->Keywords)));
                 $matches = array_intersect($keywords, $keywordsToMatch);
                 //print_r($matches);die;
                 if (!empty($matches)) {
@@ -179,6 +218,114 @@ class NewsUpload extends Controller
         }
         // Return matching client IDs as a comma-separated string
         return response()->json($matchingClients);
+    }
+
+    public function getMatchingRecordsFromKeywords(Request $request)
+    {
+        // Get keywords from POST request
+        $keywordsToMatch = $request->input('keywordData');
+    
+        // Ensure keywordsToMatch is an array
+        if (!is_array($keywordsToMatch)) {
+            $keywordsToMatch = explode(',', $keywordsToMatch);
+        }
+    
+        // Normalize keywords to lower case for case-insensitive matching
+        $keywordsToMatch = array_map('strtolower', array_map('trim', $keywordsToMatch));
+    
+        // Array to hold matching records
+        $matchingClients = [];
+        $matchingCompetitors = [];
+        $matchingIndustries = [];
+    
+        // Match with Clients
+        $clientModel = new Client_Model();
+        $getClientsData = $clientModel->getClients();
+    
+        foreach ($getClientsData as $client) {
+            if (isset($client['client_keywords']) && is_string($client['client_keywords']) && !empty($client['client_keywords'])) {
+                $clientKeywords = array_map('strtolower', array_map('trim', explode(',', $client['client_keywords'])));
+                $matches = array_intersect($clientKeywords, $keywordsToMatch);
+    
+                if (!empty($matches)) {
+                    $matchingClients[] = [
+                        'client_id' => $client['client_id'],
+                        'client_name' => $client['client_name'] ?? '',
+                        'client_keywords' => $client['client_keywords']
+                    ];
+                }
+            }
+        }
+    
+        // Match with Competitors
+        $competitors = DB::table('competitor')
+            ->join('client', 'competitor.client_id', '=', 'client.client_id')
+            ->select('competitor.*', 'client.client_name')
+            ->get();
+    
+        foreach ($competitors as $competitor) {
+            if (!empty($competitor->Keywords)) {
+                $competitorKeywords = array_map('strtolower', array_map('trim', explode(',', $competitor->Keywords)));
+                $matches = array_intersect($competitorKeywords, $keywordsToMatch);
+    
+                if (!empty($matches)) {
+                    $matchingCompetitors[] = [
+                        'competitor_id' => $competitor->competitor_id,
+                        'competitor_name' => $competitor->Competitor_name ?? '',
+                        'client_id' => $competitor->client_id,
+                        'client_name' => $competitor->client_name ?? '',
+                        'keywords' => $competitor->Keywords
+                    ];
+                }
+            }
+        }
+    
+        // Match with Industries
+        // Get all industries
+        $industries = DB::table('industry')->get();
+        
+        // Get all clients for mapping
+        $clients = DB::table('client')->get();
+        $clientMap = [];
+        foreach ($clients as $client) {
+            $clientMap[$client->client_id] = $client->client_name ?? '';
+        }
+    
+        foreach ($industries as $industry) {
+            if (!empty($industry->Keywords)) {
+                $industryKeywords = array_map('strtolower', array_map('trim', explode(',', $industry->Keywords)));
+                $matches = array_intersect($industryKeywords, $keywordsToMatch);
+    
+                if (!empty($matches)) {
+                    // Handle comma-separated client_ids in industry table
+                    $industryClientIds = $industry->client_id ?? '';
+                    $clientIdsArray = !empty($industryClientIds) ? explode(',', $industryClientIds) : [];
+                    $clientNames = [];
+                    
+                    foreach ($clientIdsArray as $clientId) {
+                        $clientId = trim($clientId);
+                        if (!empty($clientId) && isset($clientMap[$clientId])) {
+                            $clientNames[] = $clientMap[$clientId];
+                        }
+                    }
+    
+                    $matchingIndustries[] = [
+                        'industry_id' => $industry->Industry_id,
+                        'industry_name' => $industry->Industry_name ?? '',
+                        'client_id' => $industryClientIds,
+                        'client_name' => implode(', ', $clientNames),
+                        'keywords' => $industry->Keywords
+                    ];
+                }
+            }
+        }
+    
+        // Return all matching records
+        return response()->json([
+            'clients' => $matchingClients,
+            'competitors' => $matchingCompetitors,
+            'industries' => $matchingIndustries
+        ]);
     }
 
     // public function getCompitetorsFromClients(Request $request)

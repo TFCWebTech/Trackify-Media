@@ -49,10 +49,10 @@ class Client_Model extends Model
         $industrys = DB::table('industry')->get(); // You could optimize with pluck() or other methods for large sets
 
         foreach ($industrys as $industry) {
-            // Check if competitor_keywords exists and is not null
-            if (!empty($competitor->Keywords)) {
-                // Split competitor keywords by commas and trim each keyword
-                $keywords = explode(',', $competitor->Keywords); // Make sure it's the correct column name
+            // Check if industry Keywords exists and is not null
+            if (!empty($industry->Keywords)) {
+                // Split industry keywords by commas and trim each keyword
+                $keywords = explode(',', $industry->Keywords); // Make sure it's the correct column name
                 $keywords = array_map('trim', $keywords);
                 
                 // Merge the keywords into the all_keywords array
