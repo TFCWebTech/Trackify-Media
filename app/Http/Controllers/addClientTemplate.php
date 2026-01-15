@@ -131,38 +131,38 @@ class addClientTemplate extends Controller
                 'footer_title_font_size' => $request->input('footer_font_size'),
             ]);
             $templateId = $request->mail_template_id;
-        if ($request->has('quick_links_id_old') && $request->quick_links_id_old) {
-            $quick_links_data = [];
-        
-            for ($i = 0; $i < count($quick_links_name_old); $i++) {
-                $quick_links_data_old[] = [
-                    'quick_links_id_old' => $quick_links_id_old[$i],
-                    'quick_links_name_old' => $quick_links_name_old[$i],
-                    'quick_links_url_old' => $quick_links_url_old[$i],
-                    'quick_links_position_old' => $quick_links_position_old[$i]
-                ];
-            }
+            if ($request->has('quick_links_id_old') && $request->quick_links_id_old) {
+                $quick_links_data = [];
             
-            $all_inserted = true;
-            foreach ($quick_links_data_old as $link_data_old) {
-                //print_r($link_data_old);die;
-                $updated = DB::table('quick_links')
-                ->where('quick_links_id', $link_data_old['quick_links_id_old']) // Match the ID to the record to update
-                ->update([
-                    'quick_links_name' => $link_data_old['quick_links_name_old'],
-                    'quick_links_url' => $link_data_old['quick_links_url_old'],
-                    'quick_links_position' => $link_data_old['quick_links_position_old']
-                ]);
+                for ($i = 0; $i < count($quick_links_name_old); $i++) {
+                    $quick_links_data_old[] = [
+                        'quick_links_id_old' => $quick_links_id_old[$i],
+                        'quick_links_name_old' => $quick_links_name_old[$i],
+                        'quick_links_url_old' => $quick_links_url_old[$i],
+                        'quick_links_position_old' => $quick_links_position_old[$i]
+                    ];
+                }
+                
+                $all_inserted = true;
+                foreach ($quick_links_data_old as $link_data_old) {
+                    //print_r($link_data_old);die;
+                    $updated = DB::table('quick_links')
+                    ->where('quick_links_id', $link_data_old['quick_links_id_old']) // Match the ID to the record to update
+                    ->update([
+                        'quick_links_name' => $link_data_old['quick_links_name_old'],
+                        'quick_links_url' => $link_data_old['quick_links_url_old'],
+                        'quick_links_position' => $link_data_old['quick_links_position_old']
+                    ]);
 
-    // Optional: Check if the update was successful
-    //if (!$updated) {
-        // Handle error (optional)
-       // $all_updated = false;
-      //  break;
-   // }
-               
+                    // Optional: Check if the update was successful
+                    //if (!$updated) {
+                        // Handle error (optional)
+                    // $all_updated = false;
+                    //  break;
+                    // }
+                    
+                }
             }
-       }
             if ($templateId) {
                 $quick_links_data = [];
         

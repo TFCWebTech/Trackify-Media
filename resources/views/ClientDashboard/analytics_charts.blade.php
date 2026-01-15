@@ -473,6 +473,10 @@ body {
         console.log(from_date);
         // const clientId = $(this).val();
 
+        // Store date range globally
+        globalFromDate = from_date;
+        globalToDate = to_date;
+
         $.ajax({
             url: '{{ route('fetchAnalyticsData') }}',
             method: 'POST',
@@ -773,17 +777,44 @@ function populateQuantityTable(data, timeFrame = 'daily') {
 
     // Function to update all charts based on selected time frame
     function updateChart(timeFrame) {
+        
+        
         let data = [];
         let labels = [];
         let selectedData = quantityData[timeFrame]; 
+
+        // Fill missing months with zero values if monthly
+        if (timeFrame === 'monthly' && globalFromDate && globalToDate) {
+            selectedData = fillMissingMonths(selectedData, globalFromDate, globalToDate);
+            console.log('updateChart fillMissingMonths', selectedData);
+        }
 
         selectedData.forEach(item => {
             labels.push(formatDateLabel(item.label, timeFrame));
             data.push(item.count);
         });
 
+        console.log('updateChart labels', labels);
+        console.log('updateChart data', data);
+        
+
         updateChartData(areaChart, labels, data);
-        updateChartData(pieChart, labels.slice(0, 3), data.slice(0, 3)); 
+        const pieLabels = [];
+        const pieData = [];
+
+        labels.forEach((label, index) => {
+            if (data[index] > 0) {
+                pieLabels.push(label);
+                pieData.push(data[index]);
+            }
+        });
+        // updateChartData(pieChart, labels.slice(0, 3), data.slice(0, 3)); 
+        if (pieData.length > 0) {
+            updateChartData(pieChart, pieLabels, pieData);
+        } else {
+            pieChart.clear(); // optional
+        }
+
         updateChartData(barChart, labels, data);
         updateChartData(lineChart, labels, data);
         updateChartData(verticalBarChart, labels, data);
@@ -1069,6 +1100,11 @@ function populateQuantityTable(data, timeFrame = 'daily') {
 
     function updateChart2(timeFrame) {
             let selectedData = sizeData[timeFrame];
+            // Fill missing months with zero values if monthly
+            if (timeFrame === 'monthly' && globalFromDate && globalToDate) {
+                selectedData = fillMissingMonthsGrouped(selectedData, globalFromDate, globalToDate);
+            }
+
             let labels = selectedData.map(item => `${formatDateLabel(item.label, timeFrame)} - ${item.category}`);
             let data = selectedData.map(item => item.count);
 
@@ -1352,6 +1388,9 @@ function populateQuantityTable(data, timeFrame = 'daily') {
         // Function to update all charts based on selected time frame
         function updateChart3(timeFrame) {
         let selectedData = mediaData[timeFrame];
+        if (timeFrame === 'monthly' && globalFromDate && globalToDate) {
+            selectedData = fillMissingMonthsGrouped(selectedData, globalFromDate, globalToDate);
+        }
         let labels = selectedData.map(item => `${formatDateLabel(item.label, timeFrame)} - ${item.MediaType}`);
         let data = selectedData.map(item => item.count);
 
@@ -1650,6 +1689,9 @@ function populateQuantityTable(data, timeFrame = 'daily') {
     // Update charts and table based on the selected timeframe
     function updateChart4(timeFrame) {
         let selectedData = publicationData[timeFrame];
+        if (timeFrame === 'monthly' && globalFromDate && globalToDate) {
+            selectedData = fillMissingMonthsGrouped(selectedData, globalFromDate, globalToDate);
+        }
         let labels = selectedData.map(item => `${formatDateLabel(item.label, timeFrame)} - ${item.MediaOutlet}`);
         let data = selectedData.map(item => item.count);
 
@@ -1952,6 +1994,9 @@ function populateQuantityTable(data, timeFrame = 'daily') {
         // Update charts and table based on the selected timeframe
         function updateChart5(timeFrame) {
             let selectedData = geographyData[timeFrame];
+            if (timeFrame === 'monthly' && globalFromDate && globalToDate) {
+                selectedData = fillMissingMonthsGrouped(selectedData, globalFromDate, globalToDate);
+            }
             let labels = selectedData.map(item => `${formatDateLabel(item.label, timeFrame)} - ${item.Edition}`);
             let data = selectedData.map(item => item.count);
 
@@ -2253,9 +2298,122 @@ function populateJournalistTable(data) {
     tableBody.appendChild(totalRow);
 }
 
+
+
+// Global variables to store date range
+let globalFromDate = null;
+    let globalToDate = null;
+
+function generateAllMonths(fromDate, toDate) {
+    const months = [];
+    const start = new Date(fromDate + 'T00:00:00');
+    const end = new Date(toDate + 'T00:00:00');
+    
+    const current = new Date(start.getFullYear(), start.getMonth(), 1);
+    const endMonth = new Date(end.getFullYear(), end.getMonth(), 1);
+    
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                        'July', 'August', 'September', 'October', 'November', 'December'];
+    
+    while (current <= endMonth) {
+        const year = current.getFullYear();
+        const monthName = monthNames[current.getMonth()];
+        months.push(`${monthName} ${year}`);
+        current.setMonth(current.getMonth() + 1);
+    }
+    
+    return months;
+}
+
+function fillMissingMonths(data, fromDate, toDate) {
+        if (!fromDate || !toDate) return data;
+        
+        const allMonths = generateAllMonths(fromDate, toDate);
+        const dataMap = new Map();
+        
+        // Create a map of existing data by label (month)
+        data.forEach(item => {
+            dataMap.set(item.label, item);
+        });
+        
+        // Fill in missing months with zero values
+        const filledData = allMonths.map(month => {
+            if (dataMap.has(month)) {
+                return dataMap.get(month);
+            } else {
+                // Return zero value object based on the structure of the first item
+                if (data.length > 0) {
+                    const sample = data[0];
+                    const zeroItem = { label: month, count: 0 };
+                    // Copy other properties from sample with zero values
+                    if (sample.total_ave !== undefined) zeroItem.total_ave = 0;
+                    if (sample.category !== undefined) zeroItem.category = sample.category;
+                    if (sample.MediaType !== undefined) zeroItem.MediaType = sample.MediaType;
+                    if (sample.MediaOutlet !== undefined) zeroItem.MediaOutlet = sample.MediaOutlet;
+                    if (sample.Edition !== undefined) zeroItem.Edition = sample.Edition;
+                    if (sample.Journalist !== undefined) zeroItem.Journalist = sample.Journalist;
+                    return zeroItem;
+                } else {
+                    return { label: month, count: 0, total_ave: 0 };
+                }
+            }
+        });
+        
+        return filledData;
+    }
+
+function fillMissingMonthsGrouped(data, fromDate, toDate) {
+        if (!fromDate || !toDate || data.length === 0) return data;
+        
+        const allMonths = generateAllMonths(fromDate, toDate);
+        const groupedByCategory = {};
+        const categories = new Set();
+        
+        // Group data by category (MediaType, MediaOutlet, Edition, Journalist, category)
+        data.forEach(item => {
+            const categoryKey = item.MediaType || item.MediaOutlet || item.Edition || item.Journalist || item.category || 'default';
+            categories.add(categoryKey);
+            if (!groupedByCategory[categoryKey]) {
+                groupedByCategory[categoryKey] = {};
+            }
+            groupedByCategory[categoryKey][item.label] = item;
+        });
+        
+        // Fill missing months for each category
+        const filledData = [];
+        categories.forEach(categoryKey => {
+            allMonths.forEach(month => {
+                if (groupedByCategory[categoryKey][month]) {
+                    filledData.push(groupedByCategory[categoryKey][month]);
+                } else {
+                    const sample = data.find(item => {
+                        const key = item.MediaType || item.MediaOutlet || item.Edition || item.Journalist || item.category;
+                        return key === categoryKey;
+                    });
+                    if (sample) {
+                        const zeroItem = { label: month, count: 0, total_ave: 0 };
+                        if (sample.MediaType !== undefined) zeroItem.MediaType = sample.MediaType;
+                        if (sample.MediaOutlet !== undefined) zeroItem.MediaOutlet = sample.MediaOutlet;
+                        if (sample.Edition !== undefined) zeroItem.Edition = sample.Edition;
+                        if (sample.Journalist !== undefined) zeroItem.Journalist = sample.Journalist;
+                        if (sample.category !== undefined) zeroItem.category = sample.category;
+                        filledData.push(zeroItem);
+                    }
+                }
+            });
+        });
+        
+        return filledData;
+    }
+
 // Function to update the chart based on the selected timeframe
 function updateChart6(timeframe) {
     let selectedData = journalistData[timeframe];
+
+    if (timeframe === 'monthly' && globalFromDate && globalToDate) {
+        selectedData = fillMissingMonthsGrouped(selectedData, globalFromDate, globalToDate);
+    }
+
     let labels = selectedData.map(item => `${formatDateLabel(item.label, timeframe)} - ${item.Journalist}`);
     let data = selectedData.map(item => item.count);
 
