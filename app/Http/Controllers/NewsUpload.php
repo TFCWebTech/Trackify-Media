@@ -488,24 +488,23 @@ public function store(Request $request)
 {
     // Validate the form data
     $request->validate([
-        'media_type' => 'required|string|max:255',
-        'publication' => 'required|string|max:45',
-        'edition' => 'required|string|max:45',
-        'journalist_name' => 'nullable|string|max:500',
+        'media_type' => 'required|string',
+        'publication' => 'required|string',
+        'edition' => 'required|string',
+        'journalist_name' => 'nullable|string',
         'author' => [
             'nullable',
             'string',
-            'max:500',
             function ($attribute, $value, $fail) use ($request) {
                 if (empty($request->input('journalist_name')) && empty($value)) {
                     $fail('The author field is required when journalist name is not provided.');
                 }
             },
         ],
-        'NewsPosition' => 'required|string|max:45',
+        'NewsPosition' => 'required|string',
         //'NewsCity' => 'required|string|max:45',
-        'headline' => 'required|string|max:255',
-        'Summary' => 'required|string|max:500',
+        'headline' => 'required|string',
+        'Summary' => 'required|string',
     ]);
 
     // Gather inputs

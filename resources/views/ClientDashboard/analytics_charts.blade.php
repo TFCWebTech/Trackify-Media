@@ -152,7 +152,7 @@ body {
                 </div>
                 <div class="my-4">
                     <!-- <button class="btn btn-primary" onclick="showChart('areaChart')">Area Chart</button> -->
-                    <button class="btn btn-primary" onclick="showChart('pieChart')">Pie Chart</button>
+                    <button class="btn btn-primary" onclick="showChart('pieChart')">Doughnut Chart</button>
                     <button class="btn btn-primary" onclick="showChart('barChart')">Bar Chart</button>
                     <button class="btn btn-primary" onclick="showChart('lineChart')">Line Chart</button>
                     <button class="btn btn-primary" onclick="showChart('verticalBarChart')">Column Chart</button>
@@ -580,6 +580,8 @@ body {
                 y: {
                     beginAtZero: true,
                     ticks: {
+                        stepSize: 1,
+                        precision: 0,
                         callback: function(value) {
                             return value + '';
                         }
@@ -625,6 +627,18 @@ body {
                 y: {
                     beginAtZero: true,
                     ticks: {
+                        stepSize: 1,
+                        precision: 0,
+                        callback: function(value) {
+                            return value + '';
+                        }
+                    }
+                },
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1,
+                        precision: 0,
                         callback: function(value) {
                             return value + '';
                         }
@@ -652,6 +666,8 @@ body {
                 y: {
                     beginAtZero: true,
                     ticks: {
+                        stepSize: 1,
+                        precision: 0,
                         callback: function(value) {
                             return value + '';
                         }
@@ -678,6 +694,8 @@ body {
                 y: {
                     beginAtZero: true,
                     ticks: {
+                        stepSize: 1,
+                        precision: 0,
                         callback: function(value) {
                             return value + '';
                         }
@@ -707,11 +725,45 @@ function populateQuantityTable(data, timeFrame = 'daily') {
     let totalSumAve = 0; // Sum of weighted averages
     let totalCount = 0;  // Total count across all rows
 
-    data.forEach(item => {
+    // Sort data by date for better display
+    const sortedData = [...data].sort((a, b) => {
+        if (timeFrame === 'monthly') {
+            // Parse month names for sorting
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                               'July', 'August', 'September', 'October', 'November', 'December'];
+            const aMonth = monthNames.indexOf(a.label.split(' ')[0]);
+            const aYear = parseInt(a.label.split(' ')[1]);
+            const bMonth = monthNames.indexOf(b.label.split(' ')[0]);
+            const bYear = parseInt(b.label.split(' ')[1]);
+            
+            if (aYear !== bYear) return aYear - bYear;
+            return aMonth - bMonth;
+        } else if (timeFrame === 'weekly') {
+            // Sort by year and week number
+            const aYear = a.year || new Date(a.start_date).getFullYear();
+            const bYear = b.year || new Date(b.start_date).getFullYear();
+            const aWeek = a.weekNumber || 0;
+            const bWeek = b.weekNumber || 0;
+            
+            if (aYear !== bYear) return aYear - bYear;
+            return aWeek - bWeek;
+        }
+        // For daily, sort by date
+        const aDate = a.start_date || a.label;
+        const bDate = b.start_date || b.label;
+        return new Date(aDate) - new Date(bDate);
+    });
+
+    sortedData.forEach(item => {
         let row = document.createElement("tr");
 
         let labelCell = document.createElement("td");
-        labelCell.textContent = formatDateLabel(item.label, timeFrame) || "N/A";
+        // For weekly data, show the date range if available
+        let displayLabel = formatDateLabel(item.label, timeFrame);
+        if (timeFrame === 'weekly' && item.dateRange) {
+            displayLabel = item.dateRange;
+        }
+        labelCell.textContent = displayLabel || "N/A";
         labelCell.style.border = "1px solid gray"; 
         row.appendChild(labelCell);
 
@@ -723,7 +775,7 @@ function populateQuantityTable(data, timeFrame = 'daily') {
 
         let aveCell = document.createElement("td");
         let aveValue = item.total_ave ? parseFloat(item.total_ave) : 0;
-        aveCell.textContent = aveValue.toLocaleString('en-US');
+        aveCell.textContent = aveValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         aveCell.style.border = "1px solid gray"; 
         row.appendChild(aveCell);
 
@@ -736,29 +788,31 @@ function populateQuantityTable(data, timeFrame = 'daily') {
     });
 
     // Add a summary row for totals
-    let totalRow = document.createElement("tr");
+    if (sortedData.length > 0) {
+        let totalRow = document.createElement("tr");
 
-    let totalLabelCell = document.createElement("td");
-    totalLabelCell.textContent = "Total";
-    totalLabelCell.style.fontWeight = "bold";
-    totalLabelCell.style.border = "1px solid gray"; 
-    totalRow.appendChild(totalLabelCell);
+        let totalLabelCell = document.createElement("td");
+        totalLabelCell.textContent = "Total";
+        totalLabelCell.style.fontWeight = "bold";
+        totalLabelCell.style.border = "1px solid gray"; 
+        totalRow.appendChild(totalLabelCell);
 
-    let totalCountCell = document.createElement("td");
-    totalCountCell.textContent = totalNewsCount.toLocaleString('en-US');
-    totalCountCell.style.fontWeight = "bold";
-    totalCountCell.style.border = "1px solid gray"; 
-    totalRow.appendChild(totalCountCell);
+        let totalCountCell = document.createElement("td");
+        totalCountCell.textContent = totalNewsCount.toLocaleString('en-US');
+        totalCountCell.style.fontWeight = "bold";
+        totalCountCell.style.border = "1px solid gray"; 
+        totalRow.appendChild(totalCountCell);
 
-    let totalAveCell = document.createElement("td");
-    // Calculate overall average
-    let overallAve = totalCount > 0 ? (totalSumAve / totalCount).toFixed(2) : "0.00";
-    totalAveCell.textContent = parseFloat(overallAve).toLocaleString('en-US');
-    totalAveCell.style.fontWeight = "bold";
-    totalAveCell.style.border = "1px solid gray"; 
-    totalRow.appendChild(totalAveCell);
+        let totalAveCell = document.createElement("td");
+        // Calculate overall average
+        let overallAve = totalCount > 0 ? (totalSumAve / totalCount).toFixed(2) : "0.00";
+        totalAveCell.textContent = parseFloat(overallAve).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        totalAveCell.style.fontWeight = "bold";
+        totalAveCell.style.border = "1px solid gray"; 
+        totalRow.appendChild(totalAveCell);
 
-    tableBody.appendChild(totalRow);
+        tableBody.appendChild(totalRow);
+    }
 }
     // Function to format date labels for better readability
     function formatDateLabel(label, timeFrame) {
@@ -771,9 +825,139 @@ function populateQuantityTable(data, timeFrame = 'daily') {
                 const year = date.getFullYear();
                 return `${day} ${month} ${year}`;
             }
+        }else if (timeFrame === 'weekly') {
+        // For weekly data, we want to show a more readable format
+        // Check if label is in format "Week-X YYYY"
+        const weekMatch = label.match(/Week-(\d+) (\d+)/);
+        if (weekMatch) {
+            const weekNumber = weekMatch[1];
+            const year = weekMatch[2];
+            return `Week ${weekNumber}, ${year}`;
         }
+        // Alternatively, if we have dateRange property
+        if (label.dateRange) {
+            return label.dateRange;
+        }
+        // Or if it's already formatted nicely
+        return label;
+    } else if (timeFrame === 'monthly') {
+        // For monthly, just return as is (should be "Month Year" format)
         return label;
     }
+        return label;
+    }
+
+    function generateAllWeeks(fromDate, toDate) {
+    const weeks = [];
+    const start = new Date(fromDate + 'T00:00:00');
+    const end = new Date(toDate + 'T00:00:00');
+    
+    // Start from the beginning of the week (Sunday)
+    const current = new Date(start);
+    current.setDate(current.getDate() - current.getDay());
+    
+    // Format as YYYY-MM-DD
+    const formatDate = (date) => date.toISOString().split('T')[0];
+    
+    // Generate all weeks in the range
+    while (current <= end) {
+        const weekStart = new Date(current);
+        const weekEnd = new Date(current);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+        
+        // Get week number and year
+        const [weekYear, weekNumber] = getWeekNumber(weekStart);
+        
+        // Format as "Week-X YYYY"
+        const weekLabel = `Week-${weekNumber} ${weekYear}`;
+        const dateRange = `${weekStart.toLocaleString('default', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleString('default', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+        
+        weeks.push({
+            start: formatDate(weekStart),
+            end: formatDate(weekEnd),
+            label: weekLabel,
+            dateRange: dateRange,
+            weekNumber: weekNumber,
+            year: weekYear
+        });
+        
+        // Move to next week
+        current.setDate(current.getDate() + 7);
+    }
+    
+    return weeks;
+}
+
+function getWeekNumber(d) {
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    return [d.getUTCFullYear(), weekNo];
+}
+
+    function fillMissingWeeks(data, fromDate, toDate) {
+    if (!fromDate || !toDate) return data || [];
+    
+    const allWeeks = generateAllWeeks(fromDate, toDate);
+    const dataMap = new Map();
+    
+    // Create a map of existing data by label (week)
+    (data || []).forEach(item => {
+        dataMap.set(item.label, item);
+    });
+    
+    // Fill in missing weeks with zero values
+    const filledData = allWeeks.map(week => {
+        const weekLabel = week.label; // Format: "Week-X YYYY"
+        
+        if (dataMap.has(weekLabel)) {
+            return {
+                ...dataMap.get(weekLabel),
+                start_date: week.start,
+                end_date: week.end
+            };
+        } else {
+            // Return zero value object based on the structure of the first item
+            if (data && data.length > 0) {
+                const sample = data[0];
+                const zeroItem = { 
+                    label: weekLabel, 
+                    count: 0 
+                };
+                // Copy other properties from sample with zero values
+                if (sample.total_ave !== undefined) zeroItem.total_ave = 0;
+                if (sample.category !== undefined) zeroItem.category = sample.category;
+                if (sample.MediaType !== undefined) zeroItem.MediaType = sample.MediaType;
+                if (sample.MediaOutlet !== undefined) zeroItem.MediaOutlet = sample.MediaOutlet;
+                if (sample.Edition !== undefined) zeroItem.Edition = sample.Edition;
+                if (sample.Journalist !== undefined) zeroItem.Journalist = sample.Journalist;
+                zeroItem.start_date = week.start;
+                zeroItem.end_date = week.end;
+                return zeroItem;
+            } else {
+                return { 
+                    label: weekLabel, 
+                    count: 0, 
+                    total_ave: 0,
+                    start_date: week.start,
+                    end_date: week.end
+                };
+            }
+        }
+    });
+    
+    // Sort by year and week number
+    return filledData.sort((a, b) => {
+        const aYear = a.year || new Date(a.start_date).getFullYear();
+        const bYear = b.year || new Date(b.start_date).getFullYear();
+        const aWeek = a.weekNumber || 0;
+        const bWeek = b.weekNumber || 0;
+        
+        if (aYear !== bYear) return aYear - bYear;
+        return aWeek - bWeek;
+    });
+}
 
     // Function to update all charts based on selected time frame
     function updateChart(timeFrame) {
@@ -784,9 +968,13 @@ function populateQuantityTable(data, timeFrame = 'daily') {
         let selectedData = quantityData[timeFrame]; 
 
         // Fill missing months with zero values if monthly
-        if (timeFrame === 'monthly' && globalFromDate && globalToDate) {
-            selectedData = fillMissingMonths(selectedData, globalFromDate, globalToDate);
-            console.log('updateChart fillMissingMonths', selectedData);
+        if (globalFromDate && globalToDate) {
+            if (timeFrame === 'monthly') {
+                selectedData = fillMissingMonths(selectedData, globalFromDate, globalToDate);
+            } else if (timeFrame === 'weekly') {
+                selectedData = fillMissingWeeks(selectedData, globalFromDate, globalToDate);
+            }
+            console.log('updateChart fillMissingData for', timeFrame, selectedData);
         }
 
         selectedData.forEach(item => {
@@ -797,7 +985,6 @@ function populateQuantityTable(data, timeFrame = 'daily') {
         console.log('updateChart labels', labels);
         console.log('updateChart data', data);
         
-
         updateChartData(areaChart, labels, data);
         const pieLabels = [];
         const pieData = [];
@@ -864,6 +1051,8 @@ function populateQuantityTable(data, timeFrame = 'daily') {
                     y: {
                         beginAtZero: true,
                         ticks: {
+                            stepSize: 1,
+                            precision: 0,
                             callback: function(value) {
                                 return value + '';
                             }
@@ -901,6 +1090,8 @@ function populateQuantityTable(data, timeFrame = 'daily') {
                         beginAtZero: true,
                         stacked: true,
                         ticks: {
+                            stepSize: 1,
+                            precision: 0,
                             callback: function(value) {
                                 return value + '%';
                             }
@@ -932,6 +1123,8 @@ function populateQuantityTable(data, timeFrame = 'daily') {
                     y: {
                         beginAtZero: true,
                         ticks: {
+                            stepSize: 1,
+                            precision: 0,
                             callback: function(value) {
                                 return value + '';
                             }
@@ -960,6 +1153,8 @@ function populateQuantityTable(data, timeFrame = 'daily') {
                     y: {
                         beginAtZero: true,
                         ticks: {
+                            stepSize: 1,
+                            precision: 0,
                             callback: function(value) {
                                 return value + '';
                             }
@@ -987,6 +1182,8 @@ function populateQuantityTable(data, timeFrame = 'daily') {
                     y: {
                         beginAtZero: true,
                         ticks: {
+                            stepSize: 1,
+                            precision: 0,
                             callback: function(value) {
                                 return value + '';
                             }
@@ -1017,93 +1214,140 @@ function populateQuantityTable(data, timeFrame = 'daily') {
 
     // Function to populate the quantity table with data
     function populateSizeTable(data) {
-        const tableBody = document.querySelector("#sizeTable tbody");
-        const tableHeader = document.querySelector("#sizeTable thead tr");
+    const tableBody = document.querySelector("#sizeTable tbody");
+    const tableHeader = document.querySelector("#sizeTable thead tr");
 
-        // Clear existing headers and rows
-        tableHeader.innerHTML = "";
-        tableBody.innerHTML = "";
+    // Clear existing headers and rows
+    tableHeader.innerHTML = "";
+    tableBody.innerHTML = "";
 
-        let groupedData = {};
+    // First, get all unique time periods (weeks/months) and categories
+    const uniqueLabels = [...new Set(data.map(item => item.label))];
+    const uniqueCategories = [...new Set(data.map(item => item.category).filter(cat => cat))];
+    
+    // Sort labels based on time period
+    const sortedLabels = uniqueLabels.sort((a, b) => {
+        // Try to sort by date if possible
+        try {
+            const aDate = a.start_date || a;
+            const bDate = b.start_date || b;
+            return new Date(aDate) - new Date(bDate);
+        } catch (e) {
+            return a.localeCompare(b);
+        }
+    });
 
-        data.forEach(item => {
-            if (!groupedData[item.category]) {
-                groupedData[item.category] = {};
-            }
-            if (!groupedData[item.category][item.label]) {
-                groupedData[item.category][item.label] = {
-                    count: 0,
-                    total_ave: 0
-                };
-            }
-            groupedData[item.category][item.label].count += parseInt(item.count, 10);
-            groupedData[item.category][item.label].total_ave += parseInt(item.total_ave, 10);
+    // Build header row
+    let headerRow = "<th style='border: 1px solid gray;'>Size Category</th>";
+    sortedLabels.forEach(label => {
+        headerRow += `<th style='border: 1px solid gray;'>${formatDateLabel(label, 'weekly')}</th>`;
+    });
+    headerRow += "<th style='border: 1px solid gray;'>Total</th>";
+    headerRow += "<th style='border: 1px solid gray;'>AVE</th>";
+    tableHeader.innerHTML = headerRow;
+
+    // Build rows for each category
+    uniqueCategories.forEach(category => {
+        let row = document.createElement("tr");
+        
+        let categoryCell = document.createElement("td");
+        categoryCell.textContent = category || "Uncategorized";
+        categoryCell.style.border = "1px solid gray";
+        row.appendChild(categoryCell);
+
+        let categoryTotal = 0;
+        let categoryAve = 0;
+        
+        sortedLabels.forEach(label => {
+            // Find data for this category and label
+            const item = data.find(d => d.category === category && d.label === label);
+            const count = item ? parseInt(item.count, 10) : 0;
+            const ave = item ? parseFloat(item.total_ave) : 0;
+            
+            let countCell = document.createElement("td");
+            countCell.textContent = count;
+            countCell.style.border = "1px solid gray";
+            row.appendChild(countCell);
+            
+            categoryTotal += count;
+            categoryAve += ave;
         });
 
-        let uniqueLabels = [...new Set(data.map(item => item.label))];
-        let headerRow = "<th style='border: 1px solid gray;'>Media Type</th>";
-        uniqueLabels.forEach(label => {
-            headerRow += `<th style='border: 1px solid gray;'>${label}</th>`;
-        });
-        headerRow += "<th style='border: 1px solid gray;'>AVE</th>";
-        tableHeader.innerHTML = headerRow;
-
-        Object.keys(groupedData).forEach(category => {
-            let row = document.createElement("tr");
-            let categoryCell = document.createElement("td");
-            categoryCell.textContent = category || "N/A";
-            categoryCell.style.border = "1px solid gray";
-            row.appendChild(categoryCell);
-
-            let totalAve = 0;
-            uniqueLabels.forEach(label => {
-                let count = groupedData[category][label] ? groupedData[category][label].count : 0;
-                let countCell = document.createElement("td");
-                countCell.textContent = count;
-                countCell.style.border = "1px solid gray";
-                row.appendChild(countCell);
-
-                totalAve += groupedData[category][label] ? groupedData[category][label].total_ave : 0;
-            });
-
-            let aveCell = document.createElement("td");
-            aveCell.textContent = totalAve;
-            aveCell.style.border = "1px solid gray";
-            row.appendChild(aveCell);
-
-            tableBody.appendChild(row);
-        });
-
-        let totalRow = document.createElement("tr");
+        // Add total column
         let totalCell = document.createElement("td");
-        totalCell.textContent = "Total";
+        totalCell.textContent = categoryTotal;
+        totalCell.style.border = "1px solid gray";
+        row.appendChild(totalCell);
+
+        // Add AVE column
+        let aveCell = document.createElement("td");
+        aveCell.textContent = categoryAve.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        aveCell.style.border = "1px solid gray";
+        row.appendChild(aveCell);
+
+        tableBody.appendChild(row);
+    });
+
+    // Add totals row
+    let totalRow = document.createElement("tr");
+    let totalLabelCell = document.createElement("td");
+    totalLabelCell.textContent = "Grand Total";
+    totalLabelCell.style.fontWeight = "bold";
+    totalLabelCell.style.border = "1px solid gray";
+    totalRow.appendChild(totalLabelCell);
+
+    let grandTotal = 0;
+    let grandTotalAve = 0;
+    
+    sortedLabels.forEach(label => {
+        const labelTotal = data
+            .filter(item => item.label === label)
+            .reduce((sum, item) => sum + parseInt(item.count, 10), 0);
+        
+        let totalCell = document.createElement("td");
+        totalCell.textContent = labelTotal;
+        totalCell.style.fontWeight = "bold";
         totalCell.style.border = "1px solid gray";
         totalRow.appendChild(totalCell);
+        
+        grandTotal += labelTotal;
+        
+        // Calculate average for this label
+        const labelItems = data.filter(item => item.label === label);
+        if (labelItems.length > 0) {
+            const labelAve = labelItems.reduce((sum, item) => sum + parseFloat(item.total_ave), 0);
+            grandTotalAve += labelAve;
+        }
+    });
 
-        uniqueLabels.forEach(label => {
-            let totalMonthCount = data.filter(item => item.label === label).reduce((acc, item) => acc + parseInt(item.count, 10), 0);
-            let totalMonthCell = document.createElement("td");
-            totalMonthCell.textContent = totalMonthCount;
-            totalMonthCell.style.border = "1px solid gray";
-            totalRow.appendChild(totalMonthCell);
-        });
+    // Add grand total column
+    let grandTotalCell = document.createElement("td");
+    grandTotalCell.textContent = grandTotal;
+    grandTotalCell.style.fontWeight = "bold";
+    grandTotalCell.style.border = "1px solid gray";
+    totalRow.appendChild(grandTotalCell);
 
-        let totalAve = data.reduce((acc, item) => acc + parseInt(item.total_ave, 10), 0);
-        let totalAveCell = document.createElement("td");
-        totalAveCell.textContent = totalAve;
-        totalAveCell.style.border = "1px solid gray";
-        totalRow.appendChild(totalAveCell);
+    // Add grand AVE column
+    let grandAveCell = document.createElement("td");
+    grandAveCell.textContent = grandTotalAve.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    grandAveCell.style.fontWeight = "bold";
+    grandAveCell.style.border = "1px solid gray";
+    totalRow.appendChild(grandAveCell);
 
-        tableBody.appendChild(totalRow);
-    }
+    tableBody.appendChild(totalRow);
+}
 
 
     function updateChart2(timeFrame) {
             let selectedData = sizeData[timeFrame];
-            // Fill missing months with zero values if monthly
-            if (timeFrame === 'monthly' && globalFromDate && globalToDate) {
-                selectedData = fillMissingMonthsGrouped(selectedData, globalFromDate, globalToDate);
-            }
+            // Fill missing data based on time frame
+    if (globalFromDate && globalToDate) {
+        if (timeFrame === 'monthly') {
+            selectedData = fillMissingMonthsGrouped(selectedData, globalFromDate, globalToDate);
+        } else if (timeFrame === 'weekly') {
+            selectedData = fillMissingWeeksGrouped(selectedData, globalFromDate, globalToDate);
+        }
+    }
 
             let labels = selectedData.map(item => `${formatDateLabel(item.label, timeFrame)} - ${item.category}`);
             let data = selectedData.map(item => item.count);
@@ -1153,6 +1397,8 @@ function populateQuantityTable(data, timeFrame = 'daily') {
                 y: {
                     beginAtZero: true,
                     ticks: {
+                        stepSize: 1,
+                        precision: 0,
                         callback: function(value) {
                             return value + '';
                         }
@@ -1190,6 +1436,8 @@ function populateQuantityTable(data, timeFrame = 'daily') {
                     beginAtZero: true,
                     stacked: true,
                     ticks: {
+                        stepSize: 1,
+                        precision: 0,
                         callback: function(value) {
                             return value + '%';
                         }
@@ -1221,6 +1469,8 @@ function populateQuantityTable(data, timeFrame = 'daily') {
                 y: {
                     beginAtZero: true,
                     ticks: {
+                        stepSize: 1,
+                        precision: 0,
                         callback: function(value) {
                             return value + '';
                         }
@@ -1249,6 +1499,8 @@ function populateQuantityTable(data, timeFrame = 'daily') {
                 y: {
                     beginAtZero: true,
                     ticks: {
+                        stepSize: 1,
+                        precision: 0,
                         callback: function(value) {
                             return value + '';
                         }
@@ -1276,6 +1528,8 @@ function populateQuantityTable(data, timeFrame = 'daily') {
                 y: {
                     beginAtZero: true,
                     ticks: {
+                        stepSize: 1,
+                        precision: 0,
                         callback: function(value) {
                             return value + '';
                         }
@@ -1388,9 +1642,13 @@ function populateQuantityTable(data, timeFrame = 'daily') {
         // Function to update all charts based on selected time frame
         function updateChart3(timeFrame) {
         let selectedData = mediaData[timeFrame];
-        if (timeFrame === 'monthly' && globalFromDate && globalToDate) {
+        if (globalFromDate && globalToDate) {
+        if (timeFrame === 'monthly') {
             selectedData = fillMissingMonthsGrouped(selectedData, globalFromDate, globalToDate);
+        } else if (timeFrame === 'weekly') {
+            selectedData = fillMissingWeeksGrouped(selectedData, globalFromDate, globalToDate);
         }
+    }
         let labels = selectedData.map(item => `${formatDateLabel(item.label, timeFrame)} - ${item.MediaType}`);
         let data = selectedData.map(item => item.count);
 
@@ -1438,6 +1696,8 @@ function populateQuantityTable(data, timeFrame = 'daily') {
                 y: {
                     beginAtZero: true,
                     ticks: {
+                        stepSize: 1,
+                        precision: 0,
                         callback: function(value) {
                             return value + '';
                         }
@@ -1474,7 +1734,14 @@ function populateQuantityTable(data, timeFrame = 'daily') {
                 stacked: true // Stack the bars on the x-axis
             },
             y: {
-                stacked: true // Stack the bars on the y-axis
+                stacked: true, // Stack the bars on the y-axis
+                ticks: {
+                    stepSize: 1,
+                    precision: 0,
+                    callback: function(value) {
+                        return value + '';
+                    }
+                }
             }
         }
     }
@@ -1500,6 +1767,8 @@ function populateQuantityTable(data, timeFrame = 'daily') {
                 y: {
                     beginAtZero: true,
                     ticks: {
+                        stepSize: 1,
+                        precision: 0,
                         callback: function(value) {
                             return value + '';
                         }
@@ -1528,6 +1797,8 @@ function populateQuantityTable(data, timeFrame = 'daily') {
                 y: {
                     beginAtZero: true,
                     ticks: {
+                        stepSize: 1,
+                        precision: 0,
                         callback: function(value) {
                             return value + '';
                         }
@@ -1555,6 +1826,8 @@ function populateQuantityTable(data, timeFrame = 'daily') {
                 y: {
                     beginAtZero: true,
                     ticks: {
+                        stepSize: 1,
+                        precision: 0,
                         callback: function(value) {
                             return value + '';
                         }
@@ -1689,9 +1962,13 @@ function populateQuantityTable(data, timeFrame = 'daily') {
     // Update charts and table based on the selected timeframe
     function updateChart4(timeFrame) {
         let selectedData = publicationData[timeFrame];
-        if (timeFrame === 'monthly' && globalFromDate && globalToDate) {
+        if (globalFromDate && globalToDate) {
+        if (timeFrame === 'monthly') {
             selectedData = fillMissingMonthsGrouped(selectedData, globalFromDate, globalToDate);
+        } else if (timeFrame === 'weekly') {
+            selectedData = fillMissingWeeksGrouped(selectedData, globalFromDate, globalToDate);
         }
+    }
         let labels = selectedData.map(item => `${formatDateLabel(item.label, timeFrame)} - ${item.MediaOutlet}`);
         let data = selectedData.map(item => item.count);
 
@@ -1994,9 +2271,13 @@ function populateQuantityTable(data, timeFrame = 'daily') {
         // Update charts and table based on the selected timeframe
         function updateChart5(timeFrame) {
             let selectedData = geographyData[timeFrame];
-            if (timeFrame === 'monthly' && globalFromDate && globalToDate) {
-                selectedData = fillMissingMonthsGrouped(selectedData, globalFromDate, globalToDate);
-            }
+            if (globalFromDate && globalToDate) {
+        if (timeFrame === 'monthly') {
+            selectedData = fillMissingMonthsGrouped(selectedData, globalFromDate, globalToDate);
+        } else if (timeFrame === 'weekly') {
+            selectedData = fillMissingWeeksGrouped(selectedData, globalFromDate, globalToDate);
+        }
+    }
             let labels = selectedData.map(item => `${formatDateLabel(item.label, timeFrame)} - ${item.Edition}`);
             let data = selectedData.map(item => item.count);
 
@@ -2410,8 +2691,12 @@ function fillMissingMonthsGrouped(data, fromDate, toDate) {
 function updateChart6(timeframe) {
     let selectedData = journalistData[timeframe];
 
-    if (timeframe === 'monthly' && globalFromDate && globalToDate) {
-        selectedData = fillMissingMonthsGrouped(selectedData, globalFromDate, globalToDate);
+    if (globalFromDate && globalToDate) {
+        if (timeframe === 'monthly') {
+            selectedData = fillMissingMonthsGrouped(selectedData, globalFromDate, globalToDate);
+        } else if (timeframe === 'weekly') {
+            selectedData = fillMissingWeeksGrouped(selectedData, globalFromDate, globalToDate);
+        }
     }
 
     let labels = selectedData.map(item => `${formatDateLabel(item.label, timeframe)} - ${item.Journalist}`);

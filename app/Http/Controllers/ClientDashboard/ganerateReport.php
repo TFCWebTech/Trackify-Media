@@ -107,8 +107,8 @@ class ganerateReport extends Controller
             ->leftJoin('mediaoutlet', 'news_details.publication_id', '=', 'mediaoutlet.gidMediaOutlet')
             ->leftJoin('edition', 'news_details.edition_id', '=', 'edition.gidEdition')
             ->leftJoin('supplements', 'news_details.supplement_id', '=', 'supplements.gidSupplement')
-            ->leftJoin('journalist', 'news_details.journalist_id', '=', 'journalist.gidJournalist')
-            ->where('news_details.is_send', '1');
+            ->leftJoin('journalist', 'news_details.journalist_id', '=', 'journalist.gidJournalist');
+            // ->where('news_details.is_send', '1');
 
         if ($from_date && $to_date) {
             $query->whereBetween('news_details.create_at', [$from_date, $to_date]);
@@ -130,7 +130,6 @@ class ganerateReport extends Controller
         });
 
         $result = $query->get();
-
         // Fetch quick links for each mail template
         foreach ($result as $News) {
             $News->News_artical = $News->newsArticles()->get();
