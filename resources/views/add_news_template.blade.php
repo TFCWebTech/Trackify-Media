@@ -334,7 +334,7 @@
                                 <div class="col-md-3">
                                     <label class="px-1 font-weight-bold" for="title_name">Title Name</label>
                                     <input type="text" class="form-control" oninput="removeLeadingSpace(this)" name="title_name" placeholder="Title Name"
-                                        value="{{ old('title_name', isset($mail_template) ? $mail_template->header_title_name : 'TATA MOTERS') }}" required>
+                                        value="{{ old('title_name', isset($mail_template) ? $mail_template->header_title_name : '') }}" required>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="px-1 font-weight-bold" for="font_color">Title Font Color</label>
@@ -378,7 +378,7 @@
                                 <div class="col-md-3">
                                     <label class="px-1 font-weight-bold" for="media_type">Edition</label>
                                     <select class="js-example-basic-multiple form-control" name="content_edition[]" multiple="multiple" required>
-                                        <option value="">Select</option> <!-- Select Option -->
+                                        <option value="">Select All</option> <!-- Select Option -->
                                         @php
                                             $nashikSelected = false; // flag to select only first Nashik
                                         @endphp
@@ -667,7 +667,7 @@
                                 <div class="col-md-3">
                                     <label class="px-1 font-weight-bold" for="title_name">Title Name</label>
                                     <input type="text" oninput="removeLeadingSpace(this)" class="form-control" name="footer_title_name" placeholder="Title Name" required 
-                                        value="{{ old('footer_title_name', isset($mail_template) ? $mail_template->footer_title_name : 'TATA MOTERS') }}">
+                                        value="{{ old('footer_title_name', isset($mail_template) ? $mail_template->footer_title_name : '') }}">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="px-1 font-weight-bold" for="font_color">Title Font Color</label>
