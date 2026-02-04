@@ -442,8 +442,8 @@ return $newsDetails->toArray();
         ->leftJoin('supplements', 'news_details.supplement_id', '=', 'supplements.gidSupplement')
         ->leftJoin('journalist', 'news_details.journalist_id', '=', 'journalist.gidJournalist')
         ->leftJoin('agency', 'news_details.journalist_id', '=', 'agency.gidAgency')
-        ->whereDate('news_details.create_at', $date)
-        // ->where('is_send', 0)
+        // ->whereDate('news_details.create_at', $date)
+        ->where('is_send', 0)
         ->where(function($query) use ($client_id) {
             $query->whereRaw("FIND_IN_SET(?, company)", [$client_id]);
         })

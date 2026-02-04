@@ -402,111 +402,70 @@ th {
                         <th>Quick Links</th>
                         <th>Access Other Services</th>
                     </tr>
+                    @php
+                        // 1️⃣ Client news count
+                        $clientNewsCount = 0;
+                        if (!empty($get_client_details[0]['client_news'])) {
+                            foreach ($get_client_details[0]['client_news'] as $clientNews) {
+                                if (!empty($clientNews['news']) && is_array($clientNews['news'])) {
+                                    $clientNewsCount += count($clientNews['news']);
+                                }
+                            }
+                        }
+
+                        // 2️⃣ Competitor news counts (array)
+                        $competitorNewsCounts = [];
+                        if (!empty($get_client_details[0]['compititors_data'])) {
+                            foreach ($get_client_details[0]['compititors_data'] as $competitor) {
+                                $competitorNewsCounts[] = !empty($competitor['news'])
+                                    ? count($competitor['news'])
+                                    : 0;
+                            }
+                        }
+
+                        // 3️⃣ Industry news counts (array)
+                        $industryNewsCounts = [];
+                        if (!empty($get_client_details[0]['industry_data'])) {
+                            foreach ($get_client_details[0]['industry_data'] as $industry) {
+                                $industryNewsCounts[] = !empty($industry['news'])
+                                    ? count($industry['news'])
+                                    : 0;
+                            }
+                        }
+                    @endphp
+
+                    {{-- QUICK LINKS --}}
                     @if (!empty($get_client_details[0]['get_quick_links']))
                         @foreach ($get_client_details[0]['get_quick_links'] as $detail)
-                            @if ($detail->quick_links_position == '1')
-                                @php
-                                    $totalNewsCount = 0;
-                                    if (!empty($get_client_details[0]['client_news'])) {
-                                        foreach ($get_client_details[0]['client_news'] as $clientNews) {
-                                            if (!empty($clientNews['news']) && is_array($clientNews['news'])) {
-                                                $totalNewsCount += count($clientNews['news']);
-                                            }
-                                        }
+                            @php
+                                $pos = (int) $detail->quick_links_position;
+                                $count = 0;
+                                // Position-based count resolution
+                                if ($pos === 1) {
+                                    $count = $clientNewsCount;
+                                } else {
+                                    // After client (1), competitors come first, then industries
+                                    $competitorIndex = $pos - 2;
+
+                                    if (isset($competitorNewsCounts[$competitorIndex])) {
+                                        $count = $competitorNewsCounts[$competitorIndex];
+                                    } else {
+                                        $industryIndex = $competitorIndex - count($competitorNewsCounts);
+                                        $count = $industryNewsCounts[$industryIndex] ?? 0;
                                     }
-                                @endphp
-                                <tr style="background-color: #DCD5D5; color: #ffffff;" onclick="scrollToTarget('clientdiv')">
-                                    <td>
-                                        <p>{{ $detail->quick_links_name }} ({{ $totalNewsCount }})</p>
-                                    </td>
-                                    <td><a href="{{ rtrim(config('app.url'), '/') }}/admin-login">Login</a></td>
-                                </tr>
-                            @elseif ($detail->quick_links_position == '2')
-                                @php
-                                    $totalCompetitorNewsCount = 0;
-                                    if (!empty($get_client_details[0]['compititors_data'])) {
-                                        foreach ($get_client_details[0]['compititors_data'] as $competitor) {
-                                            if (!empty($competitor['news']) && is_array($competitor['news'])) {
-                                                $totalCompetitorNewsCount += count($competitor['news']);
-                                            }
-                                        }
-                                    }
-                                @endphp
-                                <tr style="background-color: #DCD5D5; color: #ffffff;" onclick="scrollToTarget2('competitordiv')">
-                                    <td>
-                                        {{ $detail->quick_links_name }} ({{ $totalCompetitorNewsCount }})
-                                    </td>
-                                    <td></td>
-                                </tr>
-                            @elseif ($detail->quick_links_position == '3')
-                                @php
-                                    $totalIndustryNewsCount = 0;
-                                    if (!empty($get_client_details[0]['industry_data'])) {
-                                        foreach ($get_client_details[0]['industry_data'] as $industry) {
-                                            if (!empty($industry['news']) && is_array($industry['news'])) {
-                                                $totalIndustryNewsCount += count($industry['news']);
-                                            }
-                                        }
-                                    }
-                                @endphp
-                                <tr style="background-color: #DCD5D5; color: #ffffff;" onclick="scrollToTarget3('industrydiv')">
-                                    <td>
-                                        {{ $detail->quick_links_name }} ({{ $totalIndustryNewsCount }})
-                                    </td>
-                                    <td></td>
-                                </tr>
-                            @elseif ($detail->quick_links_position == '4')
-                                @php
-                                    $totalCompetitorNewsCount = 0;
-                                    if (!empty($get_client_details[0]['compititors_data'])) {
-                                        foreach ($get_client_details[0]['compititors_data'] as $competitor) {
-                                            if (!empty($competitor['news']) && is_array($competitor['news'])) {
-                                                $totalCompetitorNewsCount += count($competitor['news']);
-                                            }
-                                        }
-                                    }
-                                @endphp
-                                <tr style="background-color: #DCD5D5; color: #ffffff;" onclick="scrollToTarget2('competitordiv')">
-                                    <td>
-                                        {{ $detail->quick_links_name }} ({{ $totalCompetitorNewsCount }})
-                                    </td>
-                                    <td></td>
-                                </tr>
-                            @elseif ($detail->quick_links_position == '5')
-                                @php
-                                    $totalIndustryNewsCount = 0;
-                                    if (!empty($get_client_details[0]['industry_data'])) {
-                                        foreach ($get_client_details[0]['industry_data'] as $industry) {
-                                            if (!empty($industry['news']) && is_array($industry['news'])) {
-                                                $totalIndustryNewsCount += count($industry['news']);
-                                            }
-                                        }
-                                    }
-                                @endphp
-                                <tr style="background-color: #DCD5D5; color: #ffffff;" onclick="scrollToTarget3('industrydiv')">
-                                    <td>
-                                        {{ $detail->quick_links_name }} ({{ $totalIndustryNewsCount }})
-                                    </td>
-                                    <td></td>
-                                </tr>
-                            @elseif ($detail->quick_links_position == '6')
-                                @php
-                                    $totalCompetitorNewsCount = 0;
-                                    if (!empty($get_client_details[0]['compititors_data'])) {
-                                        foreach ($get_client_details[0]['compititors_data'] as $competitor) {
-                                            if (!empty($competitor['news']) && is_array($competitor['news'])) {
-                                                $totalCompetitorNewsCount += count($competitor['news']);
-                                            }
-                                        }
-                                    }
-                                @endphp
-                                <tr style="background-color: #DCD5D5; color: #ffffff;" onclick="scrollToTarget2('competitordiv')">
-                                    <td>
-                                        {{ $detail->quick_links_name }} ({{ $totalCompetitorNewsCount }})
-                                    </td>
-                                    <td></td>
-                                </tr>
-                            @endif
+                                }
+                            @endphp
+                            <tr style="background-color:#DCD5D5; color:#fff;"
+                                onclick="scrollByPosition({{ $pos }})">
+                                <td>
+                                    {{ $detail->quick_links_name }} ({{ $count }})
+                                </td>
+                                <td>
+                                    @if ($pos === 1)
+                                        <a href="{{ rtrim(config('app.url'), '/') }}/admin-login">Login</a>
+                                    @endif
+                                </td>
+                            </tr>
                         @endforeach
                     @else
                         <tr>
@@ -519,7 +478,7 @@ th {
                     </tr>
                 </table>    
                 </div>
-                <div class="body-content" style="padding:10px 15px 0px 15px;"  id="clientdiv">
+                <div class="body-content scroll-section" style="padding:10px 15px 0px 15px;" data-scroll-order="1"  id="clientdiv">
                     <h4 style="background-color: #cfbbbb; color: #ffffff; padding:4px;"> {{ $details['client_name'] }} </h4>
                     @php
                         $hasNews = false;
@@ -594,8 +553,8 @@ th {
                     <h4 style="background-color: #cfbbbb; color: #ffffff; padding:4px;">Competition</h4>
                 </div>
 
-                @foreach ($get_client_details[0]['compititors_data'] as $compititor)
-                    <div class="body-content" id="competitordiv" style="padding:10px 15px 0px 15px;">
+                @foreach ($get_client_details[0]['compititors_data'] as $index => $compititor)
+                    <div class="body-content scroll-section" id="competitordiv" data-scroll-order="{{ $index + 2 }}" data-section="competition" style="padding:10px 15px 0px 15px;">
                         <h4 style="background-color: #cfbbbb; color: #ffffff; padding:4px;">{{ $compititor['Competitor_name'] }}</h4>
 
                         @if (!empty($compititor['news']) && is_array($compititor['news']) && count($compititor['news']) > 0)
@@ -658,8 +617,12 @@ th {
                 <div class="body-content" style="padding:10px 15px 0px 15px;">
                     <h4 style="background-color: #cfbbbb; color: #ffffff; padding:4px;"> Industry</h4>
                 </div>
-                @foreach ($get_client_details[0]['industry_data'] as $Industry)
-                    <div class="body-content" id="industrydiv" style="padding:10px 15px 0px 15px;">
+                @php
+                    $competitionCount = count($get_client_details[0]['compititors_data']);
+                @endphp
+
+                @foreach ($get_client_details[0]['industry_data'] as $i => $Industry)
+                    <div class="body-content scroll-section" id="industrydiv" data-scroll-order="{{ $competitionCount + $i + 2 }}"data-section="industry" style="padding:10px 15px 0px 15px;">
                         <h4 style="background-color: #cfbbbb; color: #ffffff; padding:4px;"> {{ $Industry['Industry_name'] }}</h4>
 
                         @if (!empty($Industry['news']) && is_array($Industry['news']) && count($Industry['news']) > 0)
@@ -788,6 +751,42 @@ th {
             targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }
+
+    function scrollToTypedIndex(type, index) {
+        const sections = document.querySelectorAll(`[data-section="${type}"]`);
+
+        if (!sections.length) {
+            console.warn(`No sections found for type: ${type}`);
+            return;
+        }
+
+        if (!sections[index]) {
+            console.warn(`No ${type} section at index ${index}`);
+            return;
+        }
+
+        sections[index].scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+    }
+
+    function scrollByPosition(position) {
+        const target = document.querySelector(
+            `.scroll-section[data-scroll-order="${position}"]`
+        );
+
+        if (!target) {
+            console.warn('No section found for position:', position);
+            return;
+        }
+
+        target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+    }
+
 </script>
 <script>
 function getEmail(client_id) 
