@@ -250,10 +250,11 @@ public function getCompNewsByKeyQ($Keywords, $client_id, $from = null, $to = nul
             $rates_data = $this->getRates($value->media_type_id, $value->publication_id);
             $ave = 0;
 
+            //print_r($rates_data); // Debugging line to check the structure of $rates_data
             if (!empty($rates_data)) {
                 $article_size = $value->sizeofArticle ?? 0;
-                $rate = $rates_data['Rate'];
-                $Circulation_Fig = $rates_data['Circulation_Fig'];
+                $rate = $rates_data->Rate ?? 0;
+                $Circulation_Fig = $rates_data->Circulation_Fig ?? 0;
                 $ave = 3 * $article_size * $rate * $Circulation_Fig;
             }
             $value->ave = $ave;

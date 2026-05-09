@@ -510,7 +510,13 @@ return $newsDetails->toArray();
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
             session()->flash('error', 'An error occurred while sending emails.');
-            return response()->json(['success' => false, 'message' => 'An error occurred while sending emails.'], 500);
+            // return response()->json(['success' => false, 'message' => 'An error occurred while sending emails.'], 500);
+            return response()->json([
+        'success' => false,
+        'message' => $e->getMessage(),
+        'line' => $e->getLine(),
+        'file' => $e->getFile()
+    ], 500);
         }
     }
 

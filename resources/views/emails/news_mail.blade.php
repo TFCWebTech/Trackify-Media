@@ -224,12 +224,18 @@
                             <div id="IndustrynewsContent-{{ $news['news_details_id'] }}-{{ $industry['Industry_id'] }}">
                                 <div style="display:flex; justify-content: space-between; padding: 0 10px;">
                                     <h5>
-                                        <a href="{{ url('news-article/' . $news['news_details_id']) }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}; font-family: {{ $get_client_details[0]['content_headline_font'] }}">{{ $news['head_line'] }}</a>
+                                        <a href="{{ url('news-article/' . $news['news_details_id']) }}"
+                                        style="color: {{ $get_client_data['content_headline_color'] ?? '' }};
+                                                font-size: {{ $get_client_data['content_headline_font_size'] ?? '' }};
+                                                font-family: {{ $get_client_data['content_headline_font'] ?? '' }}">
+                                            {{ $news['head_line'] }}
+                                        </a>
                                     </h5>
                                     
                                 </div>
                                 <h5>Summary:</h5>
-                                <p style="color: {{ $get_client_details[0]['content_news_summary_color'] }}; font-size: {{ $get_client_details[0]['content_news_summary_font_size'] }};">
+                                <p style="color: {{ $get_client_data['content_news_summary_color'] ?? '' }}; 
+                                    font-size: {{ $get_client_data['content_news_summary_font_size'] ?? '' }};">
                                     {{ $news['summary'] }}
                                 </p>
                                 <p>Date: {{ \Carbon\Carbon::parse($news['create_at'])->format('d-m-Y') }},
