@@ -133,7 +133,7 @@ margin-bottom: 5px !important;
                 </div>
                 <div class="form-group">
                     <label class="px-1 font-weight-bold" for="EditionOrder">Edition Order</label>
-                    <input type="text" class="form-control" placeholder="Enter Edition Order" id="EditionOrder" name="EditionOrder" required>
+                    <input type="number" class="form-control" placeholder="Enter Edition Order" id="EditionOrder" name="EditionOrder" required>
                 </div>
                 <div class="form-group">
                     <label class="px-1 font-weight-bold" for="tier_type">Publication</label>

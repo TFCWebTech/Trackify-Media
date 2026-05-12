@@ -378,7 +378,7 @@
                                 <div class="col-md-3">
                                     <label class="px-1 font-weight-bold" for="media_type">Edition</label>
                                     <select class="js-example-basic-multiple form-control" name="content_edition[]" multiple="multiple" required>
-                                        <option value="">Select All</option> <!-- Select Option -->
+                                        <option value="select_all">Select All</option>
                                         @php
                                             $nashikSelected = false; // flag to select only first Nashik
                                         @endphp
@@ -399,61 +399,43 @@
                                 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                                 <script>
                                     $(document).ready(function () {
-                                        // Initialize Select2
+                                        // Initialize Select2 once
                                         $('select[name="content_publication[]"], select[name="content_edition[]"]').select2({
                                             placeholder: "Select Options",
                                             allowClear: true,
                                             width: '100%'
                                         });
 
-                                        // Automatically select all options if "Select All" is selected
-                                        $('select[name="content_publication[]"]').each(function() {
+                                        // On load: if "Select All" is selected, expand it to all options
+                                        $('select[name="content_publication[]"], select[name="content_edition[]"]').each(function() {
                                             const selectElement = $(this);
                                             const selectedValues = selectElement.val() || [];
 
                                             if (selectedValues.includes("select_all")) {
-                                                const allOptions = selectElement.find('option').not('[value="select_all"]').map(function() {
-                                                    return this.value;
-                                                }).get();
-
+                                                const allOptions = selectElement.find('option')
+                                                    .not('[value="select_all"]')
+                                                    .map(function() { return this.value; })
+                                                    .get();
                                                 selectElement.val(allOptions).trigger('change');
                                             }
-                                        });
-                                        // Initialize Select2
-                                        $('select[name="content_publication[]"], select[name="content_edition[]"]').select2({
-                                            placeholder: "Select Options",
-                                            allowClear: true,
-                                            width: '100%'
                                         });
 
                                         // Handle selection change
                                         $('select[name="content_publication[]"], select[name="content_edition[]"]').on('change', function () {
                                             const selectElement = $(this);
-                                            const selectedValues = selectElement.val(); // Get the selected values
+                                            const selectedValues = selectElement.val() || [];
                                             const isPublication = selectElement.attr('name') === 'content_publication[]';
                                             const isEdition = selectElement.attr('name') === 'content_edition[]';
 
-                                            if (isPublication && selectedValues.includes("select_all")) {
-                                                // Select all options except "Select All" in content_publication
-                                                const allOptions = selectElement.find('option').not('[value="select_all"]').map(function () {
-                                                    return this.value;
-                                                }).get();
-
-                                                selectElement.val(allOptions).trigger('change');
-                                            } else if (isEdition && selectedValues.includes("")) {
-                                                // Select all options except the empty value in content_edition
-                                                const allOptions = selectElement.find('option').not('[value=""]').map(function () {
-                                                    return this.value;
-                                                }).get();
-
+                                            if ((isPublication || isEdition) && selectedValues.includes("select_all")) {
+                                                const allOptions = selectElement.find('option')
+                                                    .not('[value="select_all"]')
+                                                    .map(function () { return this.value; })
+                                                    .get();
                                                 selectElement.val(allOptions).trigger('change');
                                             } else {
-                                                // Remove "Select All" or empty selection if any other option is selected
-                                                if (isPublication) {
-                                                    selectElement.find('option[value="select_all"]').prop('selected', false);
-                                                } else if (isEdition) {
-                                                    selectElement.find('option[value=""]').prop('selected', false);
-                                                }
+                                                // Remove "Select All" if any other option is selected
+                                                selectElement.find('option[value="select_all"]').prop('selected', false);
                                             }
                                         });
 

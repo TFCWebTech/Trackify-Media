@@ -27,8 +27,10 @@ class addClientTemplate extends Controller
     public function store(Request $request)
     {
         //print_r($request->input('mail_template_id'));die;
-        
-        $request->validate([
+
+        $isUpdate = $request->has('mail_template_id') && !empty($request->mail_template_id);
+
+        $rules = [
             'trackify_media' => 'required',
             'trackify_link' => 'required',
             'menu_bg_color' => 'required',
@@ -40,9 +42,6 @@ class addClientTemplate extends Controller
             'row_font' => 'required',
             'row_font_size' => 'required',
             'no_news_text' => 'required',
-            'quick_links_name' => 'required',
-            'quick_link_url' => 'required',
-            'quick_links_position' => 'required',
             'header_bg_color' => 'required',
             'logo_url' => 'required',
             'logo_position' => 'required',
@@ -68,7 +67,27 @@ class addClientTemplate extends Controller
             'footer_title_name' => 'required',
             'footer_font_color' => 'required',
             'footer_font_size' => 'required'
-        ]);
+        ];
+
+        // Creating a template requires at least one quick link row.
+        // Updating a template: allow editing existing quick links without forcing new ones.
+        if ($isUpdate) {
+            $rules['quick_links_name'] = 'nullable|array';
+            $rules['quick_links_name.*'] = 'nullable|string';
+            $rules['quick_link_url'] = 'nullable|array';
+            $rules['quick_link_url.*'] = 'nullable|string';
+            $rules['quick_links_position'] = 'nullable|array';
+            $rules['quick_links_position.*'] = 'nullable';
+        } else {
+            $rules['quick_links_name'] = 'required|array|min:1';
+            $rules['quick_links_name.*'] = 'required|string';
+            $rules['quick_link_url'] = 'required|array|min:1';
+            $rules['quick_link_url.*'] = 'required|string';
+            $rules['quick_links_position'] = 'required|array|min:1';
+            $rules['quick_links_position.*'] = 'required';
+        }
+
+        $request->validate($rules);
 
         $content_publication = $request->input('content_publication');
         $content_publication_string = implode(',', $content_publication);
@@ -82,7 +101,7 @@ class addClientTemplate extends Controller
         $quick_links_id_old = $request->input('quick_links_id_old');
         $quick_links_url_old = $request->input('quick_link_url_old');
         $quick_links_position_old = $request->input('quick_links_position_old');
-        if ($request->has('mail_template_id') && $request->mail_template_id) {
+        if ($isUpdate) {
             $mail_template = DB::table('mail_template')
             ->where('mail_template_id', $request->mail_template_id)
             ->update([
@@ -163,35 +182,48 @@ class addClientTemplate extends Controller
                     
                 }
             }
-            if ($templateId) {
-                $quick_links_data = [];
-        
-                for ($i = 0; $i < count($quick_links_name); $i++) {
-                    $quick_links_data[] = [
-                        'mail_template_id' => $templateId,
-                        'quick_links_name' => $quick_links_name[$i],
-                        'quick_links_url' => $quick_links_url[$i],
-                        'quick_links_position' => $quick_links_position[$i]
-                    ];
-                }
-        
-                $all_inserted = true;
-                foreach ($quick_links_data as $link_data) {
-                    $inserted = DB::table('quick_links')->insert($link_data);
-                    if (!$inserted) {
-                        $all_inserted = false;
-                        break;
-                    }
-                }
-        
-                if ($all_inserted) {
-                    return redirect()->route('addNewsTemplate', $request->input('client_id'))->with('success', 'Template Updated Successfully');
-                } else {
-                    return redirect()->route('addNewsTemplate', $request->input('client_id'))->with('error', 'Error adding template');
-                }
-            } else {
+            if (!$templateId) {
                 return redirect()->route('addNewsTemplate', $request->input('client_id'))->with('error', 'Something Went Wrong');
             }
+
+            // Insert only genuinely new quick links (non-empty + not already present)
+            $newLinks = [];
+            if (is_array($quick_links_name) && is_array($quick_links_url) && is_array($quick_links_position)) {
+                $max = max(count($quick_links_name), count($quick_links_url), count($quick_links_position));
+                for ($i = 0; $i < $max; $i++) {
+                    $name = isset($quick_links_name[$i]) ? trim((string) $quick_links_name[$i]) : '';
+                    $url = isset($quick_links_url[$i]) ? trim((string) $quick_links_url[$i]) : '';
+                    $pos = $quick_links_position[$i] ?? null;
+
+                    if ($name === '' || $url === '' || empty($pos)) {
+                        continue;
+                    }
+
+                    $candidate = [
+                        'mail_template_id' => $templateId,
+                        'quick_links_name' => $name,
+                        'quick_links_url' => $url,
+                        'quick_links_position' => $pos,
+                    ];
+
+                    $exists = DB::table('quick_links')
+                        ->where('mail_template_id', $templateId)
+                        ->where('quick_links_name', $name)
+                        ->where('quick_links_url', $url)
+                        ->where('quick_links_position', $pos)
+                        ->exists();
+
+                    if (!$exists) {
+                        $newLinks[] = $candidate;
+                    }
+                }
+            }
+
+            foreach ($newLinks as $link_data) {
+                DB::table('quick_links')->insert($link_data);
+            }
+
+            return redirect()->route('addNewsTemplate', $request->input('client_id'))->with('success', 'Template Updated Successfully');
         }
         else{
             $mailTemplate = MailTemplate_Model::create([

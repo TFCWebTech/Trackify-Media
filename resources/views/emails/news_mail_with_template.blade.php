@@ -44,6 +44,11 @@
             padding: 10px;
             text-align: center;
         }
+        /* Hover underline (supported in some email clients; safe fallback elsewhere) */
+        a.headline-link:hover,
+        a.quick-link:hover {
+            text-decoration: underline !important;
+        }
     </style>
 </head>
 <body>
@@ -83,103 +88,91 @@
             <div class="col-md-12 mt-3 table-wrapper">
                 <table>
                     <tr style="background-color: #6D6B6B; color: #ffffff;">
-                        <th></th>
+                        <th>Quick Links</th>
                         <th>Access Other Services</th>
                     </tr>
-                    @if (!empty($get_client_details[0]['get_quick_links']))
-                        @foreach ($get_client_details[0]['get_quick_links'] as $detail)
-                            @if ($detail['quick_links_position'] == '1')
-                                @php
-                                    $totalNewsCount = 0;
-                                    if (!empty($get_client_details[0]['client_news'])) {
-                                        foreach ($get_client_details[0]['client_news'] as $clientNews) {
-                                            if (!empty($clientNews['news']) && is_array($clientNews['news'])) {
-                                                $totalNewsCount += count($clientNews['news']);
-                                            }
-                                        }
-                                    }
-                                @endphp
-                                <tr style="background-color: #DCD5D5; color: #ffffff;">
-                                    <td><p>{{ $detail['quick_links_name'] }} ({{ $totalNewsCount }})</p></td>
-                                    <td><a href="{{ rtrim(config('app.url'), '/') }}/admin-login">Login</a></td>
-                                </tr>
-                            @elseif ($detail['quick_links_position'] == '2')
-                                @php
-                                    $totalCompetitorNewsCount = 0;
-                                    if (!empty($get_client_details[0]['compititors_data'])) {
-                                        foreach ($get_client_details[0]['compititors_data'] as $competitor) {
-                                            if (!empty($competitor['news']) && is_array($competitor['news'])) {
-                                                $totalCompetitorNewsCount += count($competitor['news']);
-                                            }
-                                        }
-                                    }
-                                @endphp
-                                <tr style="background-color: #DCD5D5; color: #ffffff;">
-                                    <td>{{ $detail['quick_links_name'] }} ({{ $totalCompetitorNewsCount }})</td>
-                                    <td></td>
-                                </tr>
-                            @elseif ($detail['quick_links_position'] == '3')
-                                @php
-                                    $totalIndustryNewsCount = 0;
-                                    if (!empty($get_client_details[0]['industry_data'])) {
-                                        foreach ($get_client_details[0]['industry_data'] as $industry) {
-                                            if (!empty($industry['news']) && is_array($industry['news'])) {
-                                                $totalIndustryNewsCount += count($industry['news']);
-                                            }
-                                        }
-                                    }
-                                @endphp
-                                <tr style="background-color: #DCD5D5; color: #ffffff;">
-                                    <td>{{ $detail['quick_links_name'] }} ({{ $totalIndustryNewsCount }})</td>
-                                    <td></td>
-                                </tr>
-                            @elseif ($detail['quick_links_position'] == '4')
-                                @php
-                                    $totalCompetitorNewsCount = 0;
-                                    if (!empty($get_client_details[0]['compititors_data'])) {
-                                        foreach ($get_client_details[0]['compititors_data'] as $competitor) {
-                                            if (!empty($competitor['news']) && is_array($competitor['news'])) {
-                                                $totalCompetitorNewsCount += count($competitor['news']);
-                                            }
-                                        }
-                                    }
-                                @endphp
-                                <tr style="background-color: #DCD5D5; color: #ffffff;">
-                                    <td>{{ $detail['quick_links_name'] }} ({{ $totalCompetitorNewsCount }})</td>
-                                    <td></td>
-                                </tr>
-                            @elseif ($detail['quick_links_position'] == '5')
-                                @php
-                                    $totalIndustryNewsCount = 0;
-                                    if (!empty($get_client_details[0]['industry_data'])) {
-                                        foreach ($get_client_details[0]['industry_data'] as $industry) {
-                                            if (!empty($industry['news']) && is_array($industry['news'])) {
-                                                $totalIndustryNewsCount += count($industry['news']);
-                                            }
-                                        }
-                                    }
-                                @endphp
-                                <tr style="background-color: #DCD5D5; color: #ffffff;">
-                                    <td>{{ $detail['quick_links_name'] }} ({{ $totalIndustryNewsCount }})</td>
-                                    <td></td>
-                                </tr>
-                            @elseif ($detail['quick_links_position'] == '6')
-                                @php
-                                    $totalCompetitorNewsCount = 0;
-                                    if (!empty($get_client_details[0]['compititors_data'])) {
-                                        foreach ($get_client_details[0]['compititors_data'] as $competitor) {
-                                            if (!empty($competitor['news']) && is_array($competitor['news'])) {
-                                                $totalCompetitorNewsCount += count($competitor['news']);
-                                            }
-                                        }
-                                    }
-                                @endphp
-                                <tr style="background-color: #DCD5D5; color: #ffffff;">
-                                    <td>{{ $detail['quick_links_name'] }} ({{ $totalCompetitorNewsCount }})</td>
+                    @php
+                        $clientNewsCount = 0;
+                        if (!empty($get_client_details[0]['client_news'])) {
+                            foreach ($get_client_details[0]['client_news'] as $clientNews) {
+                                if (!empty($clientNews['news']) && is_array($clientNews['news'])) {
+                                    $clientNewsCount += count($clientNews['news']);
+                                }
+                            }
+                        }
+
+                        $competitorNewsCounts = [];
+                        if (!empty($get_client_details[0]['compititors_data'])) {
+                            foreach ($get_client_details[0]['compititors_data'] as $competitor) {
+                                $competitorNewsCounts[] = !empty($competitor['news']) && is_array($competitor['news'])
+                                    ? count($competitor['news'])
+                                    : 0;
+                            }
+                        }
+
+                        $industryNewsCounts = [];
+                        if (!empty($get_client_details[0]['industry_data'])) {
+                            foreach ($get_client_details[0]['industry_data'] as $industry) {
+                                $industryNewsCounts[] = !empty($industry['news']) && is_array($industry['news'])
+                                    ? count($industry['news'])
+                                    : 0;
+                            }
+                        }
+
+                        $anyQuickLinkRow = false;
+                    @endphp
+
+                    @if ($clientNewsCount > 0)
+                        @php $anyQuickLinkRow = true; @endphp
+                        <tr style="background-color:#DCD5D5;">
+                            <td style="color:#ffffff;">
+                                <a class="quick-link" href="#quick-client" style="color:#ffffff; text-decoration:none; display:inline-block;">
+                                    {{ $details['client_name'] }} ({{ $clientNewsCount }})
+                                </a>
+                            </td>
+                            <td><a href="{{ rtrim(config('app.url'), '/') }}/admin-login">Login</a></td>
+                        </tr>
+                    @endif
+
+                    @if (!empty($get_client_details[0]['compititors_data']))
+                        @foreach ($get_client_details[0]['compititors_data'] as $index => $compititor)
+                            @php $count = $competitorNewsCounts[$index] ?? 0; @endphp
+                            @if ($count > 0)
+                                @php $anyQuickLinkRow = true; @endphp
+                                <tr style="background-color:#DCD5D5;">
+                                    <td style="color:#ffffff;">
+                                        <a class="quick-link" href="#quick-comp-{{ $index }}" style="color:#ffffff; text-decoration:none; display:inline-block;">
+                                            {{ $compititor['Competitor_name'] ?? 'Competitor' }} ({{ $count }})
+                                        </a>
+                                    </td>
                                     <td></td>
                                 </tr>
                             @endif
                         @endforeach
+                    @endif
+
+                    @if (!empty($get_client_details[0]['industry_data']))
+                        @foreach ($get_client_details[0]['industry_data'] as $i => $industry)
+                            @php $count = $industryNewsCounts[$i] ?? 0; @endphp
+                            @if ($count > 0)
+                                @php $anyQuickLinkRow = true; @endphp
+                                <tr style="background-color:#DCD5D5;">
+                                    <td style="color:#ffffff;">
+                                        <a class="quick-link" href="#quick-ind-{{ $i }}" style="color:#ffffff; text-decoration:none; display:inline-block;">
+                                            {{ $industry['Industry_name'] ?? $industry['industry_name'] ?? 'Industry' }} ({{ $count }})
+                                        </a>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                            @endif
+                        @endforeach
+                    @endif
+
+                    @if (!$anyQuickLinkRow)
+                        <tr style="background-color:#DCD5D5;">
+                            <td style="color:#ffffff;">No news available.</td>
+                            <td><a href="{{ rtrim(config('app.url'), '/') }}/admin-login">Login</a></td>
+                        </tr>
                     @endif
                     <tr style="background-color: #DCD5D5; color: #ffffff;">
                         <td></td>
@@ -189,6 +182,7 @@
             </div>
 
             <div class="body-content">
+                <a id="quick-client"></a>
                 <h4 style="background-color: #6D6B6B; color: #ffffff; padding:4px;">{{ $details['client_name'] }}</h4>
                 @php
                     $hasNews = false;
@@ -205,8 +199,19 @@
                     @foreach ($get_client_details[0]['client_news'] as $news2)
                         @if (!empty($news2['news']) && is_array($news2['news']))
                             @foreach ($news2['news'] as $news)
+                                @php
+                                    $headlineUrl = trim((string) ($news['website_url'] ?? ''));
+                                    if ($headlineUrl === '' && !empty($news['news_details_id'])) {
+                                        $headlineUrl = url('news-article/' . $news['news_details_id']);
+                                    }
+                                    if (preg_match('~^//~', $headlineUrl)) {
+                                        $headlineUrl = 'https:' . $headlineUrl;
+                                    } elseif ($headlineUrl !== '' && !preg_match('~^(https?://|mailto:|tel:)~i', $headlineUrl)) {
+                                        $headlineUrl = 'https://' . $headlineUrl;
+                                    }
+                                @endphp
                                 <h5>
-                                    <a href="{{ $news['website_url'] }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}px; font-family: {{ $get_client_details[0]['content_headline_font'] }};">
+                                    <a class="headline-link" href="{{ $headlineUrl ?: '#' }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}px; font-family: {{ $get_client_details[0]['content_headline_font'] }}; text-decoration: none; display: inline-block;">
                                         {{ $news['head_line'] }}
                                     </a>
                                 </h5>
@@ -235,11 +240,23 @@
             <div class="body-content">
                 <h4 style="background-color: #6D6B6B; color: #ffffff; padding:4px;">Competition</h4>
                 @foreach ($get_client_details[0]['compititors_data'] as $compititor)
+                    <a id="quick-comp-{{ $loop->index }}"></a>
                     <h4 style="background-color: #6D6B6B; color: #ffffff; padding:4px;">{{ $compititor['Competitor_name'] }}</h4>
                     @if (!empty($compititor['news']) && is_array($compititor['news']) && count($compititor['news']) > 0)
                         @foreach ($compititor['news'] as $news)
+                            @php
+                                $headlineUrl = trim((string) ($news['website_url'] ?? ''));
+                                if ($headlineUrl === '' && !empty($news['news_details_id'])) {
+                                    $headlineUrl = url('news-article/' . $news['news_details_id']);
+                                }
+                                if (preg_match('~^//~', $headlineUrl)) {
+                                    $headlineUrl = 'https:' . $headlineUrl;
+                                } elseif ($headlineUrl !== '' && !preg_match('~^(https?://|mailto:|tel:)~i', $headlineUrl)) {
+                                    $headlineUrl = 'https://' . $headlineUrl;
+                                }
+                            @endphp
                             <h5>
-                                <a href="{{ $news['website_url'] }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}px; font-family: {{ $get_client_details[0]['content_headline_font'] }};">
+                                <a class="headline-link" href="{{ $headlineUrl ?: '#' }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}px; font-family: {{ $get_client_details[0]['content_headline_font'] }}; text-decoration: none; display: inline-block;">
                                     {{ $news['head_line'] }}
                                 </a>
                             </h5>
@@ -266,14 +283,26 @@
 
             <div class="body-content">
                 <h4 style="background-color: #6D6B6B; color: #ffffff; padding:4px;">Industry News</h4>
-				@if(isset($get_client_details[0]['industry_data']) && !empty($get_client_details[0]['industry_data']))
-					@foreach ($get_client_details[0]['industry_data'] as $industry)
-						<div class="body-content">
-							<h4 style="background-color: #6D6B6B; color: #ffffff; padding:4px;">{{ $industry['Industry_name'] ?? $industry['industry_name'] ?? 'N/A' }}</h4>
-							@if (!empty($industry['news']) && is_array($industry['news']) && count($industry['news']) > 0)
-								@foreach ($industry['news'] as $news)
-									<h5>
-										<a href="{{ $news['website_url'] }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}px; font-family: {{ $get_client_details[0]['content_headline_font'] }};">
+ 				@if(isset($get_client_details[0]['industry_data']) && !empty($get_client_details[0]['industry_data']))
+ 					@foreach ($get_client_details[0]['industry_data'] as $industry)
+                        <a id="quick-ind-{{ $loop->index }}"></a>
+ 						<div class="body-content">
+ 							<h4 style="background-color: #6D6B6B; color: #ffffff; padding:4px;">{{ $industry['Industry_name'] ?? $industry['industry_name'] ?? 'N/A' }}</h4>
+ 							@if (!empty($industry['news']) && is_array($industry['news']) && count($industry['news']) > 0)
+ 								@foreach ($industry['news'] as $news)
+                                    @php
+                                        $headlineUrl = trim((string) ($news['website_url'] ?? ''));
+                                        if ($headlineUrl === '' && !empty($news['news_details_id'])) {
+                                            $headlineUrl = url('news-article/' . $news['news_details_id']);
+                                        }
+                                        if (preg_match('~^//~', $headlineUrl)) {
+                                            $headlineUrl = 'https:' . $headlineUrl;
+                                        } elseif ($headlineUrl !== '' && !preg_match('~^(https?://|mailto:|tel:)~i', $headlineUrl)) {
+                                            $headlineUrl = 'https://' . $headlineUrl;
+                                        }
+                                    @endphp
+ 									<h5>
+										<a class="headline-link" href="{{ $headlineUrl ?: '#' }}" style="color: {{ $get_client_details[0]['content_headline_color'] }}; font-size: {{ $get_client_details[0]['content_headline_font_size'] }}px; font-family: {{ $get_client_details[0]['content_headline_font'] }}; text-decoration: none; display: inline-block;">
 											{{ $news['head_line'] }}
 										</a>
 									</h5>

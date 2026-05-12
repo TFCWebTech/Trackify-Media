@@ -77,19 +77,21 @@ public function viewUser($id)
         $keywords_string = implode(',', $keywords);
     
         try {
-            // Create a new client record
-            $client = Client_Model::create([
-                'client_name' => $request->input('client_name'),
-                'client_keywords' => $keywords_string,
-                'cilent_status' => $request->input('is_active'),
-                'sector_id' => $request->input('Sector') ?? null, // Default to null if not provided
-                'create_at' => now(),
-                'client_type' => 'Company'
-            ]);
+            DB::transaction(function () use ($request, $keywords_string) {
+                // Create a new client record
+                $client = Client_Model::create([
+                    'client_name' => $request->input('client_name'),
+                    'client_keywords' => $keywords_string,
+                    'cilent_status' => $request->input('is_active'),
+                    'sector_id' => $request->input('Sector') ?? null, // Default to null if not provided
+                    'create_at' => now(),
+                    'client_type' => 'Company'
+                ]);
 
-            if($client){
-                $template = $this->AddTemplate($client->client_id);
-            }
+                if ($client) {
+                    $this->AddTemplate($client->client_id);
+                }
+            });
     
             return redirect()->back()->with('success', 'Client added successfully.');
         } catch (\Exception $e) {
@@ -98,7 +100,11 @@ public function viewUser($id)
         }
     }
 
-    public function AddTemplate($clientId)
+    /**
+     * Create a default mail template for the client and also create a default
+     * quick-link row pointing to Trackify.
+     */
+    public function AddTemplate($clientId): int
     {
         
         // $clientId = $request->input('client_id'); // only dynamic value
@@ -152,13 +158,19 @@ public function viewUser($id)
         $staticData['client_id'] = $clientId;
         $templateId = DB::table('mail_template')->insertGetId($staticData);
 
-        if ($templateId) {
-            return redirect()->route('addNewsTemplate', $clientId)
-                ->with('success', 'Template Added Successfully');
-        } else {
-            return redirect()->route('addNewsTemplate', $clientId)
-                ->with('error', 'Something Went Wrong');
+        if (!$templateId) {
+            throw new \RuntimeException('Failed to create mail_template for client_id: ' . $clientId);
         }
+
+        // Ensure at least one quick-links row exists for the new template.
+        DB::table('quick_links')->insert([
+            'mail_template_id' => $templateId,
+            'quick_links_name' => 'Trackify Media',
+            'quick_links_url' => $staticData['trackify_link'],
+            'quick_links_position' => 1,
+        ]);
+
+        return (int) $templateId;
     }
 
 	

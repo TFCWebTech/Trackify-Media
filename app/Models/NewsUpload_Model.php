@@ -98,5 +98,25 @@ class NewsUpload_Model extends Model
     // }
 
 
+    public function setWebsiteUrlAttribute($value)
+    {
+        $url = trim((string) $value);
+
+        if ($url === '') {
+            $this->attributes['website_url'] = null;
+            return;
+        }
+
+        // Normalize URLs so they work consistently across browsers, PDFs, and email clients.
+        // Many email clients won't treat `href="www.example.com"` as a valid clickable link.
+        if (preg_match('~^//~', $url)) {
+            $url = 'https:' . $url;
+        } elseif (!preg_match('~^(https?://|mailto:|tel:)~i', $url)) {
+            $url = 'https://' . $url;
+        }
+
+        $this->attributes['website_url'] = $url;
+    }
+
     
 }

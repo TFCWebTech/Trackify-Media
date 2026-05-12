@@ -18,6 +18,7 @@ class managejournlmodel extends Model
         'gidJournalist',
         'Journalist',
         'JEmailId',
+        'gigMediaOutlet',
         'Status', // Add this line
         'CreatedOn', // Include token here
     ];

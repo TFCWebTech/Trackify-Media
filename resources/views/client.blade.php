@@ -347,7 +347,7 @@ function addKeywordInput2() {
 	
 	function editClient(client) {
 		$('#modal-title').text('Update Client');
-		$('#clientsForm').attr('action', `/NRS/client/update/${client.client_id}`);
+		$('#clientsForm').attr('action', `{{ url('client/update') }}/${client.client_id}`);
 
 		// Populate the form fields with the reporter data
 		$('input[name="client_name"]').val(client.client_name);

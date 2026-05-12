@@ -310,9 +310,9 @@ margin-bottom: 5px !important;
                 <tr>
                     <td>{{$i}}</td>
                     <td>{{ $values -> client_name}} <a href="{{ route('newsLatter', ['client_id' => $values->client_id]) }}"><i class="fa fa-eye text-primary cursor"></i></a></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <td>{{ (int) ($values->email_count ?? 0) }} emails</td>
+                    <td>{{ (int) ($values->today_pending_news ?? 0) }}</td>
+                    <td>{{ (int) ($values->today_sent_news ?? 0) }}</td>
                     <!-- <td><input type="checkbox" class="checkBox" name="client_id[]" value="<?php //echo $clients['client_id'];?>"></td> -->
                 </tr>
             @endforeach

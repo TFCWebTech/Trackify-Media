@@ -6,6 +6,7 @@ use App\Models\ManageEditionsModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Database\QueryException;
 
 class Edition extends Controller
 {
@@ -52,6 +53,13 @@ class Edition extends Controller
     
             // Redirect back or to another page
             return redirect()->route('edition')->with('success', 'Edition added successfully');
+        } catch (QueryException $e) {
+            \Log::error('Failed to add Edition (DB): ' . $e->getMessage(), ['sqlState' => $e->getCode()]);
+            // Most common production failure here is the unique constraint on (Edition, MediaOutletId)
+            if ((string) $e->getCode() === '23000') {
+                return redirect()->back()->withErrors(['error' => 'Edition already exists for the selected publication.']);
+            }
+            return redirect()->back()->withErrors(['error' => 'Failed to add Edition. Please try again.']);
         } catch (\Exception $e) {
             \Log::error('Failed to add Edition: ' . $e->getMessage());
             return redirect()->back()->withErrors(['error' => 'Failed to add Edition. Please try again.']);

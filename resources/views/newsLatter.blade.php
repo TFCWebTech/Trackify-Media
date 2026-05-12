@@ -434,42 +434,57 @@ th {
                         }
                     @endphp
 
-                    {{-- QUICK LINKS --}}
-                    @if (!empty($get_client_details[0]['get_quick_links']))
-                        @foreach ($get_client_details[0]['get_quick_links'] as $detail)
-                            @php
-                                $pos = (int) $detail->quick_links_position;
-                                $count = 0;
-                                // Position-based count resolution
-                                if ($pos === 1) {
-                                    $count = $clientNewsCount;
-                                } else {
-                                    // After client (1), competitors come first, then industries
-                                    $competitorIndex = $pos - 2;
+                    {{-- QUICK LINKS (AUTO: Company/Competition/Industry counts) --}}
+                    @php
+                        $anyQuickLinkRow = false;
+                        $competitionCount = !empty($get_client_details[0]['compititors_data'])
+                            ? count($get_client_details[0]['compititors_data'])
+                            : 0;
+                    @endphp
 
-                                    if (isset($competitorNewsCounts[$competitorIndex])) {
-                                        $count = $competitorNewsCounts[$competitorIndex];
-                                    } else {
-                                        $industryIndex = $competitorIndex - count($competitorNewsCounts);
-                                        $count = $industryNewsCounts[$industryIndex] ?? 0;
-                                    }
-                                }
+                    @if ($clientNewsCount > 0)
+                        @php $anyQuickLinkRow = true; @endphp
+                        <tr style="background-color:#DCD5D5; color:#fff;" onclick="scrollByPosition(1)">
+                            <td>{{ $details['client_name'] }} ({{ $clientNewsCount }})</td>
+                            <td><a href="{{ rtrim(config('app.url'), '/') }}/admin-login">Login</a></td>
+                        </tr>
+                    @endif
+
+                    @if (!empty($get_client_details[0]['compititors_data']))
+                        @foreach ($get_client_details[0]['compititors_data'] as $index => $compititor)
+                            @php
+                                $count = $competitorNewsCounts[$index] ?? 0;
+                                $pos = $index + 2;
                             @endphp
-                            <tr style="background-color:#DCD5D5; color:#fff;"
-                                onclick="scrollByPosition({{ $pos }})">
-                                <td>
-                                    {{ $detail->quick_links_name }} ({{ $count }})
-                                </td>
-                                <td>
-                                    @if ($pos === 1)
-                                        <a href="{{ rtrim(config('app.url'), '/') }}/admin-login">Login</a>
-                                    @endif
-                                </td>
-                            </tr>
+                            @if ($count > 0)
+                                @php $anyQuickLinkRow = true; @endphp
+                                <tr style="background-color:#DCD5D5; color:#fff;" onclick="scrollByPosition({{ $pos }})">
+                                    <td>{{ $compititor['Competitor_name'] ?? 'Competitor' }} ({{ $count }})</td>
+                                    <td></td>
+                                </tr>
+                            @endif
                         @endforeach
-                    @else
+                    @endif
+
+                    @if (!empty($get_client_details[0]['industry_data']))
+                        @foreach ($get_client_details[0]['industry_data'] as $i => $industry)
+                            @php
+                                $count = $industryNewsCounts[$i] ?? 0;
+                                $pos = $competitionCount + $i + 2;
+                            @endphp
+                            @if ($count > 0)
+                                @php $anyQuickLinkRow = true; @endphp
+                                <tr style="background-color:#DCD5D5; color:#fff;" onclick="scrollByPosition({{ $pos }})">
+                                    <td>{{ $industry['Industry_name'] ?? 'Industry' }} ({{ $count }})</td>
+                                    <td></td>
+                                </tr>
+                            @endif
+                        @endforeach
+                    @endif
+
+                    @if (!$anyQuickLinkRow)
                         <tr>
-                            <td colspan="2">No Quick Links found.</td>
+                            <td colspan="2">No news found.</td>
                         </tr>
                     @endif
                     <tr style="background-color: #DCD5D5; color: #ffffff;">

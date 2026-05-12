@@ -74,6 +74,7 @@ margin-bottom: 5px !important;
                             <th>Sr. No</th>
                             <th>Journalist Name</th>
                             <th>Journalist Email</th>
+                            <th>Publication</th>
                             <th>Status</th>
                             <th>Created At</th>
                             <th>Action</th>
@@ -89,6 +90,7 @@ margin-bottom: 5px !important;
                             <td>{{$i}}</td>
                             <td>{{$journalist -> Journalist}}</td>
                             <td>{{$journalist -> JEmailId}}</td>
+                            <td>{{ $journalist->media_outlet_name ?? '-' }}</td>
                             <td>  @if($journalist ->Status == 0)
                                     Inactive
                                 @else
@@ -133,6 +135,15 @@ margin-bottom: 5px !important;
             <input type="email" class="form-control" placeholder="Enter Journalist email"  name="journalist_email" required>
             </div>
           <div class="form-group">
+            <label class="px-1 font-weight-bold" for="gigMediaOutlet">Publication</label>
+            <select class="form-control" name="gigMediaOutlet" id="gigMediaOutlet">
+              <option value="">Select Publication</option>
+              @foreach($publications as $pub)
+                <option value="{{ $pub->gidMediaOutlet }}">{{ $pub->MediaOutlet }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="form-group">
             <label class="px-1 font-weight-bold" for="update_status">Status</label>
             <select class="form-control" name="journalist_status" id="journalist_status" required>
               <option value="">Select Status</option>
@@ -157,6 +168,7 @@ margin-bottom: 5px !important;
     // Populate the form fields with the reporter data
     $('input[name="journalist_name"]').val(journalist.Journalist);
     $('input[name="journalist_email"]').val(journalist.JEmailId);
+    $('select[name="gigMediaOutlet"]').val(journalist.gigMediaOutlet);
     $('select[name="journalist_status"]').val(journalist.Status);
     
     // Show the modal

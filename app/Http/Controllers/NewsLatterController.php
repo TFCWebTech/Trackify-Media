@@ -19,12 +19,74 @@ use App\Mail\SendNewsMailsWithTemplate;
 
 class NewsLatterController extends Controller
 {
+    private function baseNewsQueryForClient(int $client_id)
+    {
+        return NewsUpload_Model::select([
+            'news_details.*',
+            'mediaoutlet.*',
+            'edition.gidEdition',
+            'edition.Edition',
+            'supplements.gidSupplement',
+            'supplements.Supplement',
+            'journalist.gidJournalist',
+            'journalist.Journalist',
+            'agency.Agency',
+            DB::raw('(SELECT na.page_no FROM news_artical as na WHERE na.news_details_id = news_details.news_details_id) as page_no'),
+            DB::raw('(SELECT COUNT(na.news_artical_id) FROM news_artical na WHERE na.news_details_id = news_details.news_details_id) as page_count'),
+        ])
+            ->distinct()
+            ->leftJoin('mediaoutlet', 'news_details.publication_id', '=', 'mediaoutlet.gidMediaOutlet')
+            ->leftJoin('edition', 'news_details.edition_id', '=', 'edition.gidEdition')
+            ->leftJoin('supplements', 'news_details.supplement_id', '=', 'supplements.gidSupplement')
+            ->leftJoin('journalist', 'news_details.journalist_id', '=', 'journalist.gidJournalist')
+            ->leftJoin('agency', 'news_details.journalist_id', '=', 'agency.gidAgency')
+            ->where('is_send', 0)
+            ->whereRaw('FIND_IN_SET(?, company)', [$client_id])
+            ->whereRaw(
+                'NOT EXISTS (SELECT 1 FROM delete_news dn WHERE dn.news_details_id = news_details.news_details_id AND dn.client_id = ?)',
+                [$client_id]
+            );
+    }
+
+    private function getNewsByAssignment(int $client_id, array $assignmentWhere): array
+    {
+        $query = $this->baseNewsQueryForClient($client_id)
+            ->join('client_competetor_industry as cci', 'cci.news_details_id', '=', 'news_details.news_details_id');
+
+        foreach ($assignmentWhere as $column => $value) {
+            $query->where("cci.$column", $value);
+        }
+
+        return $query->get()->toArray();
+    }
+
     public function CompanyNewsLetterList()
     {
         $Company = DB::table('client')
-        ->where('client_type', 'Company')
-        ->select('*')   
-        ->get();    
+            ->where('client_type', 'Company')
+            ->select('*')
+            ->get();
+
+        // Enrich with counts needed by `newsLatter_list` table.
+        $today = date('Y-m-d');
+        foreach ($Company as $company) {
+            $company->email_count = DB::table('users_mails')
+                ->where('client_id', $company->client_id)
+                ->count();
+
+            $company->today_pending_news = DB::table('news_details')
+                ->whereDate('create_at', $today)
+                ->where('is_send', 0)
+                ->whereRaw('FIND_IN_SET(?, company) > 0', [$company->client_id])
+                ->count();
+
+            $company->today_sent_news = DB::table('news_details')
+                ->whereDate('create_at', $today)
+                ->where('is_send', 1)
+                ->whereRaw('FIND_IN_SET(?, company) > 0', [$company->client_id])
+                ->count();
+        }
+
         return view('newsLatter_list', compact('Company'));
     }
 
@@ -383,7 +445,10 @@ return $newsDetails->toArray();
         $outArr = [];
         
         foreach ($competitors as $competitor) {
-            $competitor->news = $this->getCompNewsByKey($competitor->Keywords, $client_id);
+            $competitor->news = $this->getNewsByAssignment((int) $client_id, ['competitor_id' => (int) $competitor->competitor_id]);
+            if (empty($competitor->news)) {
+                $competitor->news = $this->getCompNewsByKey($competitor->Keywords, $client_id);
+            }
 			$competitor->news2 = $this->getNewsDetails2($client_id);
             $outArr[] = $competitor;
         }
@@ -396,7 +461,10 @@ return $newsDetails->toArray();
         $outArr = [];
         
         foreach ($clients as $client) {
-            $client->news = $this->getCompNewsByKey($client->client_keywords, $client_id);
+            $client->news = $this->getNewsByAssignment((int) $client_id, ['company_id' => (int) $client_id]);
+            if (empty($client->news)) {
+                $client->news = $this->getCompNewsByKey($client->client_keywords, $client_id);
+            }
 			//$client->news = $this->getClientNewsDetails($client->client_keywords, $client_id);
             $outArr[] = $client;
         }
@@ -410,7 +478,10 @@ return $newsDetails->toArray();
         $outArr = [];
         
         foreach ($industries as $industry) {
-            $industry->news = $this->getCompNewsByKey($industry->Keywords, $client_id);
+            $industry->news = $this->getNewsByAssignment((int) $client_id, ['Industry_id' => (int) $industry->Industry_id]);
+            if (empty($industry->news)) {
+                $industry->news = $this->getCompNewsByKey($industry->Keywords, $client_id);
+            }
 			$industry->industry_new2 = $this->getNewsDetails2($client_id);
             $outArr[] = $industry;
         }
@@ -479,7 +550,11 @@ return $newsDetails->toArray();
         }
     
         $get_news_details = $this->getClientData($client_id);
-        $news_ids = array_column($get_news_details, 'news_details_id'); // Extract news IDs
+        $news_ids = $this->collectNewsIds(
+            $get_news_details,
+            $this->getCompData($client_id),
+            $this->getIndustryData($client_id)
+        );
     
         $get_news_data = [
             'get_client_data' => $client->toArray(),
@@ -503,7 +578,8 @@ return $newsDetails->toArray();
                 ->whereIn('news_details_id', $news_ids)
                 ->update([
                     'is_send' => 1,
-                    'client_id' => $client_ids // Update the company column
+                    // Preserve legacy `client_id` usage (recipient ids), but also keep `company` intact.
+                    'client_id' => $client_ids,
                 ]);
     
             session()->flash('success', 'Emails sent successfully.');
@@ -543,7 +619,11 @@ return $newsDetails->toArray();
     $details = $client->toArray();
     $get_client_details = json_decode(json_encode($this->getClientTemplateDetails($client_id)), true); // Convert to array
     $get_news_details = $this->getClientData($client_id);
-    $news_ids = array_column($get_news_details, 'news_details_id'); // Extract news IDs
+    $news_ids = $this->collectNewsIds(
+        $get_news_details,
+        $this->getCompData($client_id),
+        $this->getIndustryData($client_id)
+    );
 
     foreach ($request->all() as $key => $value) {
         if (strpos($key, 'clientMails') === 0) {
@@ -562,7 +642,8 @@ return $newsDetails->toArray();
             ->whereIn('news_details_id', $news_ids)
             ->update([
                 'is_send' => 1,
-                'client_id' => $client_ids // Update the client ID
+                // Preserve legacy `client_id` usage (recipient ids), but also keep `company` intact.
+                'client_id' => $client_ids,
             ]);
 
         session()->flash('success', 'Emails sent successfully.');
@@ -581,4 +662,45 @@ return $newsDetails->toArray();
         return response()->json(['success' => false, 'message' => 'Error sending emails: ' . $e->getMessage()], 500);
     }
 }
+
+    private function collectNewsIds($clientData, $compData, $industryData): array
+    {
+        $ids = [];
+
+        foreach ((array) $clientData as $row) {
+            $newsList = is_array($row) ? ($row['news'] ?? []) : ($row->news ?? []);
+            if (is_array($newsList)) {
+                foreach ($newsList as $news) {
+                    if (!empty($news['news_details_id'])) {
+                        $ids[] = (int) $news['news_details_id'];
+                    }
+                }
+            }
+        }
+
+        foreach ((array) $compData as $row) {
+            $newsList = is_array($row) ? ($row['news'] ?? []) : ($row->news ?? []);
+            if (is_array($newsList)) {
+                foreach ($newsList as $news) {
+                    if (!empty($news['news_details_id'])) {
+                        $ids[] = (int) $news['news_details_id'];
+                    }
+                }
+            }
+        }
+
+        foreach ((array) $industryData as $row) {
+            $newsList = is_array($row) ? ($row['news'] ?? []) : ($row->news ?? []);
+            if (is_array($newsList)) {
+                foreach ($newsList as $news) {
+                    if (!empty($news['news_details_id'])) {
+                        $ids[] = (int) $news['news_details_id'];
+                    }
+                }
+            }
+        }
+
+        $ids = array_values(array_unique($ids));
+        return $ids;
+    }
 }
