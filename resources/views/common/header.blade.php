@@ -85,6 +85,9 @@
 }
 
     </style>
+    <script>
+        window.setDefaultDate = window.setDefaultDate || function() {};
+    </script>
 </head>
 
 <body id="page-top" onload="setDefaultDate()">

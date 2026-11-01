@@ -13,6 +13,7 @@ use App\Models\Industry_model;
 use App\Models\NewsUpload_Model;
 use App\Models\MailTemplate_Model;
 use App\Models\deleteNews;
+use App\Models\ClientSentNews;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SendNewsMails;
 use App\Mail\SendNewsMailsWithTemplate;
@@ -40,8 +41,11 @@ class NewsLatterController extends Controller
             ->leftJoin('supplements', 'news_details.supplement_id', '=', 'supplements.gidSupplement')
             ->leftJoin('journalist', 'news_details.journalist_id', '=', 'journalist.gidJournalist')
             ->leftJoin('agency', 'news_details.journalist_id', '=', 'agency.gidAgency')
-            ->where('is_send', 0)
             ->whereRaw('FIND_IN_SET(?, company)', [$client_id])
+            ->whereRaw(
+                'NOT EXISTS (SELECT 1 FROM client_sent_news csn WHERE csn.news_details_id = news_details.news_details_id AND csn.client_id = ?)',
+                [$client_id]
+            )
             ->whereRaw(
                 'NOT EXISTS (SELECT 1 FROM delete_news dn WHERE dn.news_details_id = news_details.news_details_id AND dn.client_id = ?)',
                 [$client_id]
@@ -70,20 +74,27 @@ class NewsLatterController extends Controller
         // Enrich with counts needed by `newsLatter_list` table.
         $today = date('Y-m-d');
         foreach ($Company as $company) {
-            $company->email_count = DB::table('users_mails')
+            $company->email_count = DB::table('mail_send_logs')
                 ->where('client_id', $company->client_id)
-                ->count();
+                ->whereDate('sent_date', $today)
+                ->sum('emails_sent_count');
 
             $company->today_pending_news = DB::table('news_details')
                 ->whereDate('create_at', $today)
-                ->where('is_send', 0)
                 ->whereRaw('FIND_IN_SET(?, company) > 0', [$company->client_id])
+                ->whereRaw(
+                    'NOT EXISTS (SELECT 1 FROM client_sent_news csn WHERE csn.news_details_id = news_details.news_details_id AND csn.client_id = ?)',
+                    [$company->client_id]
+                )
+                ->whereRaw(
+                    'NOT EXISTS (SELECT 1 FROM delete_news dn WHERE dn.news_details_id = news_details.news_details_id AND dn.client_id = ?)',
+                    [$company->client_id]
+                )
                 ->count();
 
-            $company->today_sent_news = DB::table('news_details')
-                ->whereDate('create_at', $today)
-                ->where('is_send', 1)
-                ->whereRaw('FIND_IN_SET(?, company) > 0', [$company->client_id])
+            $company->today_sent_news = DB::table('client_sent_news')
+                ->where('client_id', $company->client_id)
+                ->whereDate('sent_date', $today)
                 ->count();
         }
 
@@ -295,7 +306,10 @@ class NewsLatterController extends Controller
         ->leftJoin('journalist', 'news_details.journalist_id', '=', 'journalist.gidJournalist')
         ->leftJoin('agency', 'news_details.journalist_id', '=', 'agency.gidAgency')
         ->whereDate('news_details.create_at', $date)
-        ->where('is_send', 0)
+        ->whereRaw(
+            'NOT EXISTS (SELECT 1 FROM client_sent_news csn WHERE csn.news_details_id = news_details.news_details_id AND csn.client_id = ?)',
+            [$client_id]
+        )
         ->where(function($query) use ($client_id) {
             $query->where('news_details.company', 'LIKE', '%,' . $client_id . ',%')
                   ->orWhere('news_details.company', 'LIKE', $client_id . ',%')
@@ -337,7 +351,10 @@ class NewsLatterController extends Controller
         ->leftJoin('journalist', 'news_details.journalist_id', '=', 'journalist.gidJournalist')
         ->leftJoin('agency', 'news_details.journalist_id', '=', 'agency.gidAgency')
         ->whereDate('news_details.create_at', $date)
-        ->where('is_send', 0)
+        ->whereRaw(
+            'NOT EXISTS (SELECT 1 FROM client_sent_news csn WHERE csn.news_details_id = news_details.news_details_id AND csn.client_id = ?)',
+            [$client_id]
+        )
         ->where(function($query) use ($client_id) {
             $query->where('news_details.company', 'LIKE', '%,' . $client_id . ',%')
                   ->orWhere('news_details.company', 'LIKE', $client_id . ',%')
@@ -375,7 +392,10 @@ $newsDetails = NewsUpload_Model::select([
 ->leftJoin('agency', 'news_details.journalist_id', '=', 'agency.gidAgency')
 ->leftJoin('client', 'news_details.client_id', '=', 'client.client_id')
 ->whereDate('news_details.create_at', $date)
-->where('is_send', 0)
+->whereRaw(
+    'NOT EXISTS (SELECT 1 FROM client_sent_news csn WHERE csn.news_details_id = news_details.news_details_id AND csn.client_id = ?)',
+    [$client_id]
+)
 ->where(function($query) use ($client_id) {
     // Ensure we match client_id correctly in the comma-separated list
     $query->whereRaw('FIND_IN_SET(?, news_details.client_id)', [$client_id]);
@@ -427,7 +447,10 @@ return $newsDetails->toArray();
         ->leftJoin('journalist', 'news_details.journalist_id', '=', 'journalist.gidJournalist')
         ->leftJoin('agency', 'news_details.journalist_id', '=', 'agency.gidAgency')
         ->whereDate('news_details.create_at', $date)
-        ->where('is_send', 0)
+        ->whereRaw(
+            'NOT EXISTS (SELECT 1 FROM client_sent_news csn WHERE csn.news_details_id = news_details.news_details_id AND csn.client_id = ?)',
+            [$client_id]
+        )
         ->where(function($query) use ($client_id) {
             $query->where('news_details.company', 'LIKE', '%,' . $client_id . ',%')
                   ->orWhere('news_details.company', 'LIKE', $client_id . ',%')
@@ -447,7 +470,8 @@ return $newsDetails->toArray();
         foreach ($competitors as $competitor) {
             $competitor->news = $this->getNewsByAssignment((int) $client_id, ['competitor_id' => (int) $competitor->competitor_id]);
             if (empty($competitor->news)) {
-                $competitor->news = $this->getCompNewsByKey($competitor->Keywords, $client_id);
+                $combinedKeys = trim(($competitor->Competitor_name ?? '') . ',' . ($competitor->Keywords ?? ''), ',');
+                $competitor->news = $this->getCompNewsByKey($combinedKeys, $client_id);
             }
 			$competitor->news2 = $this->getNewsDetails2($client_id);
             $outArr[] = $competitor;
@@ -463,7 +487,8 @@ return $newsDetails->toArray();
         foreach ($clients as $client) {
             $client->news = $this->getNewsByAssignment((int) $client_id, ['company_id' => (int) $client_id]);
             if (empty($client->news)) {
-                $client->news = $this->getCompNewsByKey($client->client_keywords, $client_id);
+                $combinedKeys = trim(($client->client_name ?? '') . ',' . ($client->client_keywords ?? ''), ',');
+                $client->news = $this->getCompNewsByKey($combinedKeys, $client_id);
             }
 			//$client->news = $this->getClientNewsDetails($client->client_keywords, $client_id);
             $outArr[] = $client;
@@ -480,7 +505,8 @@ return $newsDetails->toArray();
         foreach ($industries as $industry) {
             $industry->news = $this->getNewsByAssignment((int) $client_id, ['Industry_id' => (int) $industry->Industry_id]);
             if (empty($industry->news)) {
-                $industry->news = $this->getCompNewsByKey($industry->Keywords, $client_id);
+                $combinedKeys = trim(($industry->Industry_name ?? '') . ',' . ($industry->Keywords ?? ''), ',');
+                $industry->news = $this->getCompNewsByKey($combinedKeys, $client_id);
             }
 			$industry->industry_new2 = $this->getNewsDetails2($client_id);
             $outArr[] = $industry;
@@ -491,8 +517,11 @@ return $newsDetails->toArray();
 
     public function getCompNewsByKey($keywords, $client_id)
     {
-        $date = date('Y-m-d');
-        $keywordsArray = explode(',', $keywords);
+        $keywordsArray = array_filter(array_map('trim', explode(',', (string)$keywords)));
+
+        if (empty($keywordsArray)) {
+            return [];
+        }
 
         $newsDetails = NewsUpload_Model::select([
             'news_details.*',
@@ -504,7 +533,7 @@ return $newsDetails->toArray();
             'journalist.gidJournalist',
             'journalist.Journalist',
             'agency.Agency',
-			DB::raw('(SELECT na.page_no FROM news_artical as na WHERE na.news_details_id = news_details.news_details_id) as page_no'),
+			DB::raw('(SELECT na.page_no FROM news_artical as na WHERE na.news_details_id = news_details.news_details_id LIMIT 1) as page_no'),
             DB::raw('(SELECT COUNT(na.news_artical_id) FROM news_artical na WHERE na.news_details_id = news_details.news_details_id) as page_count')
         ])
         ->distinct()
@@ -514,16 +543,20 @@ return $newsDetails->toArray();
         ->leftJoin('journalist', 'news_details.journalist_id', '=', 'journalist.gidJournalist')
         ->leftJoin('agency', 'news_details.journalist_id', '=', 'agency.gidAgency')
         // ->whereDate('news_details.create_at', $date)
-        ->where('is_send', 0)
         ->where(function($query) use ($client_id) {
             $query->whereRaw("FIND_IN_SET(?, company)", [$client_id]);
         })
         ->where(function($query) use ($keywordsArray) {
             foreach ($keywordsArray as $keyword) {
-                $keyword = trim($keyword);
-                $query->orWhereRaw("FIND_IN_SET(?, keywords) > 0", [$keyword]);
+                $query->orWhereRaw("FIND_IN_SET(?, keywords) > 0", [$keyword])
+                      ->orWhere('news_details.head_line', 'LIKE', '%' . $keyword . '%')
+                      ->orWhere('news_details.summary', 'LIKE', '%' . $keyword . '%');
             }
         })
+        ->whereRaw(
+            'NOT EXISTS (SELECT 1 FROM client_sent_news csn WHERE csn.news_details_id = news_details.news_details_id AND csn.client_id = ?)',
+            [$client_id]
+        )
         ->whereRaw('NOT EXISTS (SELECT 1 FROM delete_news dn WHERE dn.news_details_id = news_details.news_details_id AND dn.client_id = ?)', [$client_id])
         ->get();
 
@@ -574,13 +607,15 @@ return $newsDetails->toArray();
                 Mail::to($email)->send(new SendNewsMails($client_id, $client_ids_array, $get_news_data));
             }
     
-            \DB::table('news_details')
-                ->whereIn('news_details_id', $news_ids)
-                ->update([
-                    'is_send' => 1,
-                    // Preserve legacy `client_id` usage (recipient ids), but also keep `company` intact.
-                    'client_id' => $client_ids,
-                ]);
+            $this->recordSentNewsForClient((int) $client_id, (string) $client_ids, $news_ids);
+    
+            \DB::table('mail_send_logs')->insert([
+                'client_id' => $client_id,
+                'emails_sent_count' => count($emails),
+                'sent_date' => date('Y-m-d'),
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
     
             session()->flash('success', 'Emails sent successfully.');
             return response()->json(['success' => true]);
@@ -637,14 +672,16 @@ return $newsDetails->toArray();
             Mail::to($email)->send(new SendNewsMailsWithTemplate($client_id, $client_ids_array, $details, $get_client_details));
         }
 
-        // Update news details in the database
-        \DB::table('news_details')
-            ->whereIn('news_details_id', $news_ids)
-            ->update([
-                'is_send' => 1,
-                // Preserve legacy `client_id` usage (recipient ids), but also keep `company` intact.
-                'client_id' => $client_ids,
-            ]);
+        // Record sent status for this client and conditionally update news_details
+        $this->recordSentNewsForClient((int) $client_id, (string) $client_ids, $news_ids);
+
+        \DB::table('mail_send_logs')->insert([
+            'client_id' => $client_id,
+            'emails_sent_count' => count($emails),
+            'sent_date' => date('Y-m-d'),
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
 
         session()->flash('success', 'Emails sent successfully.');
         return response()->json([
@@ -702,5 +739,47 @@ return $newsDetails->toArray();
 
         $ids = array_values(array_unique($ids));
         return $ids;
+    }
+
+    private function recordSentNewsForClient(int $clientId, string $recipientClientIds, array $newsIds): void
+    {
+        $today = date('Y-m-d');
+        foreach ($newsIds as $newsId) {
+            DB::table('client_sent_news')->updateOrInsert(
+                [
+                    'news_details_id' => $newsId,
+                    'client_id' => $clientId,
+                ],
+                [
+                    'sent_date' => $today,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            );
+
+            $newsRow = DB::table('news_details')->where('news_details_id', $newsId)->first();
+            if ($newsRow) {
+                $existingRecipients = !empty($newsRow->client_id) ? explode(',', $newsRow->client_id) : [];
+                $newRecipients = array_filter(array_map('trim', explode(',', $recipientClientIds)));
+                $mergedRecipients = implode(',', array_unique(array_filter(array_merge($existingRecipients, $newRecipients))));
+
+                $updateData = ['client_id' => $mergedRecipients];
+
+                if (!empty($newsRow->company)) {
+                    $assignedClients = array_filter(array_map('trim', explode(',', $newsRow->company)));
+                    $sentCount = DB::table('client_sent_news')
+                        ->where('news_details_id', $newsId)
+                        ->whereIn('client_id', $assignedClients)
+                        ->count();
+                    if ($sentCount >= count($assignedClients)) {
+                        $updateData['is_send'] = 1;
+                    }
+                }
+
+                DB::table('news_details')
+                    ->where('news_details_id', $newsId)
+                    ->update($updateData);
+            }
+        }
     }
 }

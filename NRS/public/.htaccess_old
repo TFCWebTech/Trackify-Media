@@ -1,0 +1,54 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /NRS/
+
+    # ----------------------------------------------------------------------
+    # 1. Remove trailing slash from non-file/folder requests (optional but clean)
+    # ----------------------------------------------------------------------
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # ----------------------------------------------------------------------
+    # 2. If someone types /NRS/public/... → redirect to clean /NRS/...
+    # ----------------------------------------------------------------------
+    RewriteCond %{THE_REQUEST} /NRS/public [NC]
+    RewriteRule ^NRS/public/(.*)$ /NRS/$1 [L,R=301,NE]
+    
+
+    # ----------------------------------------------------------------------
+    # 3. Send ALL requests that are NOT real files or folders to public/index.php
+    #    This is the most important rule for Laravel in subfolder
+    # ----------------------------------------------------------------------
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+   # RewriteRule ^(.*)$ public/$1 [L] //hide by Rajendra
+    RewriteRule ^ index.php [L]
+
+    # ----------------------------------------------------------------------
+    # 4. Optional: Force HTTPS (uncomment if you want automatic redirect)
+    # ----------------------------------------------------------------------
+    # RewriteCond %{HTTPS} off
+    # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # ----------------------------------------------------------------------
+    # 5. Optional: Protect sensitive files (good security practice)
+    # ----------------------------------------------------------------------
+    <FilesMatch "(^\.env|\.env\.example|artisan|composer\.json|composer\.lock|package\.json|webpack\.mix\.js|yarn\.lock|phpunit\.xml)$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+
+</IfModule>
+
+# Prevent directory listing
+Options -Indexes
+
+# ----------------------------------------------------------------------
+# Common Laravel / PHP headers
+# ----------------------------------------------------------------------
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+</IfModule>

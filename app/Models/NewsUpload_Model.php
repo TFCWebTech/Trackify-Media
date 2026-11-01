@@ -19,6 +19,7 @@ class NewsUpload_Model extends Model
         'publication_id',
         'edition_id',
         'supplement_id',
+        'publication_date',
         'journalist_id',
         'author',
         'news_position',

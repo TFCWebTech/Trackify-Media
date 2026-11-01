@@ -14,53 +14,81 @@ class Client_Model extends Model
 
     public function getKeywords()
     {
-        // Retrieve all client_keywords from the table
+        // Retrieve all clients from the table
         $clients = $this->all();
         
         $all_keywords = [];
 
         foreach ($clients as $client) {
+            if (!empty($client->client_name)) {
+                $all_keywords[] = trim($client->client_name);
+            }
             // Check if client_keywords exists and is not null
             if (!empty($client->client_keywords)) {
                 // Split client_keywords by commas
                 $keywords = explode(',', $client->client_keywords);
-                
-                // Trim each keyword to remove leading/trailing whitespace
                 $keywords = array_map('trim', $keywords);
-                
-                // Merge the keywords into the all_keywords array
                 $all_keywords = array_merge($all_keywords, $keywords);
             }
         }
-         $competitors = DB::table('competitor')->get(); // You could optimize with pluck() or other methods for large sets
+
+        $competitors = DB::table('competitor')->get();
 
         foreach ($competitors as $competitor) {
-            // Check if competitor_keywords exists and is not null
+            if (!empty($competitor->Competitor_name)) {
+                $all_keywords[] = trim($competitor->Competitor_name);
+            }
+            // Check if competitor Keywords exists and is not null
             if (!empty($competitor->Keywords)) {
-                // Split competitor keywords by commas and trim each keyword
-                $keywords = explode(',', $competitor->Keywords); // Make sure it's the correct column name
+                $keywords = explode(',', $competitor->Keywords);
                 $keywords = array_map('trim', $keywords);
-                
-                // Merge the keywords into the all_keywords array
                 $all_keywords = array_merge($all_keywords, $keywords);
             }
         }
 
-        $industrys = DB::table('industry')->get(); // You could optimize with pluck() or other methods for large sets
+        $industrys = DB::table('industry')
+            ->where(function($q) {
+                $q->whereNull('is_active')->orWhere('is_active', 1);
+            })
+            ->get();
 
         foreach ($industrys as $industry) {
+            if (!empty($industry->Industry_name)) {
+                $all_keywords[] = trim($industry->Industry_name);
+                $nameWords = preg_split('/[\s,\-\/]+/', trim($industry->Industry_name));
+                if (count($nameWords) > 1) {
+                    foreach ($nameWords as $nw) {
+                        $nw = trim($nw);
+                        if (mb_strlen($nw) >= 3 && !in_array(strtolower($nw), ['industry', 'industries', 'test', 'demo'])) {
+                            $all_keywords[] = $nw;
+                        }
+                    }
+                }
+            }
             // Check if industry Keywords exists and is not null
             if (!empty($industry->Keywords)) {
-                // Split industry keywords by commas and trim each keyword
-                $keywords = explode(',', $industry->Keywords); // Make sure it's the correct column name
-                $keywords = array_map('trim', $keywords);
-                
-                // Merge the keywords into the all_keywords array
-                $all_keywords = array_merge($all_keywords, $keywords);
+                $keywords = explode(',', $industry->Keywords);
+                foreach ($keywords as $kw) {
+                    $kw = trim($kw);
+                    if (empty($kw)) continue;
+                    $all_keywords[] = $kw;
+                    $words = preg_split('/[\s\-\/]+/', $kw);
+                    if (count($words) > 1) {
+                        foreach ($words as $w) {
+                            $w = trim($w);
+                            if (mb_strlen($w) >= 3 && !in_array(strtolower($w), ['industry', 'industries', 'with', 'from', 'that', 'this', 'have', 'more', 'some', 'than', 'and', 'the', 'for'])) {
+                                $all_keywords[] = $w;
+                            }
+                        }
+                    }
+                }
             }
         }
-        // Remove duplicates from the combined keywords array
-        $all_keywords = array_unique($all_keywords);
+
+        // Remove duplicates and empty or 1-character entries (such as stray 'a') from the combined keywords array
+        $all_keywords = array_values(array_unique(array_filter($all_keywords, function($kw) {
+            return mb_strlen(trim($kw)) > 1;
+        })));
         
         // Return the combined and unique keywords array
         return $all_keywords;

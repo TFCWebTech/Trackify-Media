@@ -47,7 +47,6 @@
     display:none !important;
 }
 </style>
-<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
 <div class="container" >
 	@if($errors->any())
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -87,7 +86,11 @@
                     <div class="col-md-12 py-2 mt-3">
                         <div class="border-with-text" data-heading="Media Information">
                                     <div class="row">
-                                        <div class="col-md-3">
+                                        <div class="col-md-2">
+                                            <label class="px-1 font-weight-bold" for="publication_date">Publication Date</label>
+                                            <input type="date" class="form-control" name="publication_date" id="publication_date" required>
+                                        </div>
+                                        <div class="col-md-2">
                                             <label class="px-1 font-weight-bold" for="media_type">Media Type </label>
                                             <select class="form-control" name="media_type" id="media_type" onchange="checkSelection(this.value)" required>
                                             <option value="">Select</option>
@@ -108,17 +111,13 @@
                                             <option value="">Select</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-2">
                                             <label class="px-1 font-weight-bold" for="SupplementId">Supplement</label>
                                             <select  class="form-control" name="SupplementId" id="SupplementId" accesskey="s">
                                            
                                             <option value="">Select</option>
                                             </select>
-                                        </div>  
-                                        <!-- <div class="col-md-2">
-                                            <label class="px-1 font-weight-bold" for="publication_date">Publication Date</label>
-                                            <input type="date" class="form-control" name="publication_date" id="publication_date">
-                                        </div> -->
+                                        </div>
                         </div>
                     </div>
                     </div>
@@ -312,11 +311,14 @@ function changeEdition(edition)
         });
 </script>
 <script src="https://cdn.ckeditor.com/4.13.0/standard/ckeditor.js"></script>
-<!-- <script src="https://cdn.ckeditor.com/4.24.0/standard/ckeditor.js"></script> -->
- <script type="text/javascript">
-   CKEDITOR.replace( 'editor1' );
-</script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script type="text/javascript">
+    if (document.getElementById('editor1') || document.getElementsByName('editor1').length > 0) {
+        CKEDITOR.replace('editor1');
+    }
+</script>
 <script>
 $(document).ready(function() 
 {
@@ -419,7 +421,7 @@ $(document).ready(function()
 
                 $.ajax({
                     type: 'POST',
-                    url: 'https://vision.googleapis.com/v1/images:annotate?key=AIzaSyBgm78ZjMVozXgDvsDrmtKa3Xa-gshi6Lg',
+                    url: 'https://vision.googleapis.com/v1/images:annotate?key=AIzaSyCip4mwqA-4lTdSi0FDAxXgyGhx8K-CwOU',
                     contentType: 'application/json',
                     data: JSON.stringify({
                         "requests": [
@@ -482,13 +484,14 @@ $(document).ready(function()
                                     }
                                 });
 
-                                // Fetch keywords for the description
+                                // Fetch keywords for the description and headline/summary
                                 var getKeywords = Object.values(@json($getKeywords));
                                 console.log("getKeywords:", getKeywords); // Debugging log
+                                var fullContent = ($('textarea[name="headline"]').val() || '') + ' ' + ($('textarea[name="Summary"]').val() || '') + ' ' + description;
                                 $.ajax({
                                     type: 'POST',
                                     url: "{{ route('newsUpload.searchKeywords') }}",
-                                    data: { description: description },
+                                    data: { description: fullContent },
                                     success: function(response) {
                                         console.log("Response:", response);
                                         try {
@@ -507,10 +510,12 @@ $(document).ready(function()
                                                 let selectOptions = '';
                                                 
                                                 getKeywords.forEach(keyword => {
-                                                    if (f_keys.includes(keyword)) {
-                                                        selectOptions += `<option value="${keyword}" selected>${keyword}</option>`;
+                                                    let trimmedKeyword = (keyword || '').trim();
+                                                    let isSelected = f_keys.some(k => k.toLowerCase() === trimmedKeyword.toLowerCase());
+                                                    if (isSelected) {
+                                                        selectOptions += `<option value="${trimmedKeyword}" selected>${trimmedKeyword}</option>`;
                                                     } else {
-                                                        selectOptions += `<option value="${keyword}">${keyword}</option>`;
+                                                        selectOptions += `<option value="${trimmedKeyword}">${trimmedKeyword}</option>`;
                                                     }
                                                 });
 
@@ -597,13 +602,27 @@ function addMoreFields() {
     CKEDITOR.instances[textareaId].on('change', function() {
         getKeywords(textareaId);
     });
+    CKEDITOR.instances[textareaId].on('blur', function() {
+        getKeywords(textareaId);
+    });
+    CKEDITOR.instances[textareaId].on('key', function() {
+        setTimeout(function() { getKeywords(textareaId); }, 200);
+    });
+    CKEDITOR.instances[textareaId].on('instanceReady', function() {
+        let hVal = $('textarea[name="headline"]').val() || '';
+        let sVal = $('textarea[name="Summary"]').val() || '';
+        if (hVal.trim() !== '' || sVal.trim() !== '') {
+            getKeywords(textareaId);
+        }
+    });
 }
 }
 function getKeywords(textareaId) {
     console.log(textareaId);
     var editor = CKEDITOR.instances[textareaId]; // Get CKEditor instance
-    var description = editor.getData(); // Get content from CKEditor instance
+    var description = editor ? editor.getData() : ''; // Get content from CKEditor instance
     console.log("Description:", description);
+    var fullContent = ($('textarea[name="headline"]').val() || '') + ' ' + ($('textarea[name="Summary"]').val() || '') + ' ' + description;
 
     // Retrieve keywords from Blade template and ensure it's an array
     var getKeywords = Object.values(@json($getKeywords)); // Convert object to array
@@ -613,14 +632,13 @@ function getKeywords(textareaId) {
         type: 'POST',
         url: "{{ route('newsUpload.searchKeywords') }}",
         data: {
-            description: description,
+            description: fullContent,
             _token: "{{ csrf_token() }}" // Include CSRF token for security
         },
         success: function(response) {
             console.log("Response:", response); // Log the response object to the console
             try {
                 var keywords = response; // Assuming response is already an array
-                // console.log("Parsed Keywords:", keywords);
 
                 if (!Array.isArray(getKeywords)) {
                     console.error("getKeywords is not an array:", getKeywords);
@@ -628,15 +646,15 @@ function getKeywords(textareaId) {
                 }
 
                 if (keywords.length > 0) {
-                    var f_keys = keywords.map(keyword => keyword.trim());
-                    // console.log("Formatted Keywords:", f_keys);
+                    var f_keys = keywords.map(keyword => (keyword || '').trim());
 
                     let selectOptions = '';
 
                     // Iterate over the getKeywords array
                     getKeywords.forEach(keyword => {
-                        let trimmedKeyword = keyword.trim(); // Ensure there are no extra spaces
-                        if (f_keys.includes(trimmedKeyword)) {
+                        let trimmedKeyword = (keyword || '').trim();
+                        let isSelected = f_keys.some(k => k.toLowerCase() === trimmedKeyword.toLowerCase());
+                        if (isSelected) {
                             selectOptions += `<option value="${trimmedKeyword}" selected>${trimmedKeyword}</option>`;
                         } else {
                             selectOptions += `<option value="${trimmedKeyword}">${trimmedKeyword}</option>`;
@@ -654,14 +672,8 @@ function getKeywords(textareaId) {
                     keywordData += '</div>';
                     keywordData += '</div>';
 
-                    // Log HTML to check if it is correctly formed
-                    // console.log("Generated HTML:", keywordData);
-
                     // Append the keyword data to the placeholder container
                     $('#keyword_container_' + index).html(keywordData);
-
-                    // Verify if the container is correctly updated
-                    // console.log("Container HTML:", $('#keyword_container_' + index).html());
 
                     // Reinitialize Select2 on the newly added select element
                     $('#getKeys' + index).select2();
@@ -687,29 +699,31 @@ function getKeywords(textareaId) {
 
 
 function sendKeywordData(index, selectedKeywords) {
-    // console.log('Selected Keywords:', selectedKeywords);
+    if (!selectedKeywords) {
+        selectedKeywords = [];
+    }
 
     // Create a comma-separated string of selected keywords
-    var keywordData = selectedKeywords.join(',');
-    // console.log('Keyword Data:', keywordData);
+    var keywordData = Array.isArray(selectedKeywords) ? selectedKeywords.join(',') : selectedKeywords;
     
     // AJAX request to get matching records
     $.ajax({
         type: 'POST',
-        url: "{{ route('newsUpload.getMatchingRecordsFromKeywords') }}", // Use new route
+        url: "{{ route('newsUpload.getMatchingRecordsFromKeywords') }}",
         data: {
             keywordData: keywordData,
             _token: '{{ csrf_token() }}' // Include CSRF token for security
         },
         success: function(response) {
-            // console.log('Matching Records:', response);
-
             // Process Clients
             let clientSelectOptions = '';
             let clientIDs = [];
             if (response.clients && response.clients.length > 0) {
                 response.clients.forEach(client => {
-                    clientIDs.push(client.client_id);
+                    let cId = String(client.client_id);
+                    if (!clientIDs.includes(cId)) {
+                        clientIDs.push(cId);
+                    }
                     if (client.client_name !== null && client.client_name !== '') {
                         clientSelectOptions += `<option value="${client.client_id}" selected>${client.client_name}</option>`;
                     }
@@ -718,13 +732,15 @@ function sendKeywordData(index, selectedKeywords) {
 
             // Get all clients for comparison (to show non-matching ones as unselected)
             const clients = @json($get_clients);
-            clients.forEach(client => {
-                if (client.client_name !== null && client.client_name !== '') {
-                    if (!clientIDs.includes(client.client_id)) {
-                        clientSelectOptions += `<option value="${client.client_id}">${client.client_name}</option>`;
+            if (clients && clients.length > 0) {
+                clients.forEach(client => {
+                    if (client.client_name !== null && client.client_name !== '') {
+                        if (!clientIDs.includes(String(client.client_id))) {
+                            clientSelectOptions += `<option value="${client.client_id}">${client.client_name}</option>`;
+                        }
                     }
-                }
-            });
+                });
+            }
 
             // Construct the HTML for Clients select element
             let clientSelectHTML = '<div class="row">';
@@ -740,15 +756,14 @@ function sendKeywordData(index, selectedKeywords) {
             // Process Competitors - Create select dropdown
             let competitorSelectOptions = '';
             let competitorIds = [];
-            let competitorClientIds = [];
             if (response.competitors && response.competitors.length > 0) {
                 response.competitors.forEach(competitor => {
-                    competitorIds.push(competitor.competitor_id);
-                    if (competitor.client_id && !competitorClientIds.includes(competitor.client_id)) {
-                        competitorClientIds.push(competitor.client_id);
+                    let compId = String(competitor.competitor_id);
+                    if (!competitorIds.includes(compId)) {
+                        competitorIds.push(compId);
                     }
-                    // Create option with competitor name only
-                    let displayName = competitor.competitor_name || '';
+                    let clientSuffix = competitor.client_name ? ' (' + competitor.client_name + ')' : '';
+                    let displayName = (competitor.competitor_name || competitor.Competitor_name || '') + clientSuffix;
                     competitorSelectOptions += `<option value="${competitor.competitor_id}" selected>${displayName}</option>`;
                 });
             }
@@ -757,8 +772,10 @@ function sendKeywordData(index, selectedKeywords) {
             const competitors = @json($get_competitors);
             if (competitors && competitors.length > 0) {
                 competitors.forEach(competitor => {
-                    if (!competitorIds.includes(competitor.competitor_id)) {
-                        let displayName = competitor.Competitor_name || '';
+                    let compId = String(competitor.competitor_id);
+                    if (!competitorIds.includes(compId)) {
+                        let clientSuffix = competitor.client_name ? ' (' + competitor.client_name + ')' : '';
+                        let displayName = (competitor.Competitor_name || competitor.competitor_name || '') + clientSuffix;
                         competitorSelectOptions += `<option value="${competitor.competitor_id}">${displayName}</option>`;
                     }
                 });
@@ -778,23 +795,15 @@ function sendKeywordData(index, selectedKeywords) {
             // Process Industries - Create select dropdown
             let industrySelectOptions = '';
             let industryIds = [];
-            let industryClientIds = [];
             if (response.industries && response.industries.length > 0) {
                 response.industries.forEach(industry => {
-                    industryIds.push(industry.industry_id);
-                    // Handle comma-separated client_ids from industry
-                    if (industry.client_id) {
-                        let clientIdArray = industry.client_id.split(',');
-                        clientIdArray.forEach(function(cid) {
-                            cid = cid.trim();
-                            if (cid && !industryClientIds.includes(cid)) {
-                                industryClientIds.push(cid);
-                            }
-                        });
+                    let indId = String(industry.industry_id || industry.Industry_id);
+                    if (!industryIds.includes(indId)) {
+                        industryIds.push(indId);
                     }
-                    // Create option with industry name only
-                    let displayName = industry.industry_name || '';
-                    industrySelectOptions += `<option value="${industry.industry_id}" selected>${displayName}</option>`;
+                    let clientSuffix = industry.client_names ? ' (' + industry.client_names + ')' : (industry.client_name ? ' (' + industry.client_name + ')' : '');
+                    let displayName = (industry.industry_name || industry.Industry_name || '') + clientSuffix;
+                    industrySelectOptions += `<option value="${indId}" selected>${displayName}</option>`;
                 });
             }
 
@@ -802,9 +811,11 @@ function sendKeywordData(index, selectedKeywords) {
             const industries = @json($get_industries);
             if (industries && industries.length > 0) {
                 industries.forEach(industry => {
-                    if (!industryIds.includes(industry.Industry_id)) {
-                        let displayName = industry.Industry_name || '';
-                        industrySelectOptions += `<option value="${industry.Industry_id}">${displayName}</option>`;
+                    let indId = String(industry.Industry_id || industry.industry_id);
+                    if (!industryIds.includes(indId)) {
+                        let clientSuffix = industry.client_names ? ' (' + industry.client_names + ')' : '';
+                        let displayName = (industry.Industry_name || industry.industry_name || '') + clientSuffix;
+                        industrySelectOptions += `<option value="${indId}">${displayName}</option>`;
                     }
                 });
             }
@@ -820,101 +831,67 @@ function sendKeywordData(index, selectedKeywords) {
             industrySelectHTML += '</div>';
             industrySelectHTML += '</div>';
 
-            // Update the existing hidden fields with matching record IDs
-            // The backend expects: company{index}, competitor{index}, industry{index}
-            
-            // Update company field with client IDs (only from matching clients, not from competitors/industries)
-            let companyField = $('#company' + index);
-            if (companyField.length > 0) {
-                companyField.val(clientIDs.join(','));
-            } else {
-                $('#news_arr').append('<input type="hidden" id="company' + index + '" name="company' + index + '" value="' + clientIDs.join(',') + '">');
-            }
-            
-            // Update competitor field with matching competitor IDs
-            let competitorField = $('#competitor' + index);
-            if (competitorField.length > 0) {
-                competitorField.val(competitorIds.join(','));
-            } else if (competitorIds.length > 0) {
-                $('#news_arr').append('<input type="hidden" id="competitor' + index + '" name="competitor' + index + '" value="' + competitorIds.join(',') + '">');
-            }
-            
-            // Update industry field with matching industry IDs
-            let industryField = $('#industry' + index);
-            if (industryField.length > 0) {
-                industryField.val(industryIds.join(','));
-            } else if (industryIds.length > 0) {
-                $('#news_arr').append('<input type="hidden" id="industry' + index + '" name="industry' + index + '" value="' + industryIds.join(',') + '">');
-            }
-
             // Append all elements to the containers
             $('#client_container_' + index).html(clientSelectHTML);
             $('#getCompData' + index).html(competitorSelectHTML + industrySelectHTML);
 
             // Initialize Select2 on all newly added select elements
-            // Select2 will automatically pick up options with 'selected' attribute
             $('#getclient' + index).select2();
             $('#getcompetitor' + index).select2();
             $('#getindustry' + index).select2();
-            
-            // Set values programmatically to ensure they're selected (for Select2)
-            if (clientIDs.length > 0) {
-                $('#getclient' + index).val(clientIDs).trigger('change');
-            }
-            if (competitorIds.length > 0) {
-                $('#getcompetitor' + index).val(competitorIds).trigger('change');
-            }
-            if (industryIds.length > 0) {
-                $('#getindustry' + index).val(industryIds).trigger('change');
-            }
-            
-            // Update hidden fields when client selection changes
+
+            // Set up change handlers BEFORE triggering changes so initial trigger syncs hidden inputs
             $('#getclient' + index).on('change', function() {
                 let selectedClients = $(this).val() || [];
                 let companyField = $('#company' + index);
                 if (companyField.length > 0) {
                     companyField.val(selectedClients.join(','));
-                } else if (selectedClients.length > 0) {
-                    $('#news_arr').append('<input type="hidden" id="company' + index + '" name="company' + index + '" value="' + selectedClients.join(',') + '">');
                 } else {
-                    // Create empty hidden field if no selection
-                    if (companyField.length === 0) {
-                        $('#news_arr').append('<input type="hidden" id="company' + index + '" name="company' + index + '" value="">');
-                    }
+                    $('#news_arr').append('<input type="hidden" id="company' + index + '" name="company' + index + '" value="' + selectedClients.join(',') + '">');
                 }
             });
-            
-            // Update hidden fields when competitor selection changes
+
             $('#getcompetitor' + index).on('change', function() {
                 let selectedCompetitors = $(this).val() || [];
                 let competitorField = $('#competitor' + index);
                 if (competitorField.length > 0) {
                     competitorField.val(selectedCompetitors.join(','));
-                } else if (selectedCompetitors.length > 0) {
-                    $('#news_arr').append('<input type="hidden" id="competitor' + index + '" name="competitor' + index + '" value="' + selectedCompetitors.join(',') + '">');
                 } else {
-                    // Create empty hidden field if no selection
-                    if (competitorField.length === 0) {
-                        $('#news_arr').append('<input type="hidden" id="competitor' + index + '" name="competitor' + index + '" value="">');
-                    }
+                    $('#news_arr').append('<input type="hidden" id="competitor' + index + '" name="competitor' + index + '" value="' + selectedCompetitors.join(',') + '">');
                 }
             });
-            
-            // Update hidden fields when industry selection changes
+
             $('#getindustry' + index).on('change', function() {
                 let selectedIndustries = $(this).val() || [];
                 let industryField = $('#industry' + index);
                 if (industryField.length > 0) {
                     industryField.val(selectedIndustries.join(','));
-                } else if (selectedIndustries.length > 0) {
-                    $('#news_arr').append('<input type="hidden" id="industry' + index + '" name="industry' + index + '" value="' + selectedIndustries.join(',') + '">');
                 } else {
-                    // Create empty hidden field if no selection
-                    if (industryField.length === 0) {
-                        $('#news_arr').append('<input type="hidden" id="industry' + index + '" name="industry' + index + '" value="">');
-                    }
+                    $('#news_arr').append('<input type="hidden" id="industry' + index + '" name="industry' + index + '" value="' + selectedIndustries.join(',') + '">');
                 }
             });
+
+            // Set values programmatically and trigger change to sync hidden fields
+            if (clientIDs.length > 0) {
+                $('#getclient' + index).val(clientIDs).trigger('change');
+            } else {
+                let companyField = $('#company' + index);
+                if (companyField.length > 0) companyField.val('');
+            }
+
+            if (competitorIds.length > 0) {
+                $('#getcompetitor' + index).val(competitorIds).trigger('change');
+            } else {
+                let competitorField = $('#competitor' + index);
+                if (competitorField.length > 0) competitorField.val('');
+            }
+
+            if (industryIds.length > 0) {
+                $('#getindustry' + index).val(industryIds).trigger('change');
+            } else {
+                let industryField = $('#industry' + index);
+                if (industryField.length > 0) industryField.val('');
+            }
         },
         error: function(xhr, status, error) {
             console.error('Error sending data:', status, error);
@@ -922,6 +899,39 @@ function sendKeywordData(index, selectedKeywords) {
         }
     });
 }
+
+// Re-evaluate keywords if headline or summary changes
+$(document).on('blur change', 'textarea[name="headline"], textarea[name="Summary"]', function() {
+    let activeIndex = typeof index !== 'undefined' && index > 0 ? index : (typeof counter !== 'undefined' && counter > 0 ? counter : 0);
+    if (activeIndex > 0) {
+        let textareaId = 'editor_' + activeIndex;
+        if (typeof CKEDITOR !== 'undefined' && CKEDITOR.instances[textareaId]) {
+            getKeywords(textareaId);
+        } else if (typeof CKEDITOR !== 'undefined' && CKEDITOR.instances['editor' + activeIndex]) {
+            var editor = CKEDITOR.instances['editor' + activeIndex];
+            var description = editor ? editor.getData() : '';
+            var fullContent = ($('textarea[name="headline"]').val() || '') + ' ' + ($('textarea[name="Summary"]').val() || '') + ' ' + description;
+            $.ajax({
+                type: 'POST',
+                url: "{{ route('newsUpload.searchKeywords') }}",
+                data: { description: fullContent, _token: "{{ csrf_token() }}" },
+                success: function(response) {
+                    if (response && response.length > 0) {
+                        let getKeywords = Object.values(@json($getKeywords));
+                        let f_keys = response.map(k => (k || '').trim());
+                        let selectOptions = '';
+                        getKeywords.forEach(k => {
+                            let tk = (k || '').trim();
+                            let isSelected = f_keys.some(fk => fk.toLowerCase() === tk.toLowerCase());
+                            selectOptions += `<option value="${tk}" ${isSelected ? 'selected' : ''}>${tk}</option>`;
+                        });
+                        $('#getKeys' + activeIndex).html(selectOptions).trigger('change');
+                    }
+                }
+            });
+        }
+    }
+});
 
 </script>
 @include('common/footer')   
